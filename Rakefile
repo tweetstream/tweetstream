@@ -10,6 +10,7 @@ begin
     gem.email = "michael@intridea.com"
     gem.homepage = "http://github.com/intridea/tweetstream"
     gem.authors = ["Michael Bleigh"]
+    gem.files = FileList["[A-Z]*", "{lib,spec}/**/*"] - FileList["**/*.log"]
     gem.add_development_dependency "rspec"
     gem.add_dependency 'yajl-ruby', '>= 0.6.3'
     gem.add_dependency 'daemons'
