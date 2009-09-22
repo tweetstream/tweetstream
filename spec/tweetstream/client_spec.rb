@@ -81,6 +81,13 @@ describe TweetStream::Client do
       @client = TweetStream::Client.new('abc','def')
     end
     
+    %w(firehose retweet sample).each do |method|
+      it "##{method} should make a call to start with \"statuses/#{method}\"" do
+        @client.should_receive(:start).once.with('statuses/' + method, {})
+        @client.send(method)
+      end
+    end
+    
     it '#track should make a call to start with "statuses/filter" and a track query parameter' do
       @client.should_receive(:start).once.with('statuses/filter', :track => 'test')
       @client.track('test')
