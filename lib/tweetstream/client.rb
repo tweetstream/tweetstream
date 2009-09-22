@@ -78,8 +78,7 @@ module TweetStream
       start('statuses/filter', query_params.merge(:follow => user_ids.join(',')), &block)
     end
 
-    #:nodoc:
-    def start(path, query_parameters = {}, &block)
+    def start(path, query_parameters = {}, &block) #:nodoc:
       uri = build_uri(path, query_parameters)
       
       Yajl::HttpStream.get(uri, :symbolize_keys => true) do |hash|
@@ -89,13 +88,11 @@ module TweetStream
  
     protected
 
-    #:nodoc:
-    def build_uri(path, query_parameters = {})
+    def build_uri(path, query_parameters = {}) #:nodoc:
       URI.parse("http://#{self.username}:#{self.password}@stream.twitter.com/1/#{path}.json#{build_query_parameters(query_parameters)}")
     end
 
-    #:nodoc:
-    def build_query_parameters(query)
+    def build_query_parameters(query) #:nodoc:
       return '' unless query && query.is_a?(::Hash) && query.size > 0
       pairs = []
       

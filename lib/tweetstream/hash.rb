@@ -1,6 +1,5 @@
-#:nodoc:
-class TweetStream::Hash < ::Hash
-  def initialize(other_hash)
+class TweetStream::Hash < ::Hash #:nodoc: all
+  def initialize(other_hash = {})
     other_hash.keys.each do |key|
       self[key.to_sym] = other_hash[key]
     end
