@@ -1,6 +1,45 @@
-= tweetstream
+= TweetStream
 
-Description goes here.
+TweetStream provides simple Ruby access to Twitter's Streaming API
+(http://apiwiki.twitter.com/Streaming-API-Documentation). Using it
+is quite simple:
+
+    # This will pull a sample of all tweets based on
+    # your Twitter account's Streaming API role.
+    TweetStream::Client.new('username','password').sample do |status|
+      # The status object is a special Hash with 
+      # method access to its keys.
+      puts "#{status.text}"
+    end
+    
+You can also use it to track keywords or follow a given set of
+user ids:
+
+  # Use 'track' to track a list of single-word keywords
+  TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
+    puts "#{status.text}"
+  end
+  
+  # Use 'follow' to follow a group of user ids (integers, not screen names)
+  TweetStream::Client.new('username','password').follow(14252, 53235) do |status|
+    puts "#{status.text}"
+  end
+  
+The methods available to TweetStream::Client will be kept in parity
+with the methods available on the Streaming API wiki page.
+
+== Daemonizing
+
+It is also possible to create a daemonized script quite easily
+using the TweetStream library:
+
+  # The third argument is an optional process name
+  TweetStream::Client.new('username','password', 'tracker').track('term1', 'term2') do |status|
+    # do something in the background
+  end
+  
+If you put the above into a script and run the script with <tt>ruby scriptname.rb</tt>, you will see a list of daemonization commands such
+as start, stop, and run.
 
 == Note on Patches/Pull Requests
  
@@ -13,6 +52,10 @@ Description goes here.
    bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
+== Contributors
+
+* Michael Bleigh (initial gem)
+
 == Copyright
 
-Copyright (c) 2009 Michael Bleigh. See LICENSE for details.
+Copyright (c) 2009 Intridea, Inc. See LICENSE for details.
