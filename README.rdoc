@@ -1,9 +1,28 @@
 = TweetStream
 
 TweetStream provides simple Ruby access to Twitter's Streaming API
-(http://apiwiki.twitter.com/Streaming-API-Documentation). Using it
-is quite simple:
+(http://apiwiki.twitter.com/Streaming-API-Documentation).
 
+== Installation
+
+The TweetStream gem is available on GitHub and Gemcutter. To get the
+latest gem from GitHub:
+
+    gem sources -a http://gems.github.com/
+    gem install intridea-tweetstream
+    
+To install from Gemcutter:
+
+    gem sources -a http://gemcutter.org/
+    gem install tweetstream
+
+== Usage
+
+Using TweetStream is quite simple:
+
+    require 'rubygems'
+    require 'tweetstream'
+    
     # This will pull a sample of all tweets based on
     # your Twitter account's Streaming API role.
     TweetStream::Client.new('username','password').sample do |status|
