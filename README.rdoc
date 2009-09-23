@@ -47,6 +47,49 @@ user ids:
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
 
+== Handling Deletes and Rate Limitations
+
+Sometimes the Streaming API will send messages other than statuses.
+Specifically, it does so when a status is deleted or rate limitations
+have caused some tweets not to appear in the stream. To handle these,
+you can use the on_delete and on_limit methods. Example:
+
+    @client = TweetStream::Client.new('user','pass')
+    
+    @client.on_delete do |status_id, user_id|
+      Tweet.delete(status_id)
+    end
+    
+    @client.on_limit do |skip_count|
+      # do something
+    end  
+    
+    @client.track('intridea')
+    
+The on_delete and on_limit methods can also be chained, like so:
+
+    TweetStream::Client.new('user','pass').on_delete{ |status_id, user_id|
+      Tweet.delete(status_id)
+    }.on_limit { |skip_count|
+      # do something
+    }.track('intridea') do |status|
+      # do something with the status like normal
+    end
+    
+You can also provide <tt>:delete</tt> and/or <tt>:limit</tt> 
+options when you make your method call:
+
+    TweetStream::Client.new('user','pass').track('intridea',
+      :delete => Proc.new{ |status_id, user_id| # do something },
+      :limit => Proc.new{ |skip_count| # do something }
+    ) do |status
+      # do something with the status like normal
+    end
+    
+Twitter recommends honoring deletions as quickly as possible, and
+you would likely be wise to integrate this functionality into your
+application.
+
 == Daemonizing
 
 It is also possible to create a daemonized script quite easily

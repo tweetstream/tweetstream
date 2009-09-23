@@ -12,7 +12,7 @@ def sample_tweets
     @tweets
   else
     @tweets = []
-    Yajl::Parser.parse(File.open(File.dirname(__FILE__) + '/data/statuses.json', 'r')) do |hash|
+    Yajl::Parser.parse(File.open(File.dirname(__FILE__) + '/data/statuses.json', 'r'), :symbolize_keys => true) do |hash|
       @tweets << hash
     end
     @tweets

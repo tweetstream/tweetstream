@@ -94,11 +94,62 @@ module TweetStream
       start('statuses/filter', query_params, &block)
     end
 
+    # Set a Proc to be run when a deletion notice is received
+    # from the Twitter stream. For example:
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_delete do |status_id, user_id|
+    #       Tweet.delete(status_id)
+    #     end
+    #
+    # Block must take two arguments: the status id and the user id.
+    # If no block is given, it will return the currently set 
+    # deletion proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_delete(&block)
+      if block_given?
+        @on_delete = block
+        self
+      else
+        @on_delete
+      end
+    end
+    
+    # Set a Proc to be run when a rate limit notice is received
+    # from the Twitter stream. For example:
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_limit do |discarded_count|
+    #       # Make note of discarded count
+    #     end
+    #
+    # Block must take one argument: the number of discarded tweets.
+    # If no block is given, it will return the currently set 
+    # limit proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_limit(&block)
+      if block_given?
+        @on_limit = block
+        self
+      else
+        @on_limit
+      end
+    end
+    
     def start(path, query_parameters = {}, &block) #:nodoc:
-      uri = build_uri(path, query_parameters)
+      delete_proc = query_parameters.delete(:delete) || self.on_delete
+      limit_proc = query_parameters.delete(:limit) || self.on_limit
       
+      uri = build_uri(path, query_parameters)
+            
       Yajl::HttpStream.get(uri, :symbolize_keys => true) do |hash|
-        yield TweetStream::Status.new(hash)
+        if hash[:delete] && hash[:delete][:status]
+          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+        elsif hash[:limit] && hash[:limit][:track]
+          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+        elsif hash[:text] && hash[:user]
+          yield TweetStream::Status.new(hash)
+        end
       end
     end
  

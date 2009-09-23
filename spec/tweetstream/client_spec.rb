@@ -74,6 +74,28 @@ describe TweetStream::Client do
       end
       @yielded.should be_true
     end
+    
+    {
+      :delete => {:delete => {:status => {:id => 1234, :user_id => 3}}},
+      :limit => {:limit => {:track => 1234}}
+    }.each_pair do |special_method, special_object|
+      it "should make a call to the #{special_method} proc if a #{special_method} object is given" do
+        @called = false
+        @proc = Proc.new{|*args| @called = true }
+        @client.send("on_#{special_method}", &@proc)
+        Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(special_object)
+        @client.track('musicmonday')
+        @called.should == true
+      end
+      
+      it "should accept a proc on a :#{special_method} option if a #{special_method} object is given" do
+        @called = false
+        @proc = Proc.new{|*args| @called = true }
+        Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(special_object)
+        @client.track('musicmonday', special_method => @proc)
+        @called.should == true
+      end
+    end
   end
   
   describe ' API methods' do
@@ -111,6 +133,20 @@ describe TweetStream::Client do
     it '#filter should make a call to "statuses/filter" with the query params provided' do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123')
       @client.filter(:follow => 123)
+    end
+  end
+  
+  %w(on_delete on_limit).each do |proc_setter|
+    describe "##{proc_setter}" do
+      before do
+        @client = TweetStream::Client.new('abc','def')
+      end
+      
+      it 'should set when a block is given' do
+        proc = Proc.new{|a,b| puts a }
+        @client.send(proc_setter, &proc)
+        @client.send(proc_setter).should == proc
+      end
     end
   end
 
