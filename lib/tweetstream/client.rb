@@ -65,9 +65,9 @@ module TweetStream
     def track(*keywords, &block)
       query_params = keywords.pop if keywords.last.is_a?(::Hash)
       query_params ||= {}
-      start('statuses/filter', query_params.merge(:track => keywords.join(',')), &block)
+      filter(query_params.merge(:track => keywords), &block)
     end
-    
+
     # Returns public statuses from or in reply to a set of users. Mentions 
     # ("Hello @user!") and implicit replies ("@user Hello!" created without 
     # pressing the reply "swoosh") are not matched. Requires integer user
@@ -75,7 +75,23 @@ module TweetStream
     def follow(*user_ids, &block)
       query_params = user_ids.pop if user_ids.last.is_a?(::Hash)
       query_params ||= {}
-      start('statuses/filter', query_params.merge(:follow => user_ids.join(',')), &block)
+      filter(query_params.merge(:follow => user_ids), &block)
+    end
+    
+    # Make a call to the statuses/filter method of the Streaming API,
+    # you may provide <tt>:follow</tt>, <tt>:track</tt> or both as options
+    # to follow the tweets of specified users or track keywords. This
+    # method is provided separately for cases when it would conserve the
+    # number of HTTP connections to combine track and follow.
+    def filter(query_params = {}, &block)
+      [:follow, :track].each do |param|
+        if query_params[param].is_a?(Array)
+          query_params[param] = query_params[param].collect{|q| q.to_s}.join(',')
+        elsif query_params[param]
+          query_params[param] = query_params[param].to_s
+        end
+      end
+      start('statuses/filter', query_params, &block)
     end
 
     def start(path, query_parameters = {}, &block) #:nodoc:

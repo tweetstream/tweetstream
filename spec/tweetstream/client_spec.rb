@@ -107,6 +107,11 @@ describe TweetStream::Client do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123,456')
       @client.follow(123, 456)
     end
+    
+    it '#filter should make a call to "statuses/filter" with the query params provided' do
+      @client.should_receive(:start).once.with('statuses/filter', :follow => '123')
+      @client.filter(:follow => 123)
+    end
   end
 
   describe '#track' do
