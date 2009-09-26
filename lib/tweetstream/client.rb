@@ -156,7 +156,7 @@ module TweetStream
     protected
 
     def build_uri(path, query_parameters = {}) #:nodoc:
-      URI.parse("http://#{self.username}:#{self.password}@stream.twitter.com/1/#{path}.json#{build_query_parameters(query_parameters)}")
+      URI.parse("http://#{URI.encode self.username}:#{URI.encode self.password}@stream.twitter.com/1/#{path}.json#{build_query_parameters(query_parameters)}")
     end
 
     def build_query_parameters(query) #:nodoc:
