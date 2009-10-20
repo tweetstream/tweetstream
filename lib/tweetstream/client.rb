@@ -91,7 +91,7 @@ module TweetStream
           query_params[param] = query_params[param].to_s
         end
       end
-      start('statuses/filter', query_params, &block)
+      start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -137,12 +137,17 @@ module TweetStream
     end
     
     def start(path, query_parameters = {}, &block) #:nodoc:
+      method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       
-      uri = build_uri(path, query_parameters)
-            
-      Yajl::HttpStream.get(uri, :symbolize_keys => true) do |hash|
+      uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
+      
+      args = [uri]
+      args << build_post_body(query_parameters) if method == :post
+      args << {:symbolize_keys => true}
+      
+      Yajl::HttpStream.send(method, *args) do |hash|
         if hash[:delete] && hash[:delete][:status]
           delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
         elsif hash[:limit] && hash[:limit][:track]
@@ -169,7 +174,11 @@ module TweetStream
       URI.parse("http://#{URI.encode self.username}:#{URI.encode self.password}@stream.twitter.com/1/#{path}.json#{build_query_parameters(query_parameters)}")
     end
 
-    def build_query_parameters(query) #:nodoc:
+    def build_query_parameters(query)
+      query.size > 0 ? "?#{build_post_body(query)}" : ''
+    end
+    
+    def build_post_body(query) #:nodoc:
       return '' unless query && query.is_a?(::Hash) && query.size > 0
       pairs = []
       
@@ -177,7 +186,7 @@ module TweetStream
         pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
       end
 
-      "?#{pairs.join('&')}"
+      pairs.join('&')
     end
   end
 end
