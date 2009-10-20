@@ -24,7 +24,7 @@ end
 namespace :release do
   %w(patch minor major).each do |level|
     desc "Tag a #{level} version and push it to Gemcutter."
-    multitask level.to_sym => %w(version:bump:patch release gemcutter:release)
+    task level.to_sym => %w(version:bump:patch release gemcutter:release)
   end
 end
 
