@@ -94,7 +94,7 @@ application.
 
 It is often the case that you will need to change the parameters of your
 track or follow tweet streams. In the case that you need to terminate
-a stream, simply call <tt>TweetStream::Client.stop from within your
+a stream, simply call <tt>TweetStream::Client.stop</tt> from within your
 loop:
 
     # Stop after collecting 10 statuses
