@@ -30,29 +30,29 @@ describe TweetStream::Client do
     end
   end
 
-  describe '#build_query_parameters' do
+  describe '#build_post_body' do
     before do
       @client = TweetStream::Client.new('abc','def')
     end
   
     it 'should return a blank string if passed a nil value' do
-      @client.send(:build_query_parameters, nil).should == ''
+      @client.send(:build_post_body, nil).should == ''
     end
 
     it 'should return a blank string if passed an empty hash' do
-      @client.send(:build_query_parameters, {}).should == ''
+      @client.send(:build_post_body, {}).should == ''
     end
 
     it 'should add a query parameter for a key' do
-      @client.send(:build_query_parameters, {:query => 'abc'}).should == '?query=abc'
+      @client.send(:build_post_body, {:query => 'abc'}).should == 'query=abc'
     end
 
     it 'should escape characters in the value' do
-      @client.send(:build_query_parameters, {:query => 'awesome guy'}).should == '?query=awesome+guy'
+      @client.send(:build_post_body, {:query => 'awesome guy'}).should == 'query=awesome+guy'
     end
 
     it 'should join multiple pairs together' do
-      ['?a=b&c=d','?c=d&a=b'].include?(@client.send(:build_query_parameters, {:a => 'b', :c => 'd'})).should be_true
+      ['a=b&c=d','c=d&a=b'].include?(@client.send(:build_post_body, {:a => 'b', :c => 'd'})).should be_true
     end
   end
 
@@ -67,7 +67,7 @@ describe TweetStream::Client do
     end
 
     it 'should yield a TwitterStream::Status for each update' do
-      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(sample_tweets[0])
+      Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
       @client.track('musicmonday') do |status|
         status.is_a?(TweetStream::Status).should be_true
         @yielded = true
@@ -88,7 +88,7 @@ describe TweetStream::Client do
         @called = false
         @proc = Proc.new{|*args| @called = true }
         @client.send("on_#{special_method}", &@proc)
-        Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(special_object)
+        Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
         @client.track('musicmonday')
         @called.should == true
       end
@@ -96,7 +96,7 @@ describe TweetStream::Client do
       it "should accept a proc on a :#{special_method} option if a #{special_method} object is given" do
         @called = false
         @proc = Proc.new{|*args| @called = true }
-        Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(special_object)
+        Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
         @client.track('musicmonday', special_method => @proc)
         @called.should == true
       end
@@ -116,27 +116,27 @@ describe TweetStream::Client do
     end
     
     it '#track should make a call to start with "statuses/filter" and a track query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'test')
+      @client.should_receive(:start).once.with('statuses/filter', :track => 'test', :method => :post)
       @client.track('test')
     end
     
     it '#track should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz')
+      @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz', :method => :post)
       @client.track('foo', 'bar', 'baz')
     end
     
     it '#follow should make a call to start with "statuses/filter" and a follow query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123')
+      @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
       @client.follow(123)
     end
     
     it '#follow should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123,456')
+      @client.should_receive(:start).once.with('statuses/filter', :follow => '123,456', :method => :post)
       @client.follow(123, 456)
     end
     
     it '#filter should make a call to "statuses/filter" with the query params provided' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123')
+      @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
       @client.filter(:follow => 123)
     end
   end
@@ -161,7 +161,7 @@ describe TweetStream::Client do
     end
 
     it 'should call #start with "statuses/filter" and the provided queries' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'rock')
+      @client.should_receive(:start).once.with('statuses/filter', :track => 'rock', :method => :post)
       @client.track('rock')
     end
   end
@@ -174,7 +174,7 @@ describe TweetStream::Client do
     it 'should not cause a TweetStream to crash with a real exception' do
       @client = TweetStream::Client.new('abc','def')
       @statuses = []
-      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(sample_tweets[0])
+      Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
       @client.track('musicmonday') do |status|
         @statuses << status
         TweetStream::Client.stop
