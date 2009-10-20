@@ -75,6 +75,11 @@ describe TweetStream::Client do
       @yielded.should be_true
     end
     
+    it 'should wrap Yajl errors in TweetStream errors' do
+      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/cool.json'), :symbolize_keys => true).and_raise(Yajl::HttpStream::InvalidContentType)
+      lambda{@client.start('cool')}.should raise_error(TweetStream::ConnectionError)
+    end
+    
     {
       :delete => {:delete => {:status => {:id => 1234, :user_id => 3}}},
       :limit => {:limit => {:track => 1234}}
@@ -158,6 +163,23 @@ describe TweetStream::Client do
     it 'should call #start with "statuses/filter" and the provided queries' do
       @client.should_receive(:start).once.with('statuses/filter', :track => 'rock')
       @client.track('rock')
+    end
+  end
+  
+  describe '.stop' do
+    it 'should raise a TweetStream::Terminated error' do
+      lambda{ TweetStream::Client.stop }.should raise_error(TweetStream::Terminated)
+    end
+    
+    it 'should not cause a TweetStream to crash with a real exception' do
+      @client = TweetStream::Client.new('abc','def')
+      @statuses = []
+      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json?track=musicmonday'), :symbolize_keys => true).and_yield(sample_tweets[0])
+      @client.track('musicmonday') do |status|
+        @statuses << status
+        TweetStream::Client.stop
+      end.should == @statuses.first
+      @statuses.size.should == 1
     end
   end
 end

@@ -148,9 +148,19 @@ module TweetStream
         elsif hash[:limit] && hash[:limit][:track]
           limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
         elsif hash[:text] && hash[:user]
-          yield TweetStream::Status.new(hash)
+          @last_status = TweetStream::Status.new(hash)
+          yield @last_status
         end
       end
+    rescue TweetStream::Terminated
+      return @last_status
+    rescue Yajl::HttpStream::InvalidContentType
+      raise TweetStream::ConnectionError, "There was an error connecting to the Twitter streaming service. Please check your credentials and the current status of the Streaming API."
+    end
+    
+    # Terminate the currently running TweetStream.
+    def self.stop
+      raise TweetStream::Terminated
     end
  
     protected

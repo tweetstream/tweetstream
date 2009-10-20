@@ -90,6 +90,24 @@ Twitter recommends honoring deletions as quickly as possible, and
 you would likely be wise to integrate this functionality into your
 application.
 
+== Terminating a TweetStream
+
+It is often the case that you will need to change the parameters of your
+track or follow tweet streams. In the case that you need to terminate
+a stream, simply call <tt>TweetStream::Client.stop from within your
+loop:
+
+    # Stop after collecting 10 statuses
+    @statuses = []
+    TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
+      @statuses << status
+      TweetStream::Client.stop if @statuses.size >= 10
+    end
+    
+When <tt>stop</tt> is called, TweetStream will return from the block
+the last successfully yielded status, allowing you to make note of
+it in your application as necessary.
+
 == Daemonizing
 
 It is also possible to create a daemonized script quite easily
