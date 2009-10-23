@@ -114,7 +114,7 @@ It is also possible to create a daemonized script quite easily
 using the TweetStream library:
 
   # The third argument is an optional process name
-  TweetStream::Client.new('username','password', 'tracker').track('term1', 'term2') do |status|
+  TweetStream::Daemon.new('username','password', 'tracker').track('term1', 'term2') do |status|
     # do something in the background
   end
   
