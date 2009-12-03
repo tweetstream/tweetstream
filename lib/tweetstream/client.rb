@@ -146,8 +146,10 @@ module TweetStream
       args = [uri]
       args << build_post_body(query_parameters) if method == :post
       args << {:symbolize_keys => true}
-      
-      Yajl::HttpStream.send(method, *args) do |hash|
+
+      @stream = Yajl::HttpStream.new
+
+      @stream.send(method, *args) do |hash|
         if hash[:delete] && hash[:delete][:status]
           delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
         elsif hash[:limit] && hash[:limit][:track]
@@ -166,6 +168,11 @@ module TweetStream
     # Terminate the currently running TweetStream.
     def self.stop
       raise TweetStream::Terminated
+    end
+
+    # Terminate the currently running TweetStream.
+    def stop
+      @stream.terminate unless @stream.nil?
     end
  
     protected
