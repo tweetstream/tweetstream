@@ -62,12 +62,14 @@ describe TweetStream::Client do
     end
 
     it 'should make a call to Yajl::HttpStream' do
-      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/cool.json'), :symbolize_keys => true).and_return({})
+      Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+      y.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/cool.json'), :symbolize_keys => true).and_return({})
       @client.start('cool')
     end
 
     it 'should yield a TwitterStream::Status for each update' do
-      Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
+      Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+      y.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
       @client.track('musicmonday') do |status|
         status.is_a?(TweetStream::Status).should be_true
         @yielded = true
@@ -76,7 +78,8 @@ describe TweetStream::Client do
     end
     
     it 'should wrap Yajl errors in TweetStream errors' do
-      Yajl::HttpStream.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/cool.json'), :symbolize_keys => true).and_raise(Yajl::HttpStream::InvalidContentType)
+      Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+      y.should_receive(:get).once.with(URI.parse('http://abc:def@stream.twitter.com/1/cool.json'), :symbolize_keys => true).and_raise(Yajl::HttpStream::InvalidContentType)
       lambda{@client.start('cool')}.should raise_error(TweetStream::ConnectionError)
     end
     
@@ -88,7 +91,8 @@ describe TweetStream::Client do
         @called = false
         @proc = Proc.new{|*args| @called = true }
         @client.send("on_#{special_method}", &@proc)
-        Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
+        Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+        y.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
         @client.track('musicmonday')
         @called.should == true
       end
@@ -96,7 +100,8 @@ describe TweetStream::Client do
       it "should accept a proc on a :#{special_method} option if a #{special_method} object is given" do
         @called = false
         @proc = Proc.new{|*args| @called = true }
-        Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
+        Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+        y.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), "track=musicmonday", :symbolize_keys => true).and_yield(special_object)
         @client.track('musicmonday', special_method => @proc)
         @called.should == true
       end
@@ -174,12 +179,25 @@ describe TweetStream::Client do
     it 'should not cause a TweetStream to crash with a real exception' do
       @client = TweetStream::Client.new('abc','def')
       @statuses = []
-      Yajl::HttpStream.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
+      Yajl::HttpStream.should_receive(:new).and_return(y = mock("Yajl::HttpStream"))
+      y.should_receive(:post).once.with(URI.parse('http://abc:def@stream.twitter.com/1/statuses/filter.json'), 'track=musicmonday', :symbolize_keys => true).and_yield(sample_tweets[0])
       @client.track('musicmonday') do |status|
         @statuses << status
         TweetStream::Client.stop
       end.should == @statuses.first
       @statuses.size.should == 1
+    end
+  end
+
+  describe 'instance .stop' do
+    it 'should stop to receive the stream' do
+      @client = TweetStream::Client.new('abc','def')
+      Yajl::HttpStream.should_receive(:new).and_return(y = mock('Yajl::HttpStream'))
+      y.should_receive(:post)
+      y.should_receive(:terminate).once
+
+      @client.follow('10')
+      @client.stop
     end
   end
 end

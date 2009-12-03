@@ -12,7 +12,7 @@ begin
     gem.authors = ["Michael Bleigh"]
     gem.files = FileList["[A-Z]*", "{lib,spec}/**/*"] - FileList["**/*.log"]
     gem.add_development_dependency "rspec"
-    gem.add_dependency 'yajl-ruby', '>= 0.6.3'
+    gem.add_dependency 'yajl-ruby', '>= 0.6.6'
     gem.add_dependency 'daemons'
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
