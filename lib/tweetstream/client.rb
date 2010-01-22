@@ -1,7 +1,8 @@
 require 'uri'
 require 'cgi'
 require 'yajl'
-require 'yajl/http_stream'
+require 'eventmachine'
+require 'twitter/json_stream'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (http://apiwiki.twitter.com/Streaming-API-Documentation)
@@ -136,33 +137,86 @@ module TweetStream
       end
     end
     
+    # Set a Proc to be run when an HTTP error is encountered in the
+    # processing of the stream. Note that TweetStream will automatically
+    # try to reconnect, this is for reference only. Don't panic!
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_error do |message|
+    #       # Make note of error message
+    #     end
+    #
+    # Block must take one argument: the error message.
+    # If no block is given, it will return the currently set 
+    # error proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_error(&block)
+      if block_given?
+        @on_limit = block
+        self
+      else
+        @on_limit
+      end
+    end
+    
     def start(path, query_parameters = {}, &block) #:nodoc:
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
       limit_proc = query_parameters.delete(:limit) || self.on_limit
+      error_proc = query_parameters.delete(:error) || self.on_error
       
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
       
       args = [uri]
       args << build_post_body(query_parameters) if method == :post
       args << {:symbolize_keys => true}
-
-      @stream = Yajl::HttpStream.new
-
-      @stream.send(method, *args) do |hash|
-        if hash[:delete] && hash[:delete][:status]
-          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
-        elsif hash[:limit] && hash[:limit][:track]
-          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
-        elsif hash[:text] && hash[:user]
-          @last_status = TweetStream::Status.new(hash)
-          yield @last_status
+      
+      @parser = Yajl::Parser.new(:symbolize_keys => true)
+      
+      EventMachine::run {
+        @stream = Twitter::JSONStream.connect(
+          :path => uri,
+          :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
+          :method => method.to_s.upcase,
+          :content => (build_post_body(query_parameters) if method == :post),
+          :user_agent => 'TweetStream'
+        )
+        
+        @stream.each_item do |item|
+          hash = @parser.parse(item)
+          
+          if hash[:delete] && hash[:delete][:status]
+            delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+          elsif hash[:limit] && hash[:limit][:track]
+            limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+          elsif hash[:text] && hash[:user]
+            @last_status = TweetStream::Status.new(hash)
+            yield @last_status
+          end
         end
-      end
+        
+        @stream.on_error do |message|
+          error_proc.call(message) if error_proc.is_a?(Proc)
+        end
+        
+        @stream.on_max_reconnects do |timeout, retries|
+          raise TweetStream::ReconnectError.new(timeout, retries)
+        end
+      }
+      # @stream = Yajl::HttpStream.new
+      # 
+      # @stream.send(method, *args) do |hash|
+      #   if hash[:delete] && hash[:delete][:status]
+      #     delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+      #   elsif hash[:limit] && hash[:limit][:track]
+      #     limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+      #   elsif hash[:text] && hash[:user]
+      #     @last_status = TweetStream::Status.new(hash)
+      #     yield @last_status
+      #   end
+      # end
     rescue TweetStream::Terminated
       return @last_status
-    rescue Yajl::HttpStream::InvalidContentType
-      raise TweetStream::ConnectionError, "There was an error connecting to the Twitter streaming service. Please check your credentials and the current status of the Streaming API."
     end
     
     # Terminate the currently running TweetStream.
@@ -172,13 +226,13 @@ module TweetStream
 
     # Terminate the currently running TweetStream.
     def stop
-      @stream.terminate unless @stream.nil?
+      @stream.stop unless @stream.nil?
     end
  
     protected
 
     def build_uri(path, query_parameters = {}) #:nodoc:
-      URI.parse("http://#{URI.encode self.username}:#{URI.encode self.password}@stream.twitter.com/1/#{path}.json#{build_query_parameters(query_parameters)}")
+      URI.parse("/1/#{path}.json#{build_query_parameters(query_parameters)}")
     end
 
     def build_query_parameters(query)
