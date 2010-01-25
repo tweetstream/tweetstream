@@ -173,7 +173,6 @@ module TweetStream
         @on_limit = block
         self
       else
-        return Proc.new{|e| puts e.inspect}
         @on_limit
       end
     end
@@ -187,10 +186,6 @@ module TweetStream
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
       
       EventMachine::run {
-        @cancel_timer = EventMachine::PeriodicTimer.new(1) do
-          EventMachine::stop_event_loop if @stop || TweetStream::Client.stop?
-        end
-        
         @stream = Twitter::JSONStream.connect(
           :path => uri,
           :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
@@ -231,23 +226,13 @@ module TweetStream
     end
     
     # Terminate the currently running TweetStream.
-    def self.stop
-      raise TweetStream::Terminated
-    end
-
-    # Terminate the currently running TweetStream.
     def stop
       EventMachine.stop_event_loop
-      true
     end
     
+    # Terminate the currently running TweetStream
     def self.stop
       EventMachine.stop_event_loop
-      true
-    end
-    
-    def self.stop?
-      @stop
     end
  
     protected

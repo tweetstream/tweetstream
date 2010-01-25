@@ -53,10 +53,98 @@ describe TweetStream::Client do
 
   describe '#start' do
     before do
+      @stream = stub("Twitter::JSONStream", 
+        :connect => true,
+        :unbind => true, 
+        :each_item => true, 
+        :on_error => true,
+        :on_max_reconnects => true,
+        :connection_completed => true
+      )
+      EM.stub!(:run).and_yield
+      Twitter::JSONStream.stub!(:connect).and_return(@stream)
       @client = TweetStream::Client.new('abc','def')
     end
-
     
+    it 'should try to connect via a JSON stream' do
+      Twitter::JSONStream.should_receive(:connect).with(
+        :auth => 'abc:def',
+        :content => 'track=monday',
+        :path => URI.parse('/1/statuses/filter.json'),
+        :method => 'POST',
+        :user_agent => 'TweetStream'
+      ).and_return(@stream)
+      
+      @client.track('monday')
+    end
+    
+    describe '#each_item' do
+      it 'should call the appropriate parser' do
+        @client = TweetStream::Client.new('abc','def',:active_support)
+        TweetStream::Parsers::ActiveSupport.should_receive(:decode).and_return({})
+        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @client.track('abc','def')
+      end
+      
+      it 'should yield a TweetStream::Status' do
+        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @client.track('abc'){|s| s.should be_kind_of(TweetStream::Status)}
+      end
+      
+      it 'should also yield the client if a block with arity 2 is given' do
+        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @client.track('abc'){|s,c| c.should == @client}
+      end
+      
+      it 'should include the proper values' do
+        tweet = sample_tweets[0]
+        tweet[:id] = 123
+        tweet[:user][:screen_name] = 'monkey'
+        tweet[:text] = "Oo oo aa aa"
+        @stream.should_receive(:each_item).and_yield(tweet.to_json)
+        @client.track('abc') do |s| 
+          s[:id].should == 123
+          s.user.screen_name.should == 'monkey'
+          s.text.should == 'Oo oo aa aa'
+        end
+      end
+      
+      it 'should call the on_delete if specified' do
+        delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
+        @stream.should_receive(:each_item).and_yield(delete)
+        @client.on_delete do |id, user_id| 
+          id.should == 1234
+          user_id.should == 3
+        end.track('abc')
+      end
+      
+      it 'should call the on_limit if specified' do
+        limit = '{ "limit": { "track": 1234 } }'
+        @stream.should_receive(:each_item).and_yield(limit)
+        @client.on_limit do |track|
+          track.should == 1234
+        end.track('abc')
+      end
+    end
+    
+    describe '#on_error' do
+      it 'should pass the message on to the error block' do
+        @stream.should_receive(:on_error).and_yield('Uh oh')
+        @client.on_error do |m|
+          m.should == 'Uh oh'
+        end.track('abc')
+      end
+    end
+    
+    describe '#on_max_reconnects' do
+      it 'should raise a ReconnectError' do
+        @stream.should_receive(:on_max_reconnects).and_yield(30, 20)
+        lambda{@client.track('abc')}.should raise_error(TweetStream::ReconnectError) do |e|
+          e.timeout.should == 30
+          e.retries.should == 20
+        end
+      end
+    end
   end
   
   describe ' API methods' do

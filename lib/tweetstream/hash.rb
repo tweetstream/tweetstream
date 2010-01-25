@@ -1,7 +1,9 @@
 class TweetStream::Hash < ::Hash #:nodoc: all
   def initialize(other_hash = {})
     other_hash.keys.each do |key|
-      self[key.to_sym] = other_hash[key]
+      value = other_hash[key]
+      value = TweetStream::Hash.new(value) if value.is_a?(::Hash)
+      self[key.to_sym] = value
     end
   end
     

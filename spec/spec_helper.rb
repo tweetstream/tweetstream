@@ -6,6 +6,7 @@ require 'tweetstream'
 require 'spec'
 require 'spec/autorun'
 require 'yajl'
+require 'json'
 
 def sample_tweets
   if @tweets

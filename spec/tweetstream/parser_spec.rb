@@ -24,4 +24,16 @@ describe 'TweetStream JSON Parsers' do
       end
     end
   end
+  
+  class FakeParser
+    def self.decode(text)
+      {}
+    end
+  end
+  
+  it 'should be settable to a class' do
+    @client = TweetStream::Client.new('abc','def')
+    @client.parser = FakeParser
+    @client.parser.should == FakeParser
+  end
 end

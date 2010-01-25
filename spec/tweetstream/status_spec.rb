@@ -6,4 +6,10 @@ describe TweetStream::Status do
     @status.user.is_a?(TweetStream::User).should be_true
     @status.user.screen_name.should == 'bob'
   end
+  
+  it 'should override the #id method for itself and the user' do
+    @status = TweetStream::Status.new(:id => 123, :user => {:id => 345})
+    @status.id.should == 123
+    @status.user.id.should == 345
+  end
 end
