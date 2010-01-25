@@ -4,16 +4,9 @@ TweetStream provides simple Ruby access to Twitter's Streaming API
 (http://apiwiki.twitter.com/Streaming-API-Documentation).
 
 == Installation
-
-The TweetStream gem is available on GitHub and Gemcutter. To get the
-latest gem from GitHub:
-
-    gem sources -a http://gems.github.com/
-    gem install intridea-tweetstream
     
 To install from Gemcutter:
 
-    gem sources -a http://gemcutter.org/
     gem install tweetstream
 
 == Usage
@@ -46,6 +39,18 @@ user ids:
   
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
+
+== Swappable JSON Parsing
+
+As of version 1.0, TweetStream supports swappable JSON backends for
+parsing the Tweets. These are specified when you initialize the
+client or daemon by passing it in as the last argument:
+
+    # Parse tweets using Yajl-Ruby
+    TweetStream::Client.new('abc','def',:yajl) # ...
+    
+Available options are <tt>:yajl</tt>, <tt>:json_gem</tt> (default),
+<tt>:json_pure</tt>, and <tt>:active_support</tt>.
 
 == Handling Deletes and Rate Limitations
 
@@ -90,18 +95,37 @@ Twitter recommends honoring deletions as quickly as possible, and
 you would likely be wise to integrate this functionality into your
 application.
 
+== Errors and Reconnecting
+
+TweetStream uses EventMachine to connect to the Twitter Streaming
+API, and attempts to honor Twitter's guidelines in terms of automatic
+reconnection. When Twitter becomes unavailable, the block specified
+by you in <tt>on_error</tt> will be called. Note that this does not
+indicate something is actually wrong, just that Twitter is momentarily
+down. It could be for routine maintenance, etc.
+
+    TweetStream::Client.new('abc','def').on_error do |message|
+      # Log your error message somewhere
+    end.track('term') do |status|
+      # Do things when nothing's wrong
+    end
+
+However, if the maximum number of reconnect attempts has been reached,
+TweetStream will raise a <tt>TweetStream::ReconnectError</tt> with 
+information about the timeout and number of retries attempted.
+
 == Terminating a TweetStream
 
 It is often the case that you will need to change the parameters of your
 track or follow tweet streams. In the case that you need to terminate
-a stream, simply call <tt>TweetStream::Client.stop</tt> from within your
-loop:
+a stream, you may add a second argument to your block that will yield
+the client itself:
 
     # Stop after collecting 10 statuses
     @statuses = []
-    TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
+    TweetStream::Client.new('username','password').sample do |status, client|
       @statuses << status
-      TweetStream::Client.stop if @statuses.size >= 10
+      client.stop if @statuses.size >= 10
     end
     
 When <tt>stop</tt> is called, TweetStream will return from the block

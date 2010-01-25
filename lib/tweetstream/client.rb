@@ -190,7 +190,7 @@ module TweetStream
           :path => uri,
           :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
           :method => method.to_s.upcase,
-          :content => (build_post_body(query_parameters) if method == :post),
+          :content => (method == :post ? build_post_body(query_parameters) : ''),
           :user_agent => 'TweetStream'
         )
         
@@ -228,11 +228,7 @@ module TweetStream
     # Terminate the currently running TweetStream.
     def stop
       EventMachine.stop_event_loop
-    end
-    
-    # Terminate the currently running TweetStream
-    def self.stop
-      EventMachine.stop_event_loop
+      @last_status
     end
  
     protected

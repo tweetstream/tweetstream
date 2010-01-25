@@ -26,9 +26,9 @@ class TweetStream::Daemon < TweetStream::Client
   # Twitter account you wish to use. The daemon has
   # an optional process name for use when querying
   # running processes.
-  def initialize(user, pass, app_name=nil)
+  def initialize(user, pass, app_name=nil, parser=:json_gem)
     @app_name = app_name
-    super(user, pass)
+    super(user, pass, parser)
   end
   
   def start(path, query_parameters = {}, &block) #:nodoc:

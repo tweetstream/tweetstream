@@ -209,18 +209,18 @@ describe TweetStream::Client do
       @client.track('rock')
     end
   end
-  
-  describe '.stop' do
-    it 'should call EventMachine::stop_event_loop' do
-      EventMachine.should_receive :stop_event_loop
-      TweetStream::Client.stop
-    end
-  end
 
   describe 'instance .stop' do
     it 'should call EventMachine::stop_event_loop' do
       EventMachine.should_receive :stop_event_loop
-      TweetStream::Client.new('test','fake').stop
+      TweetStream::Client.new('test','fake').stop.should be_nil
+    end
+    
+    it 'should return the last status yielded' do
+      EventMachine.should_receive :stop_event_loop
+      client = TweetStream::Client.new('test','fake')
+      client.send(:instance_variable_set, :@last_status, {})
+      client.stop.should == {}
     end
   end
 end
