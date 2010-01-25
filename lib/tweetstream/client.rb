@@ -3,6 +3,7 @@ require 'cgi'
 require 'yajl'
 require 'eventmachine'
 require 'twitter/json_stream'
+require 'json'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (http://apiwiki.twitter.com/Streaming-API-Documentation)
@@ -21,12 +22,29 @@ module TweetStream
   # view the TweetStream::Daemon class.
   class Client
     attr_accessor :username, :password
+    attr_reader :parser
+
+    # Set the JSON Parser for this client. Acceptable options are:
+    #
+    # <tt>:json_gem</tt>:: Parse using the JSON gem.
+    # <tt>:json_pure</tt>:: Parse using the pure-ruby implementation of the JSON gem.
+    # <tt>:active_support</tt>:: Parse using ActiveSupport::JSON.decode
+    # <tt>:yajl</tt>:: Parse using <tt>yajl-ruby</tt>.
+    #
+    # You may also pass a class that will return a hash with symbolized
+    # keys when <tt>YourClass.parse</tt> is called with a JSON string.
+    def parser=(parser)
+      @parser = parser_from(parser)
+    end
     
     # Create a new client with the Twitter credentials
-    # of the account you want to be using its API quota. 
-    def initialize(user, pass)
+    # of the account you want to be using its API quota.
+    # You may also set the JSON parsing library as specified
+    # in the #parser= setter.
+    def initialize(user, pass, parser = :json_gem)
       self.username = user
       self.password = pass
+      self.parser = parser
     end
    
     # Returns all public statuses. The Firehose is not a generally
@@ -155,6 +173,7 @@ module TweetStream
         @on_limit = block
         self
       else
+        return Proc.new{|e| puts e.inspect}
         @on_limit
       end
     end
@@ -167,13 +186,11 @@ module TweetStream
       
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
       
-      args = [uri]
-      args << build_post_body(query_parameters) if method == :post
-      args << {:symbolize_keys => true}
-      
-      @parser = Yajl::Parser.new(:symbolize_keys => true)
-      
       EventMachine::run {
+        @cancel_timer = EventMachine::PeriodicTimer.new(1) do
+          EventMachine::stop_event_loop if @stop || TweetStream::Client.stop?
+        end
+        
         @stream = Twitter::JSONStream.connect(
           :path => uri,
           :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
@@ -183,7 +200,7 @@ module TweetStream
         )
         
         @stream.each_item do |item|
-          hash = @parser.parse(item)
+          hash = TweetStream::Hash.new(@parser.decode(item)) # @parser.parse(item)
           
           if hash[:delete] && hash[:delete][:status]
             delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
@@ -191,7 +208,15 @@ module TweetStream
             limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
-            yield @last_status
+            
+            # Give the block the option to receive either one
+            # or two arguments, depending on its arity.
+            case block.arity
+              when 1
+                yield @last_status
+              when 2
+                yield @last_status, self
+            end
           end
         end
         
@@ -203,20 +228,6 @@ module TweetStream
           raise TweetStream::ReconnectError.new(timeout, retries)
         end
       }
-      # @stream = Yajl::HttpStream.new
-      # 
-      # @stream.send(method, *args) do |hash|
-      #   if hash[:delete] && hash[:delete][:status]
-      #     delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
-      #   elsif hash[:limit] && hash[:limit][:track]
-      #     limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
-      #   elsif hash[:text] && hash[:user]
-      #     @last_status = TweetStream::Status.new(hash)
-      #     yield @last_status
-      #   end
-      # end
-    rescue TweetStream::Terminated
-      return @last_status
     end
     
     # Terminate the currently running TweetStream.
@@ -226,11 +237,31 @@ module TweetStream
 
     # Terminate the currently running TweetStream.
     def stop
-      @stream.stop unless @stream.nil?
+      EventMachine.stop_event_loop
+      true
+    end
+    
+    def self.stop
+      EventMachine.stop_event_loop
+      true
+    end
+    
+    def self.stop?
+      @stop
     end
  
     protected
 
+    def parser_from(parser)
+      case parser
+        when Class
+          parser
+        when Symbol
+          require "tweetstream/parsers/#{parser.to_s}"
+          eval("TweetStream::Parsers::#{parser.to_s.split('_').map(&:capitalize).join('')}")
+      end
+    end
+    
     def build_uri(path, query_parameters = {}) #:nodoc:
       URI.parse("/1/#{path}.json#{build_query_parameters(query_parameters)}")
     end
