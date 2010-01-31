@@ -9,7 +9,7 @@ describe 'TweetStream JSON Parsers' do
     describe "#{engine} parsing" do
       before do
         @client = TweetStream::Client.new('test','fake',engine)
-        @class_name = "TweetStream::Parsers::#{engine.to_s.split('_').map(&:capitalize).join('')}"
+        @class_name = "TweetStream::Parsers::#{engine.to_s.split('_').map{|s| s.capitalize}.join('')}"
       end
       
       it 'should set the parser to the appropriate class' do

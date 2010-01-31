@@ -239,7 +239,7 @@ module TweetStream
           parser
         when Symbol
           require "tweetstream/parsers/#{parser.to_s}"
-          eval("TweetStream::Parsers::#{parser.to_s.split('_').map(&:capitalize).join('')}")
+          eval("TweetStream::Parsers::#{parser.to_s.split('_').map{|s| s.capitalize}.join('')}")
       end
     end
     
