@@ -1,6 +1,5 @@
 require 'uri'
 require 'cgi'
-require 'yajl'
 require 'eventmachine'
 require 'twitter/json_stream'
 require 'json'
