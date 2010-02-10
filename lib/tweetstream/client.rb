@@ -169,10 +169,10 @@ module TweetStream
     # object is returned to allow for chaining.
     def on_error(&block)
       if block_given?
-        @on_limit = block
+        @on_error = block
         self
       else
-        @on_limit
+        @on_error
       end
     end
     
