@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{tweetstream}
-  s.version = "1.0.2"
+  s.version = "1.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michael Bleigh"]
-  s.date = %q{2010-01-30}
+  s.date = %q{2010-02-10}
   s.description = %q{TweetStream allows you to easily consume the Twitter Streaming API utilizing the YAJL Ruby gem.}
   s.email = %q{michael@intridea.com}
   s.extra_rdoc_files = [
