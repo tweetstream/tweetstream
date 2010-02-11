@@ -125,6 +125,13 @@ describe TweetStream::Client do
           track.should == 1234
         end.track('abc')
       end
+      
+      it 'should call on_error if a non-hash response is received' do
+        @stream.should_receive(:each_item).and_yield('["favorited"]')
+        @client.on_error do |message|
+          message.should == 'Unexpected JSON object in stream: ["favorited"]'
+        end.track('abc')
+      end
     end
     
     describe '#on_error' do

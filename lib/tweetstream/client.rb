@@ -194,7 +194,14 @@ module TweetStream
         )
         
         @stream.each_item do |item|
-          hash = TweetStream::Hash.new(@parser.decode(item)) # @parser.parse(item)
+          raw_hash = @parser.decode(item)
+          
+          unless raw_hash.is_a?(::Hash)
+            error_proc.call("Unexpected JSON object in stream: #{item}")
+            next
+          end
+          
+          hash = TweetStream::Hash.new(raw_hash) # @parser.parse(item)
           
           if hash[:delete] && hash[:delete][:status]
             delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
