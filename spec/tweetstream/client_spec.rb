@@ -176,6 +176,11 @@ describe TweetStream::Client do
       @client.track('foo', 'bar', 'baz')
     end
     
+    it '#track should comma-join an array of arguments' do
+      @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz', :method => :post)
+      @client.track(['foo','bar','baz'])
+    end
+    
     it '#follow should make a call to start with "statuses/filter" and a follow query parameter' do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
       @client.follow(123)
