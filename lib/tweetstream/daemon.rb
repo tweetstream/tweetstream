@@ -32,8 +32,12 @@ class TweetStream::Daemon < TweetStream::Client
   end
   
   def start(path, query_parameters = {}, &block) #:nodoc:
+    # Because of a change in Ruvy 1.8.7 patchlevel 249, you cannot call anymore 
+    # super inside a block. So I assign to a variable the base class method before
+    # the Daemons block begins.
+    startmethod = super.start
     Daemons.run_proc(@app_name || 'tweetstream', :multiple => true) do
-      super(path, query_parameters, &block)
+      startmethod(path, query_parameters, &block)
     end
   end
 end
