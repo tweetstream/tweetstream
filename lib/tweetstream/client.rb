@@ -20,7 +20,6 @@ module TweetStream
   # For information about a daemonized TweetStream client,
   # view the TweetStream::Daemon class.
   class Client
-    attr_accessor :username, :password
     attr_reader :parser
 
     # Set the JSON Parser for this client. Acceptable options are:
@@ -40,10 +39,9 @@ module TweetStream
     # of the account you want to be using its API quota.
     # You may also set the JSON parsing library as specified
     # in the #parser= setter.
-    def initialize(user, pass, parser = :json_gem)
-      self.username = user
-      self.password = pass
-      self.parser = parser
+    def initialize(options = {})
+      @options = options
+      self.parser = options[:parser] if options[:parser]
     end
    
     # Returns all public statuses. The Firehose is not a generally
@@ -176,6 +174,29 @@ module TweetStream
       end
     end
     
+    def user_stream(&block)
+      stream_options = {
+        :path => '/2/user.json',
+        :ssl => true,
+        :host => 'userstream.twitter.com',
+        :method => 'GET',
+        :user_agent => 'TweetStream',
+        :oauth => @options[:oauth]        
+      }
+      EventMachine::run {
+        @stream = Twitter::JSONStream.connect(stream_options)
+        
+        @stream.each_item do |item|
+          yield item
+        end
+        
+        # TODO this should behave like 'start' does
+        @stream.on_error do |message|
+          p message
+        end
+      }
+    end
+    
     def start(path, query_parameters = {}, &block) #:nodoc:
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
@@ -184,14 +205,16 @@ module TweetStream
       
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
       
+      stream_options = {
+        :path => uri,
+        :method => method.to_s.upcase,
+        :content => (method == :post ? build_post_body(query_parameters) : ''),
+        :user_agent => 'TweetStream',
+        :auth => "#{URI.encode @options[:username]}:#{URI.encode @options[:password]}"
+      }
+            
       EventMachine::run {
-        @stream = Twitter::JSONStream.connect(
-          :path => uri,
-          :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
-          :method => method.to_s.upcase,
-          :content => (method == :post ? build_post_body(query_parameters) : ''),
-          :user_agent => 'TweetStream'
-        )
+        @stream = Twitter::JSONStream.connect(stream_options)
         
         @stream.each_item do |item|
           raw_hash = @parser.decode(item)
@@ -259,13 +282,7 @@ module TweetStream
     
     def build_post_body(query) #:nodoc:
       return '' unless query && query.is_a?(::Hash) && query.size > 0
-      pairs = []
-      
-      query.each_pair do |k,v|
-        pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
-      end
-
-      pairs.join('&')
+      query.map { |k,v| "#{k.to_s}=#{CGI.escape(v.to_s)}" }.join('&')
     end
   end
 end
