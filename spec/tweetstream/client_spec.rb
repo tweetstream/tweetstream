@@ -72,7 +72,8 @@ describe TweetStream::Client do
         :content => 'track=monday',
         :path => URI.parse('/1/statuses/filter.json'),
         :method => 'POST',
-        :user_agent => 'TweetStream'
+        :user_agent => 'TweetStream',
+        :on_inited => nil
       ).and_return(@stream)
       
       @client.track('monday')

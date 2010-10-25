@@ -175,12 +175,30 @@ module TweetStream
         @on_error
       end
     end
+
+    # Set a Proc to be run when connection established.
+    # Called in EventMachine::Connection#post_init
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_inited do
+    #       puts 'Connected...'
+    #     end
+    #
+    def on_inited(&block)
+      if block_given?
+        @on_inited = block
+        self
+      else
+        @on_inited
+      end
+    end
     
     def start(path, query_parameters = {}, &block) #:nodoc:
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
+      inited_proc = query_parameters.delete(:inited) || self.on_inited
       
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
       
@@ -190,7 +208,8 @@ module TweetStream
           :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
           :method => method.to_s.upcase,
           :content => (method == :post ? build_post_body(query_parameters) : ''),
-          :user_agent => 'TweetStream'
+          :user_agent => 'TweetStream',
+          :on_inited => inited_proc
         )
         
         @stream.each_item do |item|
