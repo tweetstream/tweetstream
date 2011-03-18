@@ -20,7 +20,8 @@ module TweetStream
   # For information about a daemonized TweetStream client,
   # view the TweetStream::Daemon class.
   class Client
-    attr_reader :parser, :all_replies
+    attr_reader :parser
+    attr_accessor :all_replies
 
     # Set the JSON Parser for this client. Acceptable options are:
     #
