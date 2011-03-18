@@ -21,6 +21,7 @@ module TweetStream
   # view the TweetStream::Daemon class.
   class Client
     attr_reader :parser
+    attr_accessor :all_replies
 
     # Set the JSON Parser for this client. Acceptable options are:
     #
@@ -42,6 +43,7 @@ module TweetStream
     def initialize(options = {})
       @options = options
       self.parser = options[:parser] if options[:parser]
+      self.all_replies = options[:all_replies] if options[:all_replies]
     end
    
     # Returns all public statuses. The Firehose is not a generally
@@ -183,6 +185,8 @@ module TweetStream
         :user_agent => 'TweetStream',
         :oauth => @options[:oauth]        
       }
+      stream_options[:path] += "?replies=all" if(@options[:all_replies] && @options[:all_replies] == true)
+      
       EventMachine::run {
         @stream = Twitter::JSONStream.connect(stream_options)
         
