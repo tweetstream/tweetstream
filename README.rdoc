@@ -4,7 +4,7 @@ TweetStream provides simple Ruby access to Twitter's Streaming API
 (http://apiwiki.twitter.com/Streaming-API-Documentation).
 
 == Installation
-    
+
 To install from Gemcutter:
 
     gem install tweetstream
@@ -15,15 +15,15 @@ Using TweetStream is quite simple:
 
     require 'rubygems'
     require 'tweetstream'
-    
+
     # This will pull a sample of all tweets based on
     # your Twitter account's Streaming API role.
     TweetStream::Client.new('username','password').sample do |status|
-      # The status object is a special Hash with 
+      # The status object is a special Hash with
       # method access to its keys.
       puts "#{status.text}"
     end
-    
+
 You can also use it to track keywords or follow a given set of
 user ids:
 
@@ -31,12 +31,12 @@ user ids:
   TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
     puts "#{status.text}"
   end
-  
+
   # Use 'follow' to follow a group of user ids (integers, not screen names)
   TweetStream::Client.new('username','password').follow(14252, 53235) do |status|
     puts "#{status.text}"
   end
-  
+
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
 
@@ -48,7 +48,7 @@ client or daemon by passing it in as the last argument:
 
     # Parse tweets using Yajl-Ruby
     TweetStream::Client.new('abc','def',:yajl) # ...
-    
+
 Available options are <tt>:yajl</tt>, <tt>:json_gem</tt> (default),
 <tt>:json_pure</tt>, and <tt>:active_support</tt>.
 
@@ -60,17 +60,17 @@ have caused some tweets not to appear in the stream. To handle these,
 you can use the on_delete and on_limit methods. Example:
 
     @client = TweetStream::Client.new('user','pass')
-    
+
     @client.on_delete do |status_id, user_id|
       Tweet.delete(status_id)
     end
-    
+
     @client.on_limit do |skip_count|
       # do something
-    end  
-    
+    end
+
     @client.track('intridea')
-    
+
 The on_delete and on_limit methods can also be chained, like so:
 
     TweetStream::Client.new('user','pass').on_delete{ |status_id, user_id|
@@ -80,8 +80,8 @@ The on_delete and on_limit methods can also be chained, like so:
     }.track('intridea') do |status|
       # do something with the status like normal
     end
-    
-You can also provide <tt>:delete</tt> and/or <tt>:limit</tt> 
+
+You can also provide <tt>:delete</tt> and/or <tt>:limit</tt>
 options when you make your method call:
 
     TweetStream::Client.new('user','pass').track('intridea',
@@ -90,7 +90,7 @@ options when you make your method call:
     ) do |status|
       # do something with the status like normal
     end
-    
+
 Twitter recommends honoring deletions as quickly as possible, and
 you would likely be wise to integrate this functionality into your
 application.
@@ -111,7 +111,7 @@ down. It could be for routine maintenance, etc.
     end
 
 However, if the maximum number of reconnect attempts has been reached,
-TweetStream will raise a <tt>TweetStream::ReconnectError</tt> with 
+TweetStream will raise a <tt>TweetStream::ReconnectError</tt> with
 information about the timeout and number of retries attempted.
 
 == Terminating a TweetStream
@@ -127,7 +127,7 @@ the client itself:
       @statuses << status
       client.stop if @statuses.size >= 10
     end
-    
+
 When <tt>stop</tt> is called, TweetStream will return from the block
 the last successfully yielded status, allowing you to make note of
 it in your application as necessary.
@@ -141,12 +141,12 @@ using the TweetStream library:
   TweetStream::Daemon.new('username','password', 'tracker').track('term1', 'term2') do |status|
     # do something in the background
   end
-  
+
 If you put the above into a script and run the script with <tt>ruby scriptname.rb</tt>, you will see a list of daemonization commands such
 as start, stop, and run.
 
 == Note on Patches/Pull Requests
- 
+
 * Fork the project.
 * Make your feature addition or bug fix.
 * Add tests for it. This is important so I don't break it in a future version unintentionally.
@@ -159,4 +159,4 @@ as start, stop, and run.
 
 == Copyright
 
-Copyright (c) 2009 Intridea, Inc. (http://www.intridea.com/). See LICENSE for details.
+Copyright (c) 2011 Intridea, Inc. (http://www.intridea.com/). See LICENSE for details.
