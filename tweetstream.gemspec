@@ -19,8 +19,8 @@ Gem::Specification.new do |s|
   s.rdoc_options              = ["--charset=UTF-8"]
   s.extra_rdoc_files          = ["LICENSE", "README.rdoc"]
 
-  s.add_dependency('twitter-stream', [">= 0"])
-  s.add_dependency('daemons', [">= 0"])
+  s.add_dependency('twitter-stream', '~> 0.1.12')
+  s.add_dependency('daemons', '~> 1.1.2')
   s.add_development_dependency('rspec', '~> 2.5.0')
   s.add_development_dependency('yajl-ruby', '~> 0.8.2')
   s.add_development_dependency('json', '~> 1.5.1')
