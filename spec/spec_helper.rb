@@ -3,10 +3,12 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'rubygems'
 require 'tweetstream'
-require 'spec'
-require 'spec/autorun'
+require 'rspec'
+require 'rspec/autorun'
 require 'yajl'
 require 'json'
+require 'active_support/ordered_hash'
+require 'active_support/json'
 
 def sample_tweets
   if @tweets
@@ -20,6 +22,6 @@ def sample_tweets
   end
 end
 
-Spec::Runner.configure do |config|
-  
-end
+# Spec::Runner.configure do |config|
+#
+# end

@@ -21,7 +21,10 @@ Gem::Specification.new do |s|
 
   s.add_dependency('twitter-stream', [">= 0"])
   s.add_dependency('daemons', [">= 0"])
-  s.add_development_dependency('rspec', [">= 0"])
+  s.add_development_dependency('rspec', '~> 2.5.0')
+  s.add_development_dependency('yajl-ruby', '~> 0.8.2')
+  s.add_development_dependency('json', '~> 1.5.1')
+  s.add_development_dependency('activesupport', '~> 3.0.5')
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
