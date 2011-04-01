@@ -1,7 +1,6 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
-require 'rubygems'
 require 'tweetstream'
 require 'rspec'
 require 'rspec/autorun'
@@ -21,7 +20,3 @@ def sample_tweets
     @tweets
   end
 end
-
-# Spec::Runner.configure do |config|
-#
-# end
