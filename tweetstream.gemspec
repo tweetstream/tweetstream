@@ -16,11 +16,11 @@ Gem::Specification.new do |s|
   s.rubygems_version          = %q{1.3.6}
   s.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if s.respond_to? :required_rubygems_version=
 
-  s.rdoc_options              = ["--charset=UTF-8"]
-  s.extra_rdoc_files          = ["LICENSE", "README.rdoc"]
-
   s.add_dependency('twitter-stream', '~> 0.1.12')
   s.add_dependency('daemons', '~> 1.1.2')
+  s.add_development_dependency('simplecov', '~> 0.4')
+  s.add_development_dependency('yard', '~> 0.6')
+  s.add_development_dependency('maruku', '~> 0.6')
   s.add_development_dependency('rspec', '~> 2.5.0')
   s.add_development_dependency('yajl-ruby', '~> 0.8.2')
   s.add_development_dependency('json', '~> 1.5.1')
