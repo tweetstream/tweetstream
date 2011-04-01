@@ -1,15 +1,17 @@
-= TweetStream
+TweetStream
+===========
 
-TweetStream provides simple Ruby access to Twitter's Streaming API
-(http://apiwiki.twitter.com/Streaming-API-Documentation).
+TweetStream provides simple Ruby access to [Twitter's Streaming API](http://developer.twitter.com/pages/streaming_api).
 
-== Installation
+Installation
+------------
 
-To install from Gemcutter:
+To install:
 
     gem install tweetstream
 
-== Usage
+Usage
+-----
 
 Using TweetStream is quite simple:
 
@@ -27,20 +29,21 @@ Using TweetStream is quite simple:
 You can also use it to track keywords or follow a given set of
 user ids:
 
-  # Use 'track' to track a list of single-word keywords
-  TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
-    puts "#{status.text}"
-  end
+    # Use 'track' to track a list of single-word keywords
+    TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
+      puts "#{status.text}"
+    end
 
-  # Use 'follow' to follow a group of user ids (integers, not screen names)
-  TweetStream::Client.new('username','password').follow(14252, 53235) do |status|
-    puts "#{status.text}"
-  end
+    # Use 'follow' to follow a group of user ids (integers, not screen names)
+    TweetStream::Client.new('username','password').follow(14252, 53235) do |status|
+      puts "#{status.text}"
+    end
 
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
 
-== Swappable JSON Parsing
+Swappable JSON Parsing
+----------------------
 
 As of version 1.0, TweetStream supports swappable JSON backends for
 parsing the Tweets. These are specified when you initialize the
@@ -49,10 +52,11 @@ client or daemon by passing it in as the last argument:
     # Parse tweets using Yajl-Ruby
     TweetStream::Client.new('abc','def',:yajl) # ...
 
-Available options are <tt>:yajl</tt>, <tt>:json_gem</tt> (default),
-<tt>:json_pure</tt>, and <tt>:active_support</tt>.
+Available options are `:yajl`, `:json_gem` (default),
+`:json_pure`, and `:active_support`.
 
-== Handling Deletes and Rate Limitations
+Handling Deletes and Rate Limitations
+-------------------------------------
 
 Sometimes the Streaming API will send messages other than statuses.
 Specifically, it does so when a status is deleted or rate limitations
@@ -81,7 +85,7 @@ The on_delete and on_limit methods can also be chained, like so:
       # do something with the status like normal
     end
 
-You can also provide <tt>:delete</tt> and/or <tt>:limit</tt>
+You can also provide `:delete` and/or `:limit`
 options when you make your method call:
 
     TweetStream::Client.new('user','pass').track('intridea',
@@ -95,12 +99,13 @@ Twitter recommends honoring deletions as quickly as possible, and
 you would likely be wise to integrate this functionality into your
 application.
 
-== Errors and Reconnecting
+Errors and Reconnecting
+-----------------------
 
 TweetStream uses EventMachine to connect to the Twitter Streaming
 API, and attempts to honor Twitter's guidelines in terms of automatic
 reconnection. When Twitter becomes unavailable, the block specified
-by you in <tt>on_error</tt> will be called. Note that this does not
+by you in `on_error` will be called. Note that this does not
 indicate something is actually wrong, just that Twitter is momentarily
 down. It could be for routine maintenance, etc.
 
@@ -111,10 +116,11 @@ down. It could be for routine maintenance, etc.
     end
 
 However, if the maximum number of reconnect attempts has been reached,
-TweetStream will raise a <tt>TweetStream::ReconnectError</tt> with
+TweetStream will raise a `TweetStream::ReconnectError` with
 information about the timeout and number of retries attempted.
 
-== Terminating a TweetStream
+Terminating a TweetStream
+-------------------------
 
 It is often the case that you will need to change the parameters of your
 track or follow tweet streams. In the case that you need to terminate
@@ -128,24 +134,26 @@ the client itself:
       client.stop if @statuses.size >= 10
     end
 
-When <tt>stop</tt> is called, TweetStream will return from the block
+When `stop` is called, TweetStream will return from the block
 the last successfully yielded status, allowing you to make note of
 it in your application as necessary.
 
-== Daemonizing
+Daemonizing
+-----------
 
 It is also possible to create a daemonized script quite easily
 using the TweetStream library:
 
-  # The third argument is an optional process name
-  TweetStream::Daemon.new('username','password', 'tracker').track('term1', 'term2') do |status|
-    # do something in the background
-  end
+    # The third argument is an optional process name
+    TweetStream::Daemon.new('username','password', 'tracker').track('term1', 'term2') do |status|
+      # do something in the background
+    end
 
-If you put the above into a script and run the script with <tt>ruby scriptname.rb</tt>, you will see a list of daemonization commands such
+If you put the above into a script and run the script with `ruby scriptname.rb`, you will see a list of daemonization commands such
 as start, stop, and run.
 
-== Note on Patches/Pull Requests
+Note on Patches/Pull Requests
+-----------------------------
 
 * Fork the project.
 * Make your feature addition or bug fix.
@@ -153,10 +161,12 @@ as start, stop, and run.
 * Commit, do not mess with rakefile, version, or history. (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
 * Send me a pull request. Bonus points for topic branches.
 
-== Contributors
+Contributors
+------------
 
 * Michael Bleigh (initial gem)
 
-== Copyright
+Copyright
+---------
 
-Copyright (c) 2011 Intridea, Inc. (http://www.intridea.com/). See LICENSE for details.
+Copyright (c) 2011 Intridea, Inc. (http://www.intridea.com/). See [LICENSE](https://github.com/intridea/tweetstream/blob/master/LICENSE.md) for details.

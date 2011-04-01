@@ -1,4 +1,5 @@
-== Version 1.0.0
+Version 1.0.0
+=============
 
 * Swappable JSON backend support
 * Switches to use EventMachine instead of Yajl for the HTTP Stream
