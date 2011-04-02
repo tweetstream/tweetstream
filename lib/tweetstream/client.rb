@@ -105,7 +105,7 @@ module TweetStream
     def filter(query_params = {}, &block)
       [:follow, :track].each do |param|
         if query_params[param].is_a?(Array)
-          query_params[param] = query_params[param].collect{|q| q.to_s}.join(',')
+          query_params[param] = query_params[param].flatten.collect{|q| q.to_s}.join(',')
         elsif query_params[param]
           query_params[param] = query_params[param].to_s
         end
