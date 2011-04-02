@@ -29,7 +29,7 @@ describe TweetStream::Client do
     before do
       @client = TweetStream::Client.new('abc','def')
     end
-  
+
     it 'should return a blank string if passed a nil value' do
       @client.send(:build_post_body, nil).should == ''
     end
@@ -53,10 +53,10 @@ describe TweetStream::Client do
 
   describe '#start' do
     before do
-      @stream = stub("Twitter::JSONStream", 
+      @stream = stub("Twitter::JSONStream",
         :connect => true,
-        :unbind => true, 
-        :each_item => true, 
+        :unbind => true,
+        :each_item => true,
         :on_error => true,
         :on_max_reconnects => true,
         :connection_completed => true
@@ -65,7 +65,7 @@ describe TweetStream::Client do
       Twitter::JSONStream.stub!(:connect).and_return(@stream)
       @client = TweetStream::Client.new('abc','def')
     end
-    
+
     it 'should try to connect via a JSON stream' do
       Twitter::JSONStream.should_receive(:connect).with(
         :auth => 'abc:def',
@@ -75,50 +75,50 @@ describe TweetStream::Client do
         :user_agent => 'TweetStream',
         :on_inited => nil
       ).and_return(@stream)
-      
+
       @client.track('monday')
     end
-    
+
     describe '#each_item' do
       it 'should call the appropriate parser' do
         @client = TweetStream::Client.new('abc','def',:active_support)
-        TweetStream::Parsers::ActiveSupport.should_receive(:decode).and_return({})
+        MultiJson.should_receive(:decode).and_return({})
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end
-      
+
       it 'should yield a TweetStream::Status' do
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s| s.should be_kind_of(TweetStream::Status)}
       end
-      
+
       it 'should also yield the client if a block with arity 2 is given' do
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s,c| c.should == @client}
       end
-      
+
       it 'should include the proper values' do
         tweet = sample_tweets[0]
         tweet[:id] = 123
         tweet[:user][:screen_name] = 'monkey'
         tweet[:text] = "Oo oo aa aa"
         @stream.should_receive(:each_item).and_yield(tweet.to_json)
-        @client.track('abc') do |s| 
+        @client.track('abc') do |s|
           s[:id].should == 123
           s.user.screen_name.should == 'monkey'
           s.text.should == 'Oo oo aa aa'
         end
       end
-      
+
       it 'should call the on_delete if specified' do
         delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
         @stream.should_receive(:each_item).and_yield(delete)
-        @client.on_delete do |id, user_id| 
+        @client.on_delete do |id, user_id|
           id.should == 1234
           user_id.should == 3
         end.track('abc')
       end
-      
+
       it 'should call the on_limit if specified' do
         limit = '{ "limit": { "track": 1234 } }'
         @stream.should_receive(:each_item).and_yield(limit)
@@ -126,7 +126,7 @@ describe TweetStream::Client do
           track.should == 1234
         end.track('abc')
       end
-      
+
       it 'should call on_error if a non-hash response is received' do
         @stream.should_receive(:each_item).and_yield('["favorited"]')
         @client.on_error do |message|
@@ -134,7 +134,7 @@ describe TweetStream::Client do
         end.track('abc')
       end
     end
-    
+
     describe '#on_error' do
       it 'should pass the message on to the error block' do
         @stream.should_receive(:on_error).and_yield('Uh oh')
@@ -143,7 +143,7 @@ describe TweetStream::Client do
         end.track('abc')
       end
     end
-    
+
     describe '#on_max_reconnects' do
       it 'should raise a ReconnectError' do
         @stream.should_receive(:on_max_reconnects).and_yield(30, 20)
@@ -154,51 +154,51 @@ describe TweetStream::Client do
       end
     end
   end
-  
+
   describe ' API methods' do
     before do
       @client = TweetStream::Client.new('abc','def')
     end
-    
+
     %w(firehose retweet sample).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         @client.should_receive(:start).once.with('statuses/' + method, {})
         @client.send(method)
       end
     end
-    
+
     it '#track should make a call to start with "statuses/filter" and a track query parameter' do
       @client.should_receive(:start).once.with('statuses/filter', :track => 'test', :method => :post)
       @client.track('test')
     end
-    
+
     it '#track should comma-join multiple arguments' do
       @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz', :method => :post)
       @client.track('foo', 'bar', 'baz')
     end
-    
+
     it '#follow should make a call to start with "statuses/filter" and a follow query parameter' do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
       @client.follow(123)
     end
-    
+
     it '#follow should comma-join multiple arguments' do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123,456', :method => :post)
       @client.follow(123, 456)
     end
-    
+
     it '#filter should make a call to "statuses/filter" with the query params provided' do
       @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
       @client.filter(:follow => 123)
     end
   end
-  
+
   %w(on_delete on_limit).each do |proc_setter|
     describe "##{proc_setter}" do
       before do
         @client = TweetStream::Client.new('abc','def')
       end
-      
+
       it 'should set when a block is given' do
         proc = Proc.new{|a,b| puts a }
         @client.send(proc_setter, &proc)
@@ -223,7 +223,7 @@ describe TweetStream::Client do
       EventMachine.should_receive :stop_event_loop
       TweetStream::Client.new('test','fake').stop.should be_nil
     end
-    
+
     it 'should return the last status yielded' do
       EventMachine.should_receive :stop_event_loop
       client = TweetStream::Client.new('test','fake')
