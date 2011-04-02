@@ -206,7 +206,7 @@ module TweetStream
       EventMachine::run {
         @stream = Twitter::JSONStream.connect(
           :path => uri,
-          :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
+          :auth => "#{self.username}:#{self.password}",
           :method => method.to_s.upcase,
           :content => (method == :post ? build_post_body(query_parameters) : ''),
           :user_agent => 'TweetStream',
