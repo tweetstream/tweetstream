@@ -97,13 +97,27 @@ module TweetStream
       filter(query_params.merge(:follow => user_ids), &block)
     end
 
+    # Specifies a set of bounding boxes to track. Only tweets that are both created
+    # using the Geotagging API and are placed from within a tracked bounding box will
+    # be included in the stream – the user’s location field is not used to filter tweets
+    # (e.g. if a user has their location set to “San Francisco”, but the tweet was not created
+    # using the Geotagging API and has no geo element, it will not be included in the stream).
+    # Bounding boxes are specified as a comma separate list of longitude/latitude pairs, with
+    # the first pair denoting the southwest corner of the box
+    # longitude/latitude pairs, separated by commas. The first pair specifies the southwest corner of the box.
+    def locations(*locations_map, &block)
+        query_params = locations_map.pop if locations_map.last.is_a?(::Hash)
+        query_params ||= {}
+        filter(query_params.merge(:locations => locations_map), &block)
+    end
+
     # Make a call to the statuses/filter method of the Streaming API,
     # you may provide <tt>:follow</tt>, <tt>:track</tt> or both as options
     # to follow the tweets of specified users or track keywords. This
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
     def filter(query_params = {}, &block)
-      [:follow, :track].each do |param|
+      [:follow, :track, :locations].each do |param|
         if query_params[param].is_a?(Array)
           query_params[param] = query_params[param].flatten.collect{|q| q.to_s}.join(',')
         elsif query_params[param]
