@@ -30,9 +30,9 @@ class TweetStream::Daemon < TweetStream::Client
     @app_name = app_name
     super(user, pass, parser)
   end
-  
+
   def start(path, query_parameters = {}, &block) #:nodoc:
-    # Because of a change in Ruvy 1.8.7 patchlevel 249, you cannot call anymore 
+    # Because of a change in Ruvy 1.8.7 patchlevel 249, you cannot call anymore
     # super inside a block. So I assign to a variable the base class method before
     # the Daemons block begins.
     startmethod = super.start
