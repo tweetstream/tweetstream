@@ -3,7 +3,6 @@ require 'cgi'
 require 'eventmachine'
 require 'twitter/json_stream'
 require 'multi_json'
-require 'json'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (http://apiwiki.twitter.com/Streaming-API-Documentation)
