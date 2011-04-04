@@ -23,28 +23,31 @@ module TweetStream
     attr_accessor :username, :password
     attr_reader :parser
 
-    # Set the JSON Parser for this client. Acceptable options are:
-    #
-    # <tt>:json_gem</tt>:: Parse using the JSON gem.
-    # <tt>:json_pure</tt>:: Parse using the pure-ruby implementation of the JSON gem.
-    # <tt>:active_support</tt>:: Parse using ActiveSupport::JSON.decode
-    # <tt>:yajl</tt>:: Parse using <tt>yajl-ruby</tt>.
-    #
-    # You may also pass a class that will return a hash with symbolized
-    # keys when <tt>YourClass.parse</tt> is called with a JSON string.
-    def parser=(parser)
-      @parser = parser_from(parser)
+    # @private
+    attr_accessor *Configuration::VALID_OPTIONS_KEYS
+
+    # Creates a new API
+    def initialize(options={})
+      options = TweetStream.options.merge(options)
+      Configuration::VALID_OPTIONS_KEYS.each do |key|
+        send("#{key}=", options[key])
+      end
+    end
+
+    # Get the JSON parser class for this client.
+    def json_parser
+      parser_from(parser)
     end
 
     # Create a new client with the Twitter credentials
     # of the account you want to be using its API quota.
     # You may also set the JSON parsing library as specified
     # in the #parser= setter.
-    def initialize(user, pass, parser = :json_gem)
-      self.username = user
-      self.password = pass
-      self.parser = parser
-    end
+    # def initialize(ouser, pass, parser = :json_gem)
+    #   self.username = user
+    #   self.password = pass
+    #   self.parser = parser
+    # end
 
     # Returns all public statuses. The Firehose is not a generally
     # available resource. Few applications require this level of access.
@@ -228,7 +231,7 @@ module TweetStream
 
         @stream.each_item do |item|
           begin
-            raw_hash = @parser.decode(item)
+            raw_hash = json_parser.decode(item)
           rescue MultiJson::DecodeError
             error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
             next
