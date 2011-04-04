@@ -15,8 +15,9 @@ describe 'TweetStream MultiJson Support' do
         TweetStream.configure do |config|
           config.username = 'test'
           config.password = 'fake'
+          config.parser   = engine
         end
-        @client = TweetStream::Client.new(:parser => engine)
+        @client = TweetStream::Client.new
         @class_name = "MultiJson::Engines::#{engine.to_s.split('_').map{|s| s.capitalize}.join('')}"
       end
 
