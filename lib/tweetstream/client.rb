@@ -220,15 +220,15 @@ module TweetStream
       uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
 
       EventMachine::run {
-        @stream = Twitter::JSONStream.connect(
+        stream_params = {
           :path => uri,
-          :auth => "#{self.username}:#{self.password}",
           :method => method.to_s.upcase,
           :content => (method == :post ? build_post_body(query_parameters) : ''),
-          :user_agent => 'TweetStream',
+          :user_agent => user_agent,
           :on_inited => inited_proc
-        )
+        }.merge(auth_params)
 
+        @stream = Twitter::JSONStream.connect(stream_params)
         @stream.each_item do |item|
           begin
             raw_hash = json_parser.decode(item)
@@ -302,6 +302,15 @@ module TweetStream
       end
 
       pairs.join('&')
+    end
+
+    def auth_params
+      case auth_method
+      when :basic
+        return :auth => "#{username}:#{password}"
+      when :oauth
+        return :oauth => { :consumer_key => consumer_key, :consumer_secret => consumer_secret, :access_key => oauth_token, :access_secret => oauth_token_secret }
+      end
     end
   end
 end
