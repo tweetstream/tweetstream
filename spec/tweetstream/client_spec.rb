@@ -198,7 +198,7 @@ describe TweetStream::Client do
     end
     it '#filter should make a call to "statuses/filter" with the query params provided longitude/latitude pairs, separated by commas ' do
       @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
-      @client.filter(:locations => -122.75,36.8,-121.75,37.8,-74,40,-73,41)
+      @client.filter(:locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41')
     end
   end
 
