@@ -230,11 +230,12 @@ module TweetStream
           begin
             raw_hash = @parser.decode(item)
           rescue MultiJson::DecodeError
+            error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
             next
           end
 
           unless raw_hash.is_a?(::Hash)
-            error_proc.call("Unexpected JSON object in stream: #{item}")
+            error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
             next
           end
 

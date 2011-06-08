@@ -133,6 +133,13 @@ describe TweetStream::Client do
           message.should == 'Unexpected JSON object in stream: ["favorited"]'
         end.track('abc')
       end
+
+      it 'should call on_error if a json parse error occurs' do
+        @stream.should_receive(:each_item).and_yield("{'a_key':}")
+        @client.on_error do |message|
+          message.should == "MultiJson::DecodeError occured in stream: {'a_key':}"
+        end.track('abc')
+      end
     end
 
     describe '#on_error' do
