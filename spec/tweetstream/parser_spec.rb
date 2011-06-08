@@ -5,7 +5,7 @@ describe 'TweetStream MultiJson Support' do
     TweetStream::Client.new('test','fake').parser.engine.should == MultiJson::Engines::JsonGem
   end
 
-  [:json_gem, :yajl, :active_support, :json_pure].each do |engine|
+  [:json_gem, :yajl, :json_pure].each do |engine|
     describe "#{engine} parsing" do
       before do
         @client = TweetStream::Client.new('test','fake',engine)
