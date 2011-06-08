@@ -202,7 +202,7 @@ describe TweetStream::Client do
     end
   end
 
-  %w(on_delete on_limit).each do |proc_setter|
+  %w(on_delete on_limit on_inited).each do |proc_setter|
     describe "##{proc_setter}" do
       before do
         @client = TweetStream::Client.new('abc','def')
