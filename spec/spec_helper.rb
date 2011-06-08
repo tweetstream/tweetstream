@@ -12,8 +12,6 @@ require 'rspec'
 require 'rspec/autorun'
 require 'yajl'
 require 'json'
-require 'active_support/ordered_hash'
-require 'active_support/json'
 
 def sample_tweets
   if @tweets
