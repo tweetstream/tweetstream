@@ -23,11 +23,7 @@ describe 'TweetStream MultiJson Support' do
     end
   end
 
-  class FakeParser
-    def self.decode(text)
-      {}
-    end
-  end
+  class FakeParser; end
 
   it 'should be settable to a class' do
     @client = TweetStream::Client.new('abc','def')
