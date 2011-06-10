@@ -234,6 +234,22 @@ describe TweetStream::Client do
     end
   end
 
+  describe '#locations' do
+    before do
+      @client = TweetStream::Client.new('abc','def')
+    end
+
+    it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs' do
+      @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
+      @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41')
+    end
+
+    it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs and additional filter' do
+      @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock', :method => :post)
+      @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock')
+    end
+  end
+
   describe 'instance .stop' do
     it 'should call EventMachine::stop_event_loop' do
       EventMachine.should_receive :stop_event_loop
