@@ -119,13 +119,6 @@ module TweetStream
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
     def filter(query_params = {}, &block)
-      [:follow, :track, :locations].each do |param|
-        if query_params[param].is_a?(Array)
-          query_params[param] = query_params[param].flatten.collect{|q| q.to_s}.join(',')
-        elsif query_params[param]
-          query_params[param] = query_params[param].to_s
-        end
-      end
       start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
@@ -217,15 +210,18 @@ module TweetStream
       error_proc = query_parameters.delete(:error) || self.on_error
       inited_proc = query_parameters.delete(:inited) || self.on_inited
 
-      uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
+      params = normalize_filter_parameters(query_parameters)
+
+      uri = method == :get ? build_uri(path, params) : build_uri(path)
 
       EventMachine::run {
         stream_params = {
           :path => uri,
           :method => method.to_s.upcase,
-          :content => (method == :post ? build_post_body(query_parameters) : ''),
           :user_agent => user_agent,
-          :on_inited => inited_proc
+          :on_inited => inited_proc,
+          :filters => params.delete(:track),
+          :params => params
         }.merge(auth_params)
 
         @stream = Twitter::JSONStream.connect(stream_params)
@@ -298,10 +294,22 @@ module TweetStream
       pairs = []
 
       query.each_pair do |k,v|
+        v = v.flatten.collect { |q| q.to_s }.join(',') if v.is_a?(Array)
         pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
       end
 
       pairs.join('&')
+    end
+
+    def normalize_filter_parameters(query_parameters = {})
+      [:follow, :track, :locations].each do |param|
+        if query_parameters[param].kind_of?(Array)
+          query_parameters[param] = query_parameters[param].flatten.collect{|q| q.to_s}.join(',')
+        elsif query_parameters[param]
+          query_parameters[param] = query_parameters[param].to_s
+        end
+      end
+      query_parameters
     end
 
     def auth_params
@@ -309,7 +317,12 @@ module TweetStream
       when :basic
         return :auth => "#{username}:#{password}"
       when :oauth
-        return :oauth => { :consumer_key => consumer_key, :consumer_secret => consumer_secret, :access_key => oauth_token, :access_secret => oauth_token_secret }
+        return :oauth => {
+          :consumer_key => consumer_key,
+          :consumer_secret => consumer_secret,
+          :access_key => oauth_token,
+          :access_secret => oauth_token_secret
+        }
       end
     end
   end
