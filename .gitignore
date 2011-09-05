@@ -7,3 +7,7 @@ Gemfile.lock
 coverage/*
 .yardoc/*
 doc/*
+.bundle
+.swp
+.idea
+.rvmrc
