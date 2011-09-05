@@ -203,7 +203,15 @@ module TweetStream
       end
     end
 
-    def start(path, query_parameters = {}, &block) #:nodoc:
+    # connect to twitter while starting a new EventMachine run loop
+    def start(path, query_parameters = {}, &block)
+      EventMachine::run {
+        connect(path, query_parameters, &block)
+      }
+    end
+
+    # connect to twitter without starting a new EventMachine run loop
+    def connect(path, query_parameters = {}, &block)
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
       limit_proc = query_parameters.delete(:limit) || self.on_limit
@@ -214,65 +222,69 @@ module TweetStream
 
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
-      EventMachine::run {
-        stream_params = {
-          :path       => uri,
-          :method     => method.to_s.upcase,
-          :user_agent => user_agent,
-          :on_inited  => inited_proc,
-          :filters    => params.delete(:track),
-          :params     => params,
-          :ssl        => true
-        }.merge(auth_params)
+      stream_params = {
+        :path       => uri,
+        :method     => method.to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited  => inited_proc,
+        :filters    => params.delete(:track),
+        :params     => params,
+        :ssl        => true
+      }.merge(auth_params)
 
-        @stream = Twitter::JSONStream.connect(stream_params)
-        @stream.each_item do |item|
-          begin
-            raw_hash = json_parser.decode(item)
-          rescue MultiJson::DecodeError
-            error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
-            next
-          end
-
-          unless raw_hash.is_a?(::Hash)
-            error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
-            next
-          end
-
-          hash = TweetStream::Hash.new(raw_hash)
-
-          if hash[:delete] && hash[:delete][:status]
-            delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
-          elsif hash[:limit] && hash[:limit][:track]
-            limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
-          elsif hash[:text] && hash[:user]
-            @last_status = TweetStream::Status.new(hash)
-
-            # Give the block the option to receive either one
-            # or two arguments, depending on its arity.
-            case block.arity
-              when 1
-                yield @last_status
-              when 2
-                yield @last_status, self
-            end
-          end
+      @stream = Twitter::JSONStream.connect(stream_params)
+      @stream.each_item do |item|
+        begin
+          raw_hash = json_parser.decode(item)
+        rescue MultiJson::DecodeError
+          error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
+          next
         end
 
-        @stream.on_error do |message|
-          error_proc.call(message) if error_proc.is_a?(Proc)
+        unless raw_hash.is_a?(::Hash)
+          error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
+          next
         end
 
-        @stream.on_max_reconnects do |timeout, retries|
-          raise TweetStream::ReconnectError.new(timeout, retries)
+        hash = TweetStream::Hash.new(raw_hash)
+
+        if hash[:delete] && hash[:delete][:status]
+          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+        elsif hash[:limit] && hash[:limit][:track]
+          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+        elsif hash[:text] && hash[:user]
+          @last_status = TweetStream::Status.new(hash)
+
+          # Give the block the option to receive either one
+          # or two arguments, depending on its arity.
+          case block.arity
+            when 1
+              yield @last_status
+            when 2
+              yield @last_status, self
+          end
         end
-      }
+      end
+
+      @stream.on_error do |message|
+        error_proc.call(message) if error_proc.is_a?(Proc)
+      end
+
+      @stream.on_max_reconnects do |timeout, retries|
+        raise TweetStream::ReconnectError.new(timeout, retries)
+      end
+      @stream
     end
 
-    # Terminate the currently running TweetStream.
+    # Terminate the currently running TweetStream and close EventMachine loop
     def stop
       EventMachine.stop_event_loop
       @last_status
+    end
+
+    # Close the connection to twitter without closing the eventmachine loop
+    def close_connection
+      @stream.close_connection if @stream
     end
 
     protected
