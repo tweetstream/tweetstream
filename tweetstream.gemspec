@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rspec', '~> 2.6.0')
   s.add_development_dependency('yajl-ruby', '~> 0.8.2')
   s.add_development_dependency('json', '~> 1.5.1')
+  s.add_development_dependency('guard-rspec', '~> 0.4.3')
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
