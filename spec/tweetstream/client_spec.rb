@@ -5,6 +5,7 @@ describe TweetStream::Client do
     TweetStream.configure do |config|
       config.username = 'abc'
       config.password = 'def'
+      config.auth_method = :basic
     end
     @client = TweetStream::Client.new
   end

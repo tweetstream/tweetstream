@@ -29,7 +29,7 @@ module TweetStream
     DEFAULT_USER_AGENT = "TweetStream Ruby Gem #{TweetStream::VERSION}".freeze
 
     # The default authentication method
-    DEFAULT_AUTH_METHOD = :basic
+    DEFAULT_AUTH_METHOD = :oauth
 
     VALID_FORMATS = [
       :basic,
