@@ -23,28 +23,31 @@ module TweetStream
     attr_accessor :username, :password
     attr_reader :parser
 
-    # Set the JSON Parser for this client. Acceptable options are:
-    #
-    # <tt>:json_gem</tt>:: Parse using the JSON gem.
-    # <tt>:json_pure</tt>:: Parse using the pure-ruby implementation of the JSON gem.
-    # <tt>:active_support</tt>:: Parse using ActiveSupport::JSON.decode
-    # <tt>:yajl</tt>:: Parse using <tt>yajl-ruby</tt>.
-    #
-    # You may also pass a class that will return a hash with symbolized
-    # keys when <tt>YourClass.parse</tt> is called with a JSON string.
-    def parser=(parser)
-      @parser = parser_from(parser)
+    # @private
+    attr_accessor *Configuration::VALID_OPTIONS_KEYS
+
+    # Creates a new API
+    def initialize(options={})
+      options = TweetStream.options.merge(options)
+      Configuration::VALID_OPTIONS_KEYS.each do |key|
+        send("#{key}=", options[key])
+      end
+    end
+
+    # Get the JSON parser class for this client.
+    def json_parser
+      parser_from(parser)
     end
 
     # Create a new client with the Twitter credentials
     # of the account you want to be using its API quota.
     # You may also set the JSON parsing library as specified
     # in the #parser= setter.
-    def initialize(user, pass, parser = :json_gem)
-      self.username = user
-      self.password = pass
-      self.parser = parser
-    end
+    # def initialize(ouser, pass, parser = :json_gem)
+    #   self.username = user
+    #   self.password = pass
+    #   self.parser = parser
+    # end
 
     # Returns all public statuses. The Firehose is not a generally
     # available resource. Few applications require this level of access.
@@ -116,13 +119,6 @@ module TweetStream
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
     def filter(query_params = {}, &block)
-      [:follow, :track, :locations].each do |param|
-        if query_params[param].is_a?(Array)
-          query_params[param] = query_params[param].flatten.collect{|q| q.to_s}.join(',')
-        elsif query_params[param]
-          query_params[param] = query_params[param].to_s
-        end
-      end
       start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
@@ -214,21 +210,24 @@ module TweetStream
       error_proc = query_parameters.delete(:error) || self.on_error
       inited_proc = query_parameters.delete(:inited) || self.on_inited
 
-      uri = method == :get ? build_uri(path, query_parameters) : build_uri(path)
+      params = normalize_filter_parameters(query_parameters)
+
+      uri = method == :get ? build_uri(path, params) : build_uri(path)
 
       EventMachine::run {
-        @stream = Twitter::JSONStream.connect(
+        stream_params = {
           :path => uri,
-          :auth => "#{self.username}:#{self.password}",
           :method => method.to_s.upcase,
-          :content => (method == :post ? build_post_body(query_parameters) : ''),
-          :user_agent => 'TweetStream',
-          :on_inited => inited_proc
-        )
+          :user_agent => user_agent,
+          :on_inited => inited_proc,
+          :filters => params.delete(:track),
+          :params => params
+        }.merge(auth_params)
 
+        @stream = Twitter::JSONStream.connect(stream_params)
         @stream.each_item do |item|
           begin
-            raw_hash = @parser.decode(item)
+            raw_hash = json_parser.decode(item)
           rescue MultiJson::DecodeError
             error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
             next
@@ -295,10 +294,36 @@ module TweetStream
       pairs = []
 
       query.each_pair do |k,v|
+        v = v.flatten.collect { |q| q.to_s }.join(',') if v.is_a?(Array)
         pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
       end
 
       pairs.join('&')
+    end
+
+    def normalize_filter_parameters(query_parameters = {})
+      [:follow, :track, :locations].each do |param|
+        if query_parameters[param].kind_of?(Array)
+          query_parameters[param] = query_parameters[param].flatten.collect{|q| q.to_s}.join(',')
+        elsif query_parameters[param]
+          query_parameters[param] = query_parameters[param].to_s
+        end
+      end
+      query_parameters
+    end
+
+    def auth_params
+      case auth_method
+      when :basic
+        return :auth => "#{username}:#{password}"
+      when :oauth
+        return :oauth => {
+          :consumer_key => consumer_key,
+          :consumer_secret => consumer_secret,
+          :access_key => oauth_token,
+          :access_secret => oauth_token_secret
+        }
+      end
     end
   end
 end

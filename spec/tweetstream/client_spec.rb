@@ -1,17 +1,15 @@
 require File.dirname(__FILE__) + '/../spec_helper'
 
 describe TweetStream::Client do
-  it 'should set the username and password from the initializers' do
-    @client = TweetStream::Client.new('abc','def')
-    @client.username.should == 'abc'
-    @client.password.should == 'def'
+  before(:each) do
+    TweetStream.configure do |config|
+      config.username = 'abc'
+      config.password = 'def'
+    end
+    @client = TweetStream::Client.new
   end
 
   describe '#build_uri' do
-    before do
-      @client = TweetStream::Client.new('abc','def')
-    end
-
     it 'should return a URI' do
       @client.send(:build_uri, '').is_a?(URI).should be_true
     end
@@ -26,10 +24,6 @@ describe TweetStream::Client do
   end
 
   describe '#build_post_body' do
-    before do
-      @client = TweetStream::Client.new('abc','def')
-    end
-
     it 'should return a blank string if passed a nil value' do
       @client.send(:build_post_body, nil).should == ''
     end
@@ -63,17 +57,17 @@ describe TweetStream::Client do
       )
       EM.stub!(:run).and_yield
       Twitter::JSONStream.stub!(:connect).and_return(@stream)
-      @client = TweetStream::Client.new('abc','def')
     end
 
-    it 'should try to connect via a JSON stream' do
+    it 'should try to connect via a JSON stream with basic auth' do
       Twitter::JSONStream.should_receive(:connect).with(
-        :auth => 'abc:def',
-        :content => 'track=monday',
         :path => URI.parse('/1/statuses/filter.json'),
         :method => 'POST',
-        :user_agent => 'TweetStream',
-        :on_inited => nil
+        :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
+        :on_inited => nil,
+        :filters => 'monday',
+        :params => {},
+        :auth => 'abc:def'
       ).and_return(@stream)
 
       @client.track('monday')
@@ -81,7 +75,7 @@ describe TweetStream::Client do
 
     describe '#each_item' do
       it 'should call the appropriate parser' do
-        @client = TweetStream::Client.new('abc','def',:json_gem)
+        @client = TweetStream::Client.new
         MultiJson.should_receive(:decode).and_return({})
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
@@ -163,10 +157,6 @@ describe TweetStream::Client do
   end
 
   describe ' API methods' do
-    before do
-      @client = TweetStream::Client.new('abc','def')
-    end
-
     %w(firehose retweet sample).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         @client.should_receive(:start).once.with('statuses/' + method, {})
@@ -175,32 +165,32 @@ describe TweetStream::Client do
     end
 
     it '#track should make a call to start with "statuses/filter" and a track query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'test', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :track => ['test'], :method => :post)
       @client.track('test')
     end
 
     it '#track should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :track => ['foo', 'bar', 'baz'], :method => :post)
       @client.track('foo', 'bar', 'baz')
     end
 
     it '#track should comma-join an array of arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'foo,bar,baz', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :track => [['foo','bar','baz']], :method => :post)
       @client.track(['foo','bar','baz'])
     end
 
     it '#follow should make a call to start with "statuses/filter" and a follow query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :follow => [123], :method => :post)
       @client.follow(123)
     end
 
     it '#follow should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123,456', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :follow => [123,456], :method => :post)
       @client.follow(123, 456)
     end
 
     it '#filter should make a call to "statuses/filter" with the query params provided' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => '123', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :follow => 123, :method => :post)
       @client.filter(:follow => 123)
     end
     it '#filter should make a call to "statuses/filter" with the query params provided longitude/latitude pairs, separated by commas ' do
@@ -211,10 +201,6 @@ describe TweetStream::Client do
 
   %w(on_delete on_limit on_inited).each do |proc_setter|
     describe "##{proc_setter}" do
-      before do
-        @client = TweetStream::Client.new('abc','def')
-      end
-
       it 'should set when a block is given' do
         proc = Proc.new{|a,b| puts a }
         @client.send(proc_setter, &proc)
@@ -224,28 +210,20 @@ describe TweetStream::Client do
   end
 
   describe '#track' do
-    before do
-      @client = TweetStream::Client.new('abc','def')
-    end
-
     it 'should call #start with "statuses/filter" and the provided queries' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => 'rock', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :track => ['rock'], :method => :post)
       @client.track('rock')
     end
   end
 
   describe '#locations' do
-    before do
-      @client = TweetStream::Client.new('abc','def')
-    end
-
     it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs' do
-      @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :method => :post)
       @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41')
     end
 
     it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs and additional filter' do
-      @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock', :method => :post)
+      @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :track => 'rock', :method => :post)
       @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock')
     end
   end
@@ -253,14 +231,60 @@ describe TweetStream::Client do
   describe 'instance .stop' do
     it 'should call EventMachine::stop_event_loop' do
       EventMachine.should_receive :stop_event_loop
-      TweetStream::Client.new('test','fake').stop.should be_nil
+      TweetStream::Client.new.stop.should be_nil
     end
 
     it 'should return the last status yielded' do
       EventMachine.should_receive :stop_event_loop
-      client = TweetStream::Client.new('test','fake')
+      client = TweetStream::Client.new
       client.send(:instance_variable_set, :@last_status, {})
       client.stop.should == {}
     end
   end
+
+  describe "oauth" do
+    describe '#start' do
+      before do
+        TweetStream.configure do |config|
+          config.consumer_key = '123456789'
+          config.consumer_secret = 'abcdefghijklmnopqrstuvwxyz'
+          config.oauth_token = '123456789'
+          config.oauth_token_secret = 'abcdefghijklmnopqrstuvwxyz'
+          config.auth_method = :oauth
+        end
+        @client = TweetStream::Client.new
+
+        @stream = stub("Twitter::JSONStream",
+          :connect => true,
+          :unbind => true,
+          :each_item => true,
+          :on_error => true,
+          :on_max_reconnects => true,
+          :connection_completed => true
+        )
+        EM.stub!(:run).and_yield
+        Twitter::JSONStream.stub!(:connect).and_return(@stream)
+      end
+
+      it 'should try to connect via a JSON stream with oauth' do
+        Twitter::JSONStream.should_receive(:connect).with(
+          :path => URI.parse('/1/statuses/filter.json'),
+          :method => 'POST',
+          :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
+          :on_inited => nil,
+          :filters => 'monday',
+          :params => {},
+          :oauth => {
+            :consumer_key => '123456789',
+            :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',
+            :access_key => '123456789',
+            :access_secret => 'abcdefghijklmnopqrstuvwxyz'
+          }
+        ).and_return(@stream)
+
+        @client.track('monday')
+      end
+    end
+  end
+
 end

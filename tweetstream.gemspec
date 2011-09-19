@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.rubygems_version          = %q{1.3.6}
   s.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if s.respond_to? :required_rubygems_version=
 
-  s.add_dependency('twitter-stream', '~> 0.1.12')
+  s.add_dependency('twitter-stream', '~> 0.1.14')
   s.add_dependency('daemons', '~> 1.1.2')
   s.add_dependency('multi_json', '~> 1.0.0')
   s.add_development_dependency('simplecov', '~> 0.4')
