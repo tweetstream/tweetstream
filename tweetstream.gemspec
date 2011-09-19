@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency('twitter-stream', '~> 0.1.14')
   s.add_dependency('daemons', '~> 1.1.2')
-  s.add_dependency('multi_json', '~> 1.0.0')
+  s.add_dependency('multi_json', '~> 1.0.3')
   s.add_development_dependency('simplecov', '~> 0.4')
   s.add_development_dependency('yard', '~> 0.7')
   s.add_development_dependency('maruku', '~> 0.6')
