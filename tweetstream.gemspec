@@ -16,16 +16,17 @@ Gem::Specification.new do |s|
   s.rubygems_version          = %q{1.3.6}
   s.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if s.respond_to? :required_rubygems_version=
 
-  s.add_dependency('twitter-stream', '~> 0.1.14')
-  s.add_dependency('daemons', '~> 1.1.2')
-  s.add_dependency('multi_json', '~> 1.0.3')
-  s.add_development_dependency('simplecov', '~> 0.4')
-  s.add_development_dependency('yard', '~> 0.7')
-  s.add_development_dependency('maruku', '~> 0.6')
-  s.add_development_dependency('rspec', '~> 2.6.0')
-  s.add_development_dependency('yajl-ruby', '~> 0.8.2')
-  s.add_development_dependency('json', '~> 1.5.1')
-  s.add_development_dependency('guard-rspec', '~> 0.4.3')
+  s.add_dependency 'twitter-stream', '~> 0.1.14'
+  s.add_dependency 'daemons', '~> 1.1.2'
+  s.add_dependency 'multi_json', '~> 1.0.3'
+  s.add_development_dependency 'rake', '~> 0.9'
+  s.add_development_dependency 'simplecov', '~> 0.4'
+  s.add_development_dependency 'yard', '~> 0.7'
+  s.add_development_dependency 'rdiscount', '~> 1.6'
+  s.add_development_dependency 'rspec', '~> 2.6.0'
+  s.add_development_dependency 'yajl-ruby', '~> 1.0'
+  s.add_development_dependency 'json', '~> 1.5.1'
+  s.add_development_dependency 'guard-rspec', '~> 0.4.3'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
