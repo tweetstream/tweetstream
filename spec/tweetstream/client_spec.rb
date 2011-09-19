@@ -67,6 +67,7 @@ describe TweetStream::Client do
         :on_inited => nil,
         :filters => 'monday',
         :params => {},
+        :ssl => true,
         :auth => 'abc:def'
       ).and_return(@stream)
 
@@ -274,6 +275,7 @@ describe TweetStream::Client do
           :on_inited => nil,
           :filters => 'monday',
           :params => {},
+          :ssl => true,
           :oauth => {
             :consumer_key => '123456789',
             :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',

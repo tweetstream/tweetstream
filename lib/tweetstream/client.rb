@@ -216,12 +216,13 @@ module TweetStream
 
       EventMachine::run {
         stream_params = {
-          :path => uri,
-          :method => method.to_s.upcase,
+          :path       => uri,
+          :method     => method.to_s.upcase,
           :user_agent => user_agent,
-          :on_inited => inited_proc,
-          :filters => params.delete(:track),
-          :params => params
+          :on_inited  => inited_proc,
+          :filters    => params.delete(:track),
+          :params     => params,
+          :ssl        => true
         }.merge(auth_params)
 
         @stream = Twitter::JSONStream.connect(stream_params)
