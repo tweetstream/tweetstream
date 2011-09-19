@@ -18,9 +18,18 @@ Using TweetStream is quite simple:
     require 'rubygems'
     require 'tweetstream'
 
+    TweetStream.configure do |config|
+      config.consumer_key = 'abcdefghijklmnopqrstuvwxyz'
+      config.consumer_secret = '0123456789'
+      config.oauth_token = 'abcdefghijklmnopqrstuvwxyz'
+      config.oauth_token_secret = '0123456789'
+      config.auth_method = :oauth
+      config.parser   = :yajl
+    end
+
     # This will pull a sample of all tweets based on
     # your Twitter account's Streaming API role.
-    TweetStream::Client.new('username','password').sample do |status|
+    TweetStream::Client.new.sample do |status|
       # The status object is a special Hash with
       # method access to its keys.
       puts "#{status.text}"
@@ -30,27 +39,62 @@ You can also use it to track keywords or follow a given set of
 user ids:
 
     # Use 'track' to track a list of single-word keywords
-    TweetStream::Client.new('username','password').track('term1', 'term2') do |status|
+    TweetStream::Client.new.track('term1', 'term2') do |status|
       puts "#{status.text}"
     end
 
     # Use 'follow' to follow a group of user ids (integers, not screen names)
-    TweetStream::Client.new('username','password').follow(14252, 53235) do |status|
+    TweetStream::Client.new.follow(14252, 53235) do |status|
       puts "#{status.text}"
     end
 
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
 
+Configuration and Changes in 1.1.0
+----------------------------------
+
+As of version 1.1.0.rc1 TweetStream supports OAuth.  Please note that in order
+to support OAuth, the `TweetStream::Client` initializer no longer accepts a
+username/password.  `TweetStream::Client` now accepts a hash:
+
+    TweetStream::Client.new(:username => 'you', :password => 'pass')
+
+Alternatively, you can configure TweetStream via the configure method:
+
+    TweetStream.configure do |config|
+      config.consumer_key = 'cVcIw5zoLFE2a4BdDsmmA'
+      config.consumer_secret = 'yYgVgvTT9uCFAi2IuscbYTCqwJZ1sdQxzISvLhNWUA'
+      config.oauth_token = '4618-H3gU7mjDQ7MtFkAwHhCqD91Cp4RqDTp1AKwGzpHGL3I'
+      config.oauth_token_secret = 'xmc9kFgOXpMdQ590Tho2gV7fE71v5OmBrX8qPGh7Y'
+      config.auth_method = :oauth
+      config.parser   = :yajl
+    end
+
+If you are using Basic Auth:
+
+    TweetStream.configure do |config|
+      config.username = 'username'
+      config.password = 'password'
+      config.auth_method = :basic
+      config.parser   = :yajl
+    end
+
+TweetStream assumes OAuth by default.  If you are using Basic Auth, it is recommended
+that you update your code to use OAuth as Twitter is likely to phase out Basic Auth
+support.
+
 Swappable JSON Parsing
 ----------------------
 
-As of version 1.0, TweetStream supports swappable JSON backends for
-parsing the Tweets. These are specified when you initialize the
-client or daemon by passing it in as the last argument:
+As of version 1.1, TweetStream supports swappable JSON backends via MultiJson. You can
+specify a parser during configuration:
 
     # Parse tweets using Yajl-Ruby
-    TweetStream::Client.new('abc','def',:yajl) # ...
+    TweetStream.configure do |config|
+      ..
+      config.parser   = :yajl
+    end.
 
 Available options are `:yajl`, `:json_gem` (default),
 `:json_pure`, and `:active_support`.
@@ -63,7 +107,7 @@ Specifically, it does so when a status is deleted or rate limitations
 have caused some tweets not to appear in the stream. To handle these,
 you can use the on_delete and on_limit methods. Example:
 
-    @client = TweetStream::Client.new('user','pass')
+    @client = TweetStream::Client.new
 
     @client.on_delete do |status_id, user_id|
       Tweet.delete(status_id)
@@ -77,7 +121,7 @@ you can use the on_delete and on_limit methods. Example:
 
 The on_delete and on_limit methods can also be chained, like so:
 
-    TweetStream::Client.new('user','pass').on_delete{ |status_id, user_id|
+    TweetStream::Client.new.on_delete{ |status_id, user_id|
       Tweet.delete(status_id)
     }.on_limit { |skip_count|
       # do something
@@ -88,7 +132,7 @@ The on_delete and on_limit methods can also be chained, like so:
 You can also provide `:delete` and/or `:limit`
 options when you make your method call:
 
-    TweetStream::Client.new('user','pass').track('intridea',
+    TweetStream::Client.new.track('intridea',
       :delete => Proc.new{ |status_id, user_id| # do something },
       :limit => Proc.new{ |skip_count| # do something }
     ) do |status|
@@ -109,7 +153,7 @@ by you in `on_error` will be called. Note that this does not
 indicate something is actually wrong, just that Twitter is momentarily
 down. It could be for routine maintenance, etc.
 
-    TweetStream::Client.new('abc','def').on_error do |message|
+    TweetStream::Client.new.on_error do |message|
       # Log your error message somewhere
     end.track('term') do |status|
       # Do things when nothing's wrong
@@ -129,7 +173,7 @@ the client itself:
 
     # Stop after collecting 10 statuses
     @statuses = []
-    TweetStream::Client.new('username','password').sample do |status, client|
+    TweetStream::Client.new.sample do |status, client|
       @statuses << status
       client.stop if @statuses.size >= 10
     end
@@ -152,6 +196,12 @@ using the TweetStream library:
 If you put the above into a script and run the script with `ruby scriptname.rb`, you will see a list of daemonization commands such
 as start, stop, and run.
 
+TODO
+----
+
+* UserStream support
+* SiteStream support
+
 Note on Patches/Pull Requests
 -----------------------------
 
@@ -165,6 +215,7 @@ Contributors
 ------------
 
 * Michael Bleigh (initial gem)
+* Steve Agalloco (current maintainer)
 
 Copyright
 ---------
