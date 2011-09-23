@@ -22,13 +22,19 @@ describe TweetStream do
     it "should return the same results as a client" do
       MultiJson.should_receive(:decode).and_return({})
       @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
-      TweetStream.track('abc','def').should == TweetStream::Client.new.track('abc','def')
+      TweetStream.new.track('abc','def').should == TweetStream::Client.new.track('abc','def')
     end
   end
 
-  describe ".client" do
+  describe ".new" do
     it "should be a TweetStream::Client" do
-      TweetStream.client.should be_a TweetStream::Client
+      TweetStream.new.should be_a TweetStream::Client
+    end
+  end
+
+  describe '.respond_to?' do
+    it "should take an optional argument" do
+      TweetStream.respond_to?(:new, true).should be_true
     end
   end
 
