@@ -20,8 +20,6 @@ module TweetStream
   # For information about a daemonized TweetStream client,
   # view the TweetStream::Daemon class.
   class Client
-    attr_accessor :username, :password
-    attr_reader :parser
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
@@ -38,16 +36,6 @@ module TweetStream
     def json_parser
       parser_from(parser)
     end
-
-    # Create a new client with the Twitter credentials
-    # of the account you want to be using its API quota.
-    # You may also set the JSON parsing library as specified
-    # in the #parser= setter.
-    # def initialize(ouser, pass, parser = :json_gem)
-    #   self.username = user
-    #   self.password = pass
-    #   self.parser = parser
-    # end
 
     # Returns all public statuses. The Firehose is not a generally
     # available resource. Few applications require this level of access.
@@ -214,7 +202,10 @@ module TweetStream
 
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
+      EventMachine.epoll
+      EventMachine.kqueue = EM.kqueue?
       EventMachine::run {
+
         stream_params = {
           :path       => uri,
           :method     => method.to_s.upcase,
