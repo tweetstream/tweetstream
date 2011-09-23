@@ -96,8 +96,7 @@ specify a parser during configuration:
       config.parser   = :yajl
     end.
 
-Available options are `:yajl`, `:json_gem` (default),
-`:json_pure`, and `:active_support`.
+Available options are `:yajl`, `:json_gem`, `:json_pure`, and `:ok_json`.
 
 Handling Deletes and Rate Limitations
 -------------------------------------
