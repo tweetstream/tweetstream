@@ -13,7 +13,7 @@ module TweetStream
   # methods and provide a block that will perform actions on
   # a yielded TweetStream::Status. For example:
   #
-  #     TweetStream::Client.new('user','pass').track('fail') do |status|
+  #     TweetStream::Client.new.track('fail') do |status|
   #       puts "[#{status.user.screen_name}] #{status.text}"
   #     end
   #
@@ -113,7 +113,7 @@ module TweetStream
     # Set a Proc to be run when a deletion notice is received
     # from the Twitter stream. For example:
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_delete do |status_id, user_id|
     #       Tweet.delete(status_id)
     #     end
@@ -134,7 +134,7 @@ module TweetStream
     # Set a Proc to be run when a rate limit notice is received
     # from the Twitter stream. For example:
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_limit do |discarded_count|
     #       # Make note of discarded count
     #     end
@@ -156,7 +156,7 @@ module TweetStream
     # processing of the stream. Note that TweetStream will automatically
     # try to reconnect, this is for reference only. Don't panic!
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_error do |message|
     #       # Make note of error message
     #     end
@@ -177,7 +177,7 @@ module TweetStream
     # Set a Proc to be run when connection established.
     # Called in EventMachine::Connection#post_init
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_inited do
     #       puts 'Connected...'
     #     end
