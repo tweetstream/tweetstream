@@ -122,11 +122,7 @@ module TweetStream
       start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
-    # Make a call to the statuses/filter method of the Streaming API,
-    # you may provide <tt>:follow</tt>, <tt>:track</tt> or both as options
-    # to follow the tweets of specified users or track keywords. This
-    # method is provided separately for cases when it would conserve the
-    # number of HTTP connections to combine track and follow.
+    # Make a call to the userstream api for currently authenticated user
     def userstream(&block)
       start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
     end
