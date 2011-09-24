@@ -301,6 +301,18 @@ describe TweetStream::Client do
 
         @client.track('monday')
       end
+
+      context "when calling #user_stream" do
+        it "sends the userstream host" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
+          @client.user_stream
+        end
+
+        it "uses the userstream uri" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
+          @client.user_stream
+        end
+      end
     end
   end
 

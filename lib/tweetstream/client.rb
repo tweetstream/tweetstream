@@ -128,7 +128,7 @@ module TweetStream
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
     def user_stream(&block)
-      start('', &block)
+      start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -243,18 +243,21 @@ module TweetStream
 
       params = normalize_filter_parameters(query_parameters)
 
+      extra_stream_parameters = query_parameters.delete(:extra_stream_parameters) || {}
+
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
+      stream_params = {
+        :path       => uri,
+        :method     => method.to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited  => inited_proc,
+        :filters    => params.delete(:track),
+        :params     => params,
+        :ssl        => true
+      }.merge(auth_params).merge(extra_stream_parameters)
+
       EventMachine::run {
-        stream_params = {
-          :path       => uri,
-          :method     => method.to_s.upcase,
-          :user_agent => user_agent,
-          :on_inited  => inited_proc,
-          :filters    => params.delete(:track),
-          :params     => params,
-          :ssl        => true
-        }.merge(auth_params)
 
         @stream = Twitter::JSONStream.connect(stream_params)
         @stream.each_item do |item|
