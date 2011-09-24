@@ -123,7 +123,34 @@ describe TweetStream::Client do
         end.track('abc')
       end
 
-      context "calling on_direct_message" do
+      context 'using on_timeline_status' do
+        it 'yields a Status' do
+          tweet = sample_tweets[0]
+          tweet[:id] = 123
+          tweet[:user][:screen_name] = 'monkey'
+          tweet[:text] = "Oo oo aa aa"
+          @stream.should_receive(:each_item).and_yield(tweet.to_json)
+          yielded_status = nil
+          @client.on_timeline_status do |status|
+            yielded_status = status
+          end.track('abc')
+          yielded_status.should_not be_nil
+          yielded_status[:id].should == 123
+          yielded_status.user.screen_name.should == 'monkey'
+          yielded_status.text.should == 'Oo oo aa aa'
+        end
+        it 'yields itself if block has an arity of 2' do
+          @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+          yielded_client = nil
+          @client.on_timeline_status do |_, client|
+            yielded_client = client
+          end.track('abc')
+          yielded_client.should_not be_nil
+          yielded_client.should == @client
+        end
+      end
+
+      context 'using on_direct_message' do
         it 'yields a DirectMessage' do
           direct_message = sample_direct_messages[0]
           direct_message["direct_message"]["id"] = 1234

@@ -199,7 +199,7 @@ module TweetStream
     # processing of the stream.
     #
     #     @client = TweetStream::Client.new('user','pass')
-    #     @client.on_error do |direct_message|
+    #     @client.on_direct_message do |direct_message|
     #       # do something with the direct message
     #     end
     #
@@ -213,6 +213,27 @@ module TweetStream
         self
       else
         @on_direct_message
+      end
+    end
+
+    # Set a Proc to be run when a regular timeline message is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_timeline_message do |status|
+    #       # do something with the status
+    #     end
+    #
+    # Block can take one or two arguments. |status (, client)|
+    # If no block is given, it will return the currently set
+    # timeline status proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_timeline_status(&block)
+      if block_given?
+        @on_timeline_status = block
+        self
+      else
+        @on_timeline_status
       end
     end
 
@@ -240,6 +261,7 @@ module TweetStream
       error_proc = query_parameters.delete(:error) || self.on_error
       inited_proc = query_parameters.delete(:inited) || self.on_inited
       direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
+      timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
 
       params = normalize_filter_parameters(query_parameters)
 
@@ -291,14 +313,24 @@ module TweetStream
 
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
-
-            # Give the block the option to receive either one
-            # or two arguments, depending on its arity.
-            case block.arity
+            if timeline_status_proc.is_a?(Proc)
+              case timeline_status_proc.arity
               when 1
-                yield @last_status
+                timeline_status_proc.call(@last_status)
               when 2
-                yield @last_status, self
+                timeline_status_proc.call(@last_status, self)
+              end
+            end
+
+            if block_given?
+              # Give the block the option to receive either one
+              # or two arguments, depending on its arity.
+              case block.arity
+                when 1
+                  yield @last_status
+                when 2
+                  yield @last_status, self
+              end
             end
           end
         end
