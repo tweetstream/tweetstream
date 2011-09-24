@@ -226,6 +226,23 @@ describe TweetStream::Client do
     end
   end
 
+  describe '#on_interval' do
+    it 'should set when a block is given' do
+      @client.on_interval(5) { puts 'hi' }
+      @client.on_interval[0].should == 5
+      @client.on_interval[1].should be_kind_of(Proc)
+    end
+
+    it 'should should create a periodic timer' do
+      # need to figure out a better way to test this
+      # for now, using on_inited to stop the reactor
+      proc = Proc.new{ puts 'hi' }
+      EM.should_receive(:add_periodic_timer).once.with(5)
+      @client.on_inited { EM.stop }.on_interval(5, &proc)
+      @client.track('go')
+    end
+  end
+
   describe '#track' do
     it 'should call #start with "statuses/filter" and the provided queries' do
       @client.should_receive(:start).once.with('statuses/filter', :track => ['rock'], :method => :post)

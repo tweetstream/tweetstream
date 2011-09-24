@@ -191,6 +191,16 @@ module TweetStream
       end
     end
 
+    def on_interval(time_interval=nil, &block)
+      if block_given?
+        @on_interval_time = time_interval
+        @on_interval_proc = block
+        self
+      else
+        [@on_interval_time, @on_interval_proc]
+      end
+    end
+
     def start(path, query_parameters = {}, &block) #:nodoc:
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
@@ -205,6 +215,12 @@ module TweetStream
       EventMachine.epoll
       EventMachine.kqueue = EM.kqueue?
       EventMachine::run {
+
+        if @on_interval_proc.is_a?(Proc)
+          timer = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
+          proc = @on_interval_proc
+          EM.add_periodic_timer(timer, &proc)
+        end
 
         stream_params = {
           :path       => uri,
