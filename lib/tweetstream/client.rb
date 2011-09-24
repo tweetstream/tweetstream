@@ -127,7 +127,7 @@ module TweetStream
     # to follow the tweets of specified users or track keywords. This
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
-    def user_stream(&block)
+    def userstream(&block)
       start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
     end
 

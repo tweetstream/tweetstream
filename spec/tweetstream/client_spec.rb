@@ -159,7 +159,7 @@ describe TweetStream::Client do
           yielded_dm = nil
           @client.on_direct_message do |dm|
             yielded_dm = dm
-          end.user_stream
+          end.userstream
           yielded_dm.should_not be_nil
           yielded_dm.id.should == 1234
           yielded_dm.user.screen_name.should == "coder"
@@ -170,7 +170,7 @@ describe TweetStream::Client do
           yielded_client = nil
           @client.on_direct_message do |_, client|
             yielded_client = client
-          end.user_stream
+          end.userstream
           yielded_client.should == @client
         end
       end
@@ -340,15 +340,15 @@ describe TweetStream::Client do
         @client.track('monday')
       end
 
-      context "when calling #user_stream" do
+      context "when calling #userstream" do
         it "sends the userstream host" do
           Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
-          @client.user_stream
+          @client.userstream
         end
 
         it "uses the userstream uri" do
           Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
-          @client.user_stream
+          @client.userstream
         end
       end
     end
