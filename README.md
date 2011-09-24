@@ -51,6 +51,23 @@ user ids:
 The methods available to TweetStream::Client will be kept in parity
 with the methods available on the Streaming API wiki page.
 
+Using the Twitter Userstream
+----------------------------
+
+Using the Twitter userstream works similarly to the regular usage, except you use the userstream method.
+
+    # Use 'userstream' to get message from your stream
+    TweetStream::Client.new.userstream do |status|
+      puts "#{status.text}"
+    end
+
+You also can listen to direct messages by supplying an on_direct_message proc
+
+    client = TweetStream::Client.new
+    client.on_direct_message do |direct_message|
+      puts "#{direct_message.text}"
+    end
+
 Configuration and Changes in 1.1.0
 ----------------------------------
 
