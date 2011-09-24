@@ -123,18 +123,29 @@ describe TweetStream::Client do
         end.track('abc')
       end
 
-      it 'should call the on_direct_message if specified' do
-        direct_message = sample_direct_messages[0]
-        direct_message["direct_message"]["id"] = 1234
-        direct_message["direct_message"]["sender"]["screen_name"] = "coder"
-        @stream.should_receive(:each_item).and_yield(direct_message.to_json)
-        yielded_dm = nil
-        @client.on_direct_message do |dm|
-          yielded_dm = dm
-        end.user_stream
-        yielded_dm.should_not be_nil
-        yielded_dm.id.should == 1234
-        yielded_dm.user.screen_name.should == "coder"
+      context "calling on_direct_message" do
+        it 'yields a DirectMessage' do
+          direct_message = sample_direct_messages[0]
+          direct_message["direct_message"]["id"] = 1234
+          direct_message["direct_message"]["sender"]["screen_name"] = "coder"
+          @stream.should_receive(:each_item).and_yield(direct_message.to_json)
+          yielded_dm = nil
+          @client.on_direct_message do |dm|
+            yielded_dm = dm
+          end.user_stream
+          yielded_dm.should_not be_nil
+          yielded_dm.id.should == 1234
+          yielded_dm.user.screen_name.should == "coder"
+        end
+
+        it 'yields itself if block has an arity of 2' do
+          @stream.should_receive(:each_item).and_yield(sample_direct_messages[0].to_json)
+          yielded_client = nil
+          @client.on_direct_message do |_, client|
+            yielded_client = client
+          end.user_stream
+          yielded_client.should == @client
+        end
       end
 
       it 'should call on_error if a non-hash response is received' do

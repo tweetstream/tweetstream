@@ -258,7 +258,6 @@ module TweetStream
       }.merge(auth_params).merge(extra_stream_parameters)
 
       EventMachine::run {
-
         @stream = Twitter::JSONStream.connect(stream_params)
         @stream.each_item do |item|
           begin
@@ -281,7 +280,14 @@ module TweetStream
             limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
 
           elsif hash[:direct_message]
-            direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message])) if direct_message_proc.is_a?(Proc)
+            if direct_message_proc.is_a?(Proc)
+              case direct_message_proc.arity
+              when 1
+                direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message]))
+              when 2
+                direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message]), self)
+              end
+            end
 
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
