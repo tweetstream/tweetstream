@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe TweetStream::Client do
   before(:each) do
@@ -121,6 +121,20 @@ describe TweetStream::Client do
         @client.on_limit do |track|
           track.should == 1234
         end.track('abc')
+      end
+
+      it 'should call the on_direct_message if specified' do
+        direct_message = sample_direct_messages[0]
+        direct_message["direct_message"]["id"] = 1234
+        direct_message["direct_message"]["sender"]["screen_name"] = "coder"
+        @stream.should_receive(:each_item).and_yield(direct_message.to_json)
+        yielded_dm = nil
+        @client.on_direct_message do |dm|
+          yielded_dm = dm
+        end.user_stream
+        yielded_dm.should_not be_nil
+        yielded_dm.id.should == 1234
+        yielded_dm.user.screen_name.should == "coder"
       end
 
       it 'should call on_error if a non-hash response is received' do

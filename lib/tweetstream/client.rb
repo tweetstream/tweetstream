@@ -122,6 +122,15 @@ module TweetStream
       start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
+    # Make a call to the statuses/filter method of the Streaming API,
+    # you may provide <tt>:follow</tt>, <tt>:track</tt> or both as options
+    # to follow the tweets of specified users or track keywords. This
+    # method is provided separately for cases when it would conserve the
+    # number of HTTP connections to combine track and follow.
+    def user_stream(&block)
+      start('', &block)
+    end
+
     # Set a Proc to be run when a deletion notice is received
     # from the Twitter stream. For example:
     #
@@ -186,6 +195,27 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run when a direct message is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_error do |direct_message|
+    #       # do something with the direct message
+    #     end
+    #
+    # Block must take one argument: the direct message.
+    # If no block is given, it will return the currently set
+    # direct message proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_direct_message(&block)
+      if block_given?
+        @on_direct_message = block
+        self
+      else
+        @on_direct_message
+      end
+    end
+
     # Set a Proc to be run when connection established.
     # Called in EventMachine::Connection#post_init
     #
@@ -209,6 +239,7 @@ module TweetStream
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
       inited_proc = query_parameters.delete(:inited) || self.on_inited
+      direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
 
       params = normalize_filter_parameters(query_parameters)
 
@@ -229,7 +260,7 @@ module TweetStream
         @stream.each_item do |item|
           begin
             raw_hash = json_parser.decode(item)
-          rescue MultiJson::DecodeError
+          rescue MultiJson::DecodeError => ex
             error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
             next
           end
@@ -245,6 +276,10 @@ module TweetStream
             delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
           elsif hash[:limit] && hash[:limit][:track]
             limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+
+          elsif hash[:direct_message]
+            direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message])) if direct_message_proc.is_a?(Proc)
+
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
 
