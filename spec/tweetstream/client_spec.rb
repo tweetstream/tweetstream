@@ -219,6 +219,10 @@ describe TweetStream::Client do
         @client.send(proc_setter, &proc)
         @client.send(proc_setter).should == proc
       end
+
+      it 'should return nil when undefined' do
+        @client.send(proc_setter).should be_nil
+      end
     end
   end
 
