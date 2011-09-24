@@ -216,6 +216,27 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run whenever anything is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_anything do |status|
+    #       # do something with the status
+    #     end
+    #
+    # Block can take one or two arguments. |status (, client)|
+    # If no block is given, it will return the currently set
+    # timeline status proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_anything(&block)
+      if block_given?
+        @on_anything = block
+        self
+      else
+        @on_anything
+      end
+    end
+
     # Set a Proc to be run when a regular timeline message is encountered in the
     # processing of the stream.
     #
@@ -262,6 +283,7 @@ module TweetStream
       inited_proc = query_parameters.delete(:inited) || self.on_inited
       direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
       timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
+      anything_proc = query_parameters.delete(:anything) || self.on_anything
 
       params = normalize_filter_parameters(query_parameters)
 
@@ -284,7 +306,7 @@ module TweetStream
         @stream.each_item do |item|
           begin
             raw_hash = json_parser.decode(item)
-          rescue MultiJson::DecodeError => ex
+          rescue MultiJson::DecodeError
             error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
             next
           end
@@ -318,6 +340,8 @@ module TweetStream
               end
             end
           end
+
+          yield_message_to anything_proc, hash
         end
 
         @stream.on_error do |message|

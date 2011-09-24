@@ -123,6 +123,29 @@ describe TweetStream::Client do
         end.track('abc')
       end
 
+      context "using on_anything" do
+        it "yields the raw hash" do
+          hash = {:id => 1234}
+          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          yielded_hash = nil
+          @client.on_anything do |hash|
+            yielded_hash = hash
+          end.track('abc')
+          yielded_hash.should_not be_nil
+          yielded_hash.id.should == 1234
+        end
+        it 'yields itself if block has an arity of 2' do
+          hash = {:id => 1234}
+          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          yielded_client = nil
+          @client.on_anything do |_, client|
+            yielded_client = client
+          end.track('abc')
+          yielded_client.should_not be_nil
+          yielded_client.should == @client
+        end
+      end
+
       context 'using on_timeline_status' do
         it 'yields a Status' do
           tweet = sample_tweets[0]
