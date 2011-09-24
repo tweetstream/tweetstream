@@ -145,6 +145,17 @@ describe TweetStream::Client do
           m.should == 'Uh oh'
         end.track('abc')
       end
+
+      it 'should return the block when defined' do
+        @client.on_error do |m|
+          puts 'ohai'
+        end
+        @client.on_error.should be_kind_of(Proc)
+      end
+
+      it 'should return nil when undefined' do
+        @client.on_error.should be_nil
+      end
     end
 
     describe '#on_max_reconnects' do
