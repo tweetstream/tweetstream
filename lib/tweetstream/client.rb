@@ -295,32 +295,17 @@ module TweetStream
           end
 
           hash = TweetStream::Hash.new(raw_hash)
-
           if hash[:delete] && hash[:delete][:status]
             delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
           elsif hash[:limit] && hash[:limit][:track]
             limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
 
           elsif hash[:direct_message]
-            if direct_message_proc.is_a?(Proc)
-              case direct_message_proc.arity
-              when 1
-                direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message]))
-              when 2
-                direct_message_proc.call(TweetStream::DirectMessage.new(hash[:direct_message]), self)
-              end
-            end
+            yield_message_to direct_message_proc, TweetStream::DirectMessage.new(hash[:direct_message])
 
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
-            if timeline_status_proc.is_a?(Proc)
-              case timeline_status_proc.arity
-              when 1
-                timeline_status_proc.call(@last_status)
-              when 2
-                timeline_status_proc.call(@last_status, self)
-              end
-            end
+            yield_message_to timeline_status_proc, @last_status
 
             if block_given?
               # Give the block the option to receive either one
@@ -368,14 +353,11 @@ module TweetStream
 
     def build_post_body(query) #:nodoc:
       return '' unless query && query.is_a?(::Hash) && query.size > 0
-      pairs = []
 
-      query.each_pair do |k,v|
+      query.map do |k, v|
         v = v.flatten.collect { |q| q.to_s }.join(',') if v.is_a?(Array)
-        pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
-      end
-
-      pairs.join('&')
+        "#{k.to_s}=#{CGI.escape(v.to_s)}"
+      end.join('&')
     end
 
     def normalize_filter_parameters(query_parameters = {})
@@ -400,6 +382,17 @@ module TweetStream
           :access_key => oauth_token,
           :access_secret => oauth_token_secret
         }
+      end
+    end
+
+    def yield_message_to(procedure, message)
+      if procedure.is_a?(Proc)
+        case procedure.arity
+        when 1
+          procedure.call(message)
+        when 2
+          procedure.call(message, self)
+        end
       end
     end
   end
