@@ -215,17 +215,16 @@ It is also possible to create a daemonized script quite easily
 using the TweetStream library:
 
     # The third argument is an optional process name
-    TweetStream::Daemon.new('username','password', 'tracker').track('term1', 'term2') do |status|
+    TweetStream::Daemon.new('tracker').track('term1', 'term2') do |status|
       # do something in the background
     end
 
-If you put the above into a script and run the script with `ruby scriptname.rb`, you will see a list of daemonization commands such
-as start, stop, and run.
+If you put the above into a script and run the script with `ruby scriptname.rb`,
+you will see a list of daemonization commands such as start, stop, and run.
 
 TODO
 ----
 
-* UserStream support
 * SiteStream support
 
 Note on Patches/Pull Requests
