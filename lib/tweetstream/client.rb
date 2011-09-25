@@ -182,7 +182,7 @@ module TweetStream
     # Set a Proc to be run when a direct message is encountered in the
     # processing of the stream.
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_direct_message do |direct_message|
     #       # do something with the direct message
     #     end
@@ -203,7 +203,7 @@ module TweetStream
     # Set a Proc to be run whenever anything is encountered in the
     # processing of the stream.
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_anything do |status|
     #       # do something with the status
     #     end
@@ -224,7 +224,7 @@ module TweetStream
     # Set a Proc to be run when a regular timeline message is encountered in the
     # processing of the stream.
     #
-    #     @client = TweetStream::Client.new('user','pass')
+    #     @client = TweetStream::Client.new
     #     @client.on_timeline_message do |status|
     #       # do something with the status
     #     end
@@ -259,6 +259,14 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run on a regular interval
+    # independent of timeline status updates
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_interval(20) do
+    #       # do something every 20 seconds
+    #     end
+    #
     def on_interval(time_interval=nil, &block)
       if block_given?
         @on_interval_time = time_interval
