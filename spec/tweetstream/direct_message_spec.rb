@@ -3,13 +3,13 @@ require 'spec_helper'
 describe TweetStream::DirectMessage do
   it 'modifies the :sender key into a TweetStream::User object called #user' do
     @status = TweetStream::DirectMessage.new({:sender => {:screen_name => 'bob'}})
-    @status.user.is_a?(TweetStream::User).should be_true
+    @status.user.should be_kind_of(TweetStream::User)
     @status.user.screen_name.should == 'bob'
   end
 
   it 'transforms the sender into a TweetStream::User object called #sender' do
     @status = TweetStream::DirectMessage.new({:sender => {:screen_name => 'bob'}})
-    @status.sender.is_a?(TweetStream::User).should be_true
+    @status.sender.should be_kind_of(TweetStream::User)
     @status.sender.screen_name.should == 'bob'
   end
 

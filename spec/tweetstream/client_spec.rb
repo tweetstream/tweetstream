@@ -12,7 +12,7 @@ describe TweetStream::Client do
 
   describe '#build_uri' do
     it 'should return a URI' do
-      @client.send(:build_uri, '').is_a?(URI).should be_true
+      @client.send(:build_uri, '').should be_kind_of(URI)
     end
 
     it 'should have the specified path with the version prefix and a json extension' do
