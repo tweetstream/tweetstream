@@ -5,7 +5,7 @@ class TweetStream::Status < TweetStream::Hash
     super
     self[:user] = TweetStream::User.new(self[:user])
   end
-  
+
   def id
     self[:id] || super
   end
