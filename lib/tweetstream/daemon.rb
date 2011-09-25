@@ -8,7 +8,15 @@ require 'daemons'
 #     require 'rubygems'
 #     require 'tweetstream'
 #
-#     TweetStream::Daemon.new('user','pass', 'tracker').track('intridea') do |status|
+#     TweetStream.configure do |config|
+#       config.consumer_key = 'abcdefghijklmnopqrstuvwxyz'
+#       config.consumer_secret = '0123456789'
+#       config.oauth_token = 'abcdefghijklmnopqrstuvwxyz'
+#       config.oauth_token_secret = '0123456789'
+#       config.auth_method = :oauth
+#     end
+#
+#     TweetStream::Daemon.new('tracker').track('intridea') do |status|
 #       # do something here
 #     end
 #
@@ -26,9 +34,9 @@ class TweetStream::Daemon < TweetStream::Client
   # Twitter account you wish to use. The daemon has
   # an optional process name for use when querying
   # running processes.
-  def initialize(user, pass, app_name=nil, parser=:json_gem)
+  def initialize(app_name=nil)
     @app_name = app_name
-    super(user, pass, parser)
+    super({})
   end
 
   def start(path, query_parameters = {}, &block) #:nodoc:
