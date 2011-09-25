@@ -304,7 +304,7 @@ module TweetStream
       }.merge(auth_params).merge(extra_stream_parameters)
 
       EventMachine.epoll
-      EventMachine.kqueue = EM.kqueue?
+      EventMachine.kqueue
 
       EventMachine::run {
         if @on_interval_proc.is_a?(Proc)
