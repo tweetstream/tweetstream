@@ -110,6 +110,11 @@ module TweetStream
       start('statuses/filter', query_params.merge(:method => :post), &block)
     end
 
+    # Make a call to the userstream api for currently authenticated user
+    def userstream(&block)
+      start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
+    end
+
     # Set a Proc to be run when a deletion notice is received
     # from the Twitter stream. For example:
     #
@@ -174,6 +179,69 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run when a direct message is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_direct_message do |direct_message|
+    #       # do something with the direct message
+    #     end
+    #
+    # Block must take one argument: the direct message.
+    # If no block is given, it will return the currently set
+    # direct message proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_direct_message(&block)
+      if block_given?
+        @on_direct_message = block
+        self
+      else
+        @on_direct_message
+      end
+    end
+
+    # Set a Proc to be run whenever anything is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_anything do |status|
+    #       # do something with the status
+    #     end
+    #
+    # Block can take one or two arguments. |status (, client)|
+    # If no block is given, it will return the currently set
+    # timeline status proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_anything(&block)
+      if block_given?
+        @on_anything = block
+        self
+      else
+        @on_anything
+      end
+    end
+
+    # Set a Proc to be run when a regular timeline message is encountered in the
+    # processing of the stream.
+    #
+    #     @client = TweetStream::Client.new('user','pass')
+    #     @client.on_timeline_message do |status|
+    #       # do something with the status
+    #     end
+    #
+    # Block can take one or two arguments. |status (, client)|
+    # If no block is given, it will return the currently set
+    # timeline status proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_timeline_status(&block)
+      if block_given?
+        @on_timeline_status = block
+        self
+      else
+        @on_timeline_status
+      end
+    end
+
     # Set a Proc to be run when connection established.
     # Called in EventMachine::Connection#post_init
     #
@@ -207,30 +275,35 @@ module TweetStream
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
       inited_proc = query_parameters.delete(:inited) || self.on_inited
+      direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
+      timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
+      anything_proc = query_parameters.delete(:anything) || self.on_anything
 
       params = normalize_filter_parameters(query_parameters)
 
+      extra_stream_parameters = query_parameters.delete(:extra_stream_parameters) || {}
+
       uri = method == :get ? build_uri(path, params) : build_uri(path)
+
+      stream_params = {
+        :path       => uri,
+        :method     => method.to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited  => inited_proc,
+        :filters    => params.delete(:track),
+        :params     => params,
+        :ssl        => true
+      }.merge(auth_params).merge(extra_stream_parameters)
 
       EventMachine.epoll
       EventMachine.kqueue = EM.kqueue?
-      EventMachine::run {
 
+      EventMachine::run {
         if @on_interval_proc.is_a?(Proc)
           timer = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
           proc = @on_interval_proc
           EM.add_periodic_timer(timer, &proc)
         end
-
-        stream_params = {
-          :path       => uri,
-          :method     => method.to_s.upcase,
-          :user_agent => user_agent,
-          :on_inited  => inited_proc,
-          :filters    => params.delete(:track),
-          :params     => params,
-          :ssl        => true
-        }.merge(auth_params)
 
         @stream = Twitter::JSONStream.connect(stream_params)
         @stream.each_item do |item|
@@ -247,23 +320,31 @@ module TweetStream
           end
 
           hash = TweetStream::Hash.new(raw_hash)
-
           if hash[:delete] && hash[:delete][:status]
             delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
           elsif hash[:limit] && hash[:limit][:track]
             limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+
+          elsif hash[:direct_message]
+            yield_message_to direct_message_proc, TweetStream::DirectMessage.new(hash[:direct_message])
+
           elsif hash[:text] && hash[:user]
             @last_status = TweetStream::Status.new(hash)
+            yield_message_to timeline_status_proc, @last_status
 
-            # Give the block the option to receive either one
-            # or two arguments, depending on its arity.
-            case block.arity
-              when 1
-                yield @last_status
-              when 2
-                yield @last_status, self
+            if block_given?
+              # Give the block the option to receive either one
+              # or two arguments, depending on its arity.
+              case block.arity
+                when 1
+                  yield @last_status
+                when 2
+                  yield @last_status, self
+              end
             end
           end
+
+          yield_message_to anything_proc, hash
         end
 
         @stream.on_error do |message|
@@ -299,14 +380,11 @@ module TweetStream
 
     def build_post_body(query) #:nodoc:
       return '' unless query && query.is_a?(::Hash) && query.size > 0
-      pairs = []
 
-      query.each_pair do |k,v|
+      query.map do |k, v|
         v = v.flatten.collect { |q| q.to_s }.join(',') if v.is_a?(Array)
-        pairs << "#{k.to_s}=#{CGI.escape(v.to_s)}"
-      end
-
-      pairs.join('&')
+        "#{k.to_s}=#{CGI.escape(v.to_s)}"
+      end.join('&')
     end
 
     def normalize_filter_parameters(query_parameters = {})
@@ -331,6 +409,17 @@ module TweetStream
           :access_key => oauth_token,
           :access_secret => oauth_token_secret
         }
+      end
+    end
+
+    def yield_message_to(procedure, message)
+      if procedure.is_a?(Proc)
+        case procedure.arity
+        when 1
+          procedure.call(message)
+        when 2
+          procedure.call(message, self)
+        end
       end
     end
   end

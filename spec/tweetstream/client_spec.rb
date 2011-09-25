@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'spec_helper'
 
 describe TweetStream::Client do
   before(:each) do
@@ -121,6 +121,81 @@ describe TweetStream::Client do
         @client.on_limit do |track|
           track.should == 1234
         end.track('abc')
+      end
+
+      context "using on_anything" do
+        it "yields the raw hash" do
+          hash = {:id => 1234}
+          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          yielded_hash = nil
+          @client.on_anything do |hash|
+            yielded_hash = hash
+          end.track('abc')
+          yielded_hash.should_not be_nil
+          yielded_hash.id.should == 1234
+        end
+        it 'yields itself if block has an arity of 2' do
+          hash = {:id => 1234}
+          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          yielded_client = nil
+          @client.on_anything do |_, client|
+            yielded_client = client
+          end.track('abc')
+          yielded_client.should_not be_nil
+          yielded_client.should == @client
+        end
+      end
+
+      context 'using on_timeline_status' do
+        it 'yields a Status' do
+          tweet = sample_tweets[0]
+          tweet[:id] = 123
+          tweet[:user][:screen_name] = 'monkey'
+          tweet[:text] = "Oo oo aa aa"
+          @stream.should_receive(:each_item).and_yield(tweet.to_json)
+          yielded_status = nil
+          @client.on_timeline_status do |status|
+            yielded_status = status
+          end.track('abc')
+          yielded_status.should_not be_nil
+          yielded_status[:id].should == 123
+          yielded_status.user.screen_name.should == 'monkey'
+          yielded_status.text.should == 'Oo oo aa aa'
+        end
+        it 'yields itself if block has an arity of 2' do
+          @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+          yielded_client = nil
+          @client.on_timeline_status do |_, client|
+            yielded_client = client
+          end.track('abc')
+          yielded_client.should_not be_nil
+          yielded_client.should == @client
+        end
+      end
+
+      context 'using on_direct_message' do
+        it 'yields a DirectMessage' do
+          direct_message = sample_direct_messages[0]
+          direct_message["direct_message"]["id"] = 1234
+          direct_message["direct_message"]["sender"]["screen_name"] = "coder"
+          @stream.should_receive(:each_item).and_yield(direct_message.to_json)
+          yielded_dm = nil
+          @client.on_direct_message do |dm|
+            yielded_dm = dm
+          end.userstream
+          yielded_dm.should_not be_nil
+          yielded_dm.id.should == 1234
+          yielded_dm.user.screen_name.should == "coder"
+        end
+
+        it 'yields itself if block has an arity of 2' do
+          @stream.should_receive(:each_item).and_yield(sample_direct_messages[0].to_json)
+          yielded_client = nil
+          @client.on_direct_message do |_, client|
+            yielded_client = client
+          end.userstream
+          yielded_client.should == @client
+        end
       end
 
       it 'should call on_error if a non-hash response is received' do
@@ -318,6 +393,18 @@ describe TweetStream::Client do
         ).and_return(@stream)
 
         @client.track('monday')
+      end
+
+      context "when calling #userstream" do
+        it "sends the userstream host" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
+          @client.userstream
+        end
+
+        it "uses the userstream uri" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
+          @client.userstream
+        end
       end
     end
   end
