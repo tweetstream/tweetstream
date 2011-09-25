@@ -24,3 +24,13 @@ def sample_tweets
     @tweets
   end
 end
+
+def sample_direct_messages
+  return @direct_messages if @direct_messages
+
+  @direct_messages = []
+  Yajl::Parser.parse(File.open(File.dirname(__FILE__) + '/data/direct_messages.json', 'r')) do |hash|
+    @direct_messages << hash
+  end
+  @direct_messages
+end
