@@ -22,7 +22,7 @@ describe TweetStream do
     it "should return the same results as a client" do
       MultiJson.should_receive(:decode).and_return({})
       @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
-      TweetStream.new.track('abc','def').should == TweetStream::Client.new.track('abc','def')
+      TweetStream.track('abc','def').should == TweetStream::Client.new.track('abc','def')
     end
   end
 
