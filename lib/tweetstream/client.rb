@@ -23,6 +23,7 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
+    attr_accessor :timer
 
     # Creates a new API
     def initialize(options={})
@@ -308,9 +309,9 @@ module TweetStream
 
       EventMachine::run {
         if @on_interval_proc.is_a?(Proc)
-          timer = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
+          interval = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
           proc = @on_interval_proc
-          EM.add_periodic_timer(timer, &proc)
+          @timer = EM.add_periodic_timer(interval, &proc)
         end
 
         @stream = Twitter::JSONStream.connect(stream_params)
