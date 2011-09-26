@@ -10,8 +10,12 @@ TweetStream.configure do |config|
   config.parser   = :yajl
 end
 
-TweetStream::Client.new.on_error do |message|
+client = TweetStream::Client.new
+
+client.on_error do |message|
   puts message
-end.track("yankees")  do |status|
+end
+
+client.track("yankees")  do |status|
   puts "#{status.text}"
 end
