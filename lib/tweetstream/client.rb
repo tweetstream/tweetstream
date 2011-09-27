@@ -310,8 +310,11 @@ module TweetStream
       EventMachine::run {
         if @on_interval_proc.is_a?(Proc)
           interval = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
-          proc = @on_interval_proc
-          @timer = EM.add_periodic_timer(interval, &proc)
+          @timer = EventMachine.add_periodic_timer(interval) do
+            EventMachine.defer do
+              @on_interval_proc.call
+            end
+          end
         end
 
         @stream = Twitter::JSONStream.connect(stream_params)
