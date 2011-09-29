@@ -7,9 +7,9 @@ begin
     gem.name = "tweetstream"
     gem.summary = %Q{TweetStream is a simple wrapper for consuming the Twitter Streaming API.}
     gem.description = %Q{TweetStream allows you to easily consume the Twitter Streaming API utilizing the YAJL Ruby gem.}
-    gem.email = "michael@intridea.com"
+    gem.email = ["michael@intridea.com", "steve.agalloco@gmail.com"]
     gem.homepage = "http://github.com/intridea/tweetstream"
-    gem.authors = ["Michael Bleigh"]
+    gem.authors = ["Michael Bleigh", "Steve Agalloco"]
     gem.files = FileList["[A-Z]*", "{lib,spec,examples}/**/*"] - FileList["**/*.log"]
     gem.add_development_dependency "rspec"
     gem.add_dependency 'twitter-stream'
