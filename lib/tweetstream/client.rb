@@ -190,7 +190,8 @@ module TweetStream
           :auth => "#{URI.encode self.username}:#{URI.encode self.password}",
           :method => method.to_s.upcase,
           :content => (method == :post ? build_post_body(query_parameters) : ''),
-          :user_agent => 'TweetStream'
+          :user_agent => 'TweetStream',
+          :ssl => true
         )
         
         @stream.each_item do |item|
