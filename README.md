@@ -1,7 +1,7 @@
 TweetStream
 ===========
 
-TweetStream provides simple Ruby access to [Twitter's Streaming API](http://developer.twitter.com/pages/streaming_api).
+TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
 
 Installation
 ------------
@@ -61,7 +61,6 @@ Using the Twitter userstream works similarly to the regular streaming, except yo
       puts status.text
     end
 
-
 You also can use method hooks for both regular timeline statuses and direct messages.
 
     client = TweetStream::Client.new
@@ -119,7 +118,6 @@ specify a parser during configuration:
 
     # Parse tweets using Yajl-Ruby
     TweetStream.configure do |config|
-      ..
       config.parser   = :yajl
     end.
 
