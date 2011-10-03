@@ -65,7 +65,7 @@ module TweetStream
 
     # Create a hash of options and their values
     def options
-      Hash[VALID_OPTIONS_KEYS.map {|key| [key, send(key)] }]
+      Hash[*VALID_OPTIONS_KEYS.map {|key| [key, send(key)] }.flatten]
     end
 
     # Reset all configuration options to defaults
