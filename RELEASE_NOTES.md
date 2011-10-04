@@ -1,3 +1,8 @@
+Version 1.1.1
+=============
+
+* Fix for 1.8.6 compatibility
+
 Version 1.1.0
 =============
 
