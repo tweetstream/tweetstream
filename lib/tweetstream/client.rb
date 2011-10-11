@@ -31,6 +31,9 @@ module TweetStream
       Configuration::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", options[key])
       end
+      
+      # Ensure the json parser can be properly loaded
+      json_parser
     end
 
     # Get the JSON parser class for this client.
