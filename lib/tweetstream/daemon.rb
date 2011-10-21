@@ -30,22 +30,23 @@ require 'daemons'
 # is posted.
 #
 class TweetStream::Daemon < TweetStream::Client
-  # Initialize a Daemon with the credentials of the
-  # Twitter account you wish to use. The daemon has
-  # an optional process name for use when querying
-  # running processes.
-  def initialize(app_name=nil)
-    @app_name = app_name
+
+  DEFAULT_NAME = 'tweetstream'.freeze
+  DEFAULT_OPTIONS = { :multiple => true }
+
+  attr_accessor :app_name, :daemon_options
+
+  # The daemon has an optional process name for use when querying
+  # running processes.  You can also pass daemon options.
+  def initialize(name = DEFAULT_NAME, options = DEFAULT_OPTIONS)
+    @app_name = name
+    @daemon_options = options
     super({})
   end
 
   def start(path, query_parameters = {}, &block) #:nodoc:
-    # Because of a change in Ruvy 1.8.7 patchlevel 249, you cannot call anymore
-    # super inside a block. So I assign to a variable the base class method before
-    # the Daemons block begins.
-    startmethod = super.start
-    Daemons.run_proc(@app_name || 'tweetstream', :multiple => true) do
-      startmethod(path, query_parameters, &block)
+    Daemons.run_proc(@app_name, @daemon_options) do
+      super(path, query_parameters, &block)
     end
   end
 end
