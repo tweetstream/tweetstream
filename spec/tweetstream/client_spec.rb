@@ -245,7 +245,7 @@ describe TweetStream::Client do
   end
 
   describe ' API methods' do
-    %w(firehose retweet sample).each do |method|
+    %w(firehose retweet sample links).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         @client.should_receive(:start).once.with('statuses/' + method, {})
         @client.send(method)

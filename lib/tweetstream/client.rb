@@ -31,7 +31,7 @@ module TweetStream
       Configuration::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", options[key])
       end
-      
+
       # Ensure the json parser can be properly loaded
       json_parser
     end
@@ -47,6 +47,14 @@ module TweetStream
     # levels can satisfy nearly every application use case.
     def firehose(query_parameters = {}, &block)
       start('statuses/firehose', query_parameters, &block)
+    end
+
+    # Returns all statuses containing http: and https:. The links stream is
+    # not a generally available resource. Few applications require this level
+    # of access. Creative use of a combination of other resources and various
+    # access levels can satisfy nearly every application use case.
+    def links(query_parameters = {}, &block)
+      start('statuses/links', query_parameters, &block)
     end
 
     # Returns all retweets. The retweet stream is not a generally available
