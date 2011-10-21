@@ -244,7 +244,7 @@ describe TweetStream::Client do
     end
   end
 
-  describe ' API methods' do
+  describe 'API methods' do
     %w(firehose retweet sample links).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         @client.should_receive(:start).once.with('statuses/' + method, {})
@@ -337,7 +337,7 @@ describe TweetStream::Client do
     end
   end
 
-  describe 'instance .stop' do
+  describe '#stop' do
     it 'should call EventMachine::stop_event_loop' do
       EventMachine.should_receive :stop_event_loop
       TweetStream::Client.new.stop.should be_nil
