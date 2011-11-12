@@ -13,6 +13,7 @@ describe TweetStream do
         :each_item => true,
         :on_error => true,
         :on_max_reconnects => true,
+        :on_reconnect => true,
         :connection_completed => true
       )
       EM.stub!(:run).and_yield

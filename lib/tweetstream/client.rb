@@ -254,6 +254,22 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run on reconnect.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_reconnect do |timeout, retries|
+    #       # Make note of the reconnection
+    #     end
+    #
+    def on_reconnect(&block)
+      if block_given?
+        @on_reconnect = block
+        self
+      else
+        @on_reconnect
+      end
+    end
+
     # Set a Proc to be run when connection established.
     # Called in EventMachine::Connection#post_init
     #
@@ -294,6 +310,7 @@ module TweetStream
       delete_proc = query_parameters.delete(:delete) || self.on_delete
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
+      reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
       inited_proc = query_parameters.delete(:inited) || self.on_inited
       direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
       timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
@@ -372,6 +389,10 @@ module TweetStream
 
         @stream.on_error do |message|
           error_proc.call(message) if error_proc.is_a?(Proc)
+        end
+
+        @stream.on_reconnect do |timeout, retries|
+          reconnect_proc.call(timeout, retries) if reconnect_proc.is_a?(Proc)
         end
 
         @stream.on_max_reconnects do |timeout, retries|

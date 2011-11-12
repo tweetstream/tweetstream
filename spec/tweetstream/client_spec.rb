@@ -54,6 +54,7 @@ describe TweetStream::Client do
         :each_item => true,
         :on_error => true,
         :on_max_reconnects => true,
+        :on_reconnect => true,
         :connection_completed => true
       )
       EM.stub!(:run).and_yield
@@ -287,7 +288,7 @@ describe TweetStream::Client do
     end
   end
 
-  %w(on_delete on_limit on_inited).each do |proc_setter|
+  %w(on_delete on_limit on_inited on_reconnect).each do |proc_setter|
     describe "##{proc_setter}" do
       it 'should set when a block is given' do
         proc = Proc.new{|a,b| puts a }
@@ -369,6 +370,7 @@ describe TweetStream::Client do
           :each_item => true,
           :on_error => true,
           :on_max_reconnects => true,
+          :on_reconnect => true,
           :connection_completed => true
         )
         EM.stub!(:run).and_yield

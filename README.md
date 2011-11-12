@@ -187,6 +187,14 @@ However, if the maximum number of reconnect attempts has been reached,
 TweetStream will raise a `TweetStream::ReconnectError` with
 information about the timeout and number of retries attempted.
 
+On reconnect, the block specified by you in `on_reconnect` will be called:
+
+    TweetStream::Client.new.on_reconnect do |timeout, retries|
+      # Do something with the reconnect
+    end.track('term') do |status|
+      # Do things when nothing's wrong
+    end
+
 Terminating a TweetStream
 -------------------------
 
