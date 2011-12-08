@@ -253,38 +253,61 @@ describe TweetStream::Client do
       end
     end
 
-    it '#track should make a call to start with "statuses/filter" and a track query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => ['test'], :method => :post)
-      @client.track('test')
+    describe '#filter' do
+      it 'makes a call to "statuses/filter" with the query params provided' do
+        @client.should_receive(:start).once.with('statuses/filter', :follow => 123, :method => :post)
+        @client.filter(:follow => 123)
+      end
+      it 'makes a call to "statuses/filter" with the query params provided longitude/latitude pairs, separated by commas ' do
+        @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
+        @client.filter(:locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41')
+      end
     end
 
-    it '#track should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => ['foo', 'bar', 'baz'], :method => :post)
-      @client.track('foo', 'bar', 'baz')
+    describe '#follow' do
+      it 'makes a call to start with "statuses/filter" and a follow query parameter' do
+        @client.should_receive(:start).once.with('statuses/filter', :follow => [123], :method => :post)
+        @client.follow(123)
+      end
+
+      it 'comma-joins multiple arguments' do
+        @client.should_receive(:start).once.with('statuses/filter', :follow => [123,456], :method => :post)
+        @client.follow(123, 456)
+      end
     end
 
-    it '#track should comma-join an array of arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => [['foo','bar','baz']], :method => :post)
-      @client.track(['foo','bar','baz'])
+    describe '#locations' do
+      it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs' do
+        @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :method => :post)
+        @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41')
+      end
+
+      it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs and additional filter' do
+        @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :track => 'rock', :method => :post)
+        @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock')
+      end
     end
 
-    it '#follow should make a call to start with "statuses/filter" and a follow query parameter' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => [123], :method => :post)
-      @client.follow(123)
-    end
+    describe '#track' do
+      it 'makes a call to start with "statuses/filter" and a track query parameter' do
+        @client.should_receive(:start).once.with('statuses/filter', :track => ['test'], :method => :post)
+        @client.track('test')
+      end
 
-    it '#follow should comma-join multiple arguments' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => [123,456], :method => :post)
-      @client.follow(123, 456)
-    end
+      it 'comma-joins multiple arguments' do
+        @client.should_receive(:start).once.with('statuses/filter', :track => ['foo', 'bar', 'baz'], :method => :post)
+        @client.track('foo', 'bar', 'baz')
+      end
 
-    it '#filter should make a call to "statuses/filter" with the query params provided' do
-      @client.should_receive(:start).once.with('statuses/filter', :follow => 123, :method => :post)
-      @client.filter(:follow => 123)
-    end
-    it '#filter should make a call to "statuses/filter" with the query params provided longitude/latitude pairs, separated by commas ' do
-      @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
-      @client.filter(:locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41')
+      it 'comma-joins an array of arguments' do
+        @client.should_receive(:start).once.with('statuses/filter', :track => [['foo','bar','baz']], :method => :post)
+        @client.track(['foo','bar','baz'])
+      end
+
+      it 'should call #start with "statuses/filter" and the provided queries' do
+        @client.should_receive(:start).once.with('statuses/filter', :track => ['rock'], :method => :post)
+        @client.track('rock')
+      end
     end
   end
 
@@ -319,25 +342,6 @@ describe TweetStream::Client do
     end
   end
 
-  describe '#track' do
-    it 'should call #start with "statuses/filter" and the provided queries' do
-      @client.should_receive(:start).once.with('statuses/filter', :track => ['rock'], :method => :post)
-      @client.track('rock')
-    end
-  end
-
-  describe '#locations' do
-    it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs' do
-      @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :method => :post)
-      @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41')
-    end
-
-    it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs and additional filter' do
-      @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :track => 'rock', :method => :post)
-      @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock')
-    end
-  end
-
   describe '#stop' do
     it 'should call EventMachine::stop_event_loop' do
       EventMachine.should_receive :stop_event_loop
@@ -349,6 +353,13 @@ describe TweetStream::Client do
       client = TweetStream::Client.new
       client.send(:instance_variable_set, :@last_status, {})
       client.stop.should == {}
+    end
+  end
+
+  describe '#close_connection' do
+    it 'should not call EventMachine::stop_event_loop' do
+      EventMachine.should_not_receive :stop_event_loop
+      TweetStream::Client.new.close_connection.should be_nil
     end
   end
 
@@ -408,13 +419,6 @@ describe TweetStream::Client do
           @client.userstream
         end
       end
-    end
-  end
-
-  describe 'instance .close_connection' do
-    it 'should not call EventMachine::stop_event_loop' do
-      EventMachine.should_not_receive :stop_event_loop
-      TweetStream::Client.new.close_connection.should be_nil
     end
   end
 
