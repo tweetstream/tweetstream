@@ -12,10 +12,6 @@ Gem::Specification.new do |s|
   s.summary     = %q{TweetStream is a simple wrapper for consuming the Twitter Streaming API.}
   s.homepage    = 'http://github.com/intridea/tweetstream'
 
-  s.platform                  = Gem::Platform::RUBY
-  s.rubygems_version          = %q{1.3.6}
-  s.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if s.respond_to? :required_rubygems_version=
-
   s.add_dependency 'twitter-stream', '= 0.1.14'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.0'
