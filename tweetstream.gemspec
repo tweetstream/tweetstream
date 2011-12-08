@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name        = 'tweetstream'
   s.version     = TweetStream::VERSION
 
-  s.authors     = ['Michael Bleigh']
-  s.email       = ['michael@intridea.com']
+  s.authors     = ['Michael Bleigh', 'Steve Agalloco']
+  s.email       = ['michael@intridea.com', 'steve.agalloco@gmail.com']
   s.description = %q{TweetStream allows you to easily consume the Twitter Streaming API utilizing the YAJL Ruby gem.}
   s.summary     = %q{TweetStream is a simple wrapper for consuming the Twitter Streaming API.}
   s.homepage    = 'http://github.com/intridea/tweetstream'
@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.rubygems_version          = %q{1.3.6}
   s.required_rubygems_version = Gem::Requirement.new(">= 1.3.6") if s.respond_to? :required_rubygems_version=
 
-  s.add_dependency 'twitter-stream', '~> 0.1.14'
+  s.add_dependency 'twitter-stream', '= 0.1.14'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.0'
 
