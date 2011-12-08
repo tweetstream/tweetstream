@@ -307,12 +307,16 @@ module TweetStream
 
     # connect to twitter while starting a new EventMachine run loop
     def start(path, query_parameters = {}, &block)
-      EventMachine.epoll
-      EventMachine.kqueue
-
-      EventMachine::run {
+      if EventMachine.reactor_running?
         connect(path, query_parameters, &block)
-      }
+      else
+        EventMachine.epoll
+        EventMachine.kqueue
+
+        EventMachine::run do
+          connect(path, query_parameters, &block)
+        end
+      end
     end
 
     # connect to twitter without starting a new EventMachine run loop
@@ -405,6 +409,7 @@ module TweetStream
       @stream.on_max_reconnects do |timeout, retries|
         raise TweetStream::ReconnectError.new(timeout, retries)
       end
+
       @stream
     end
 
