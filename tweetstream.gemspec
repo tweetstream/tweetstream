@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rdiscount', '~> 1.6'
   s.add_development_dependency 'rspec', '~> 2.7'
   s.add_development_dependency 'yajl-ruby', '~> 1.0'
-  s.add_development_dependency 'json', '~> 1.5.1'
+  s.add_development_dependency 'json', '~> 1.6'
   s.add_development_dependency 'guard-rspec', '~> 0.5'
 
   s.files         = `git ls-files`.split("\n")
