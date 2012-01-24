@@ -124,7 +124,14 @@ module TweetStream
 
     # Make a call to the userstream api for currently authenticated user
     def userstream(&block)
-      start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
+      stream_params = { :host => "userstream.twitter.com", :path => "/2/user.json" }
+      start('', :extra_stream_parameters => stream_params, &block)
+    end
+
+    # Make a call to the userstream api
+    def sitestream(user_ids = [], &block)
+      stream_params = { :host => "sitestream.twitter.com", :path => "/2b/site.json" }
+      start('', { :follow => user_ids, :extra_stream_parameters => stream_params }, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -373,6 +380,7 @@ module TweetStream
         hash = TweetStream::Hash.new(raw_hash)
         if hash[:delete] && hash[:delete][:status]
           delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+
         elsif hash[:limit] && hash[:limit][:track]
           limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
 
