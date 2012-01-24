@@ -456,6 +456,18 @@ describe TweetStream::Client do
           @client.userstream
         end
       end
+
+      context "when calling #sitestream" do
+        it "sends the sitestream host" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
+          @client.sitestream
+        end
+
+        it "uses the userstream uri" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
+          @client.sitestream
+        end
+      end
     end
   end
 
