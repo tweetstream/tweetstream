@@ -363,6 +363,34 @@ describe TweetStream::Client do
     end
   end
 
+  describe '#stop_stream' do
+    before(:each) do
+      @stream = stub("Twitter::JSONStream",
+        :connect => true,
+        :unbind => true,
+        :each_item => true,
+        :on_error => true,
+        :on_max_reconnects => true,
+        :on_reconnect => true,
+        :connection_completed => true,
+        :stop => true
+      )
+      Twitter::JSONStream.stub!(:connect).and_return(@stream)
+      @client = TweetStream::Client.new
+      @client.connect('/')
+    end
+
+    it "should call stream.stop to cleanly stop the current stream" do
+      @stream.should_receive(:stop)
+      @client.stop_stream
+    end
+
+    it 'should not stop eventmachine' do
+      EventMachine.should_not_receive :stop_event_loop
+      @client.stop_stream
+    end
+  end
+
   describe "oauth" do
     describe '#start' do
       before do

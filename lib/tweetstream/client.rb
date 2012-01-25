@@ -424,6 +424,10 @@ module TweetStream
       @stream.close_connection if @stream
     end
 
+    def stop_stream
+      @stream.stop if @stream
+    end
+
     protected
 
     def parser_from(parser)
