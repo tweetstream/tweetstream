@@ -1,6 +1,5 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "tweetstream/version"
+require File.expand_path('../lib/tweetstream/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.name        = 'tweetstream'
@@ -14,7 +13,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'twitter-stream', '= 0.1.14'
   s.add_dependency 'daemons', '~> 1.1'
-  s.add_dependency 'multi_json', '~> 1.0'
+  s.add_dependency 'multi_json', '>= 1.0'
 
   s.add_development_dependency 'rake', '~> 0.9'
   s.add_development_dependency 'simplecov', '~> 0.5.4'
