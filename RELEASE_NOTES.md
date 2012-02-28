@@ -1,3 +1,21 @@
+Version 1.1.4
+=============
+
+* Added Client#connect to start streaming inside an EM reactor (pelle)
+* Added shutdown_stream to cleanly stop the stream (lud)
+* Loosened multi_json dependency for Rails 3.2 compatibiltiy
+
+Version 1.1.3
+=============
+
+* Added on_reconnect callback method
+
+Version 1.1.2
+=============
+
+* Added support for statuses/links
+* Client now checks that specified json_parser can be loaded during initialization
+
 Version 1.1.1
 =============
 
