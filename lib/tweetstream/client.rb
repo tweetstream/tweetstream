@@ -108,9 +108,9 @@ module TweetStream
     # the first pair denoting the southwest corner of the box
     # longitude/latitude pairs, separated by commas. The first pair specifies the southwest corner of the box.
     def locations(*locations_map, &block)
-        query_params = locations_map.pop if locations_map.last.is_a?(::Hash)
-        query_params ||= {}
-        filter(query_params.merge(:locations => locations_map), &block)
+      query_params = locations_map.pop if locations_map.last.is_a?(::Hash)
+      query_params ||= {}
+      filter(query_params.merge(:locations => locations_map), &block)
     end
 
     # Make a call to the statuses/filter method of the Streaming API,
@@ -145,6 +145,27 @@ module TweetStream
         self
       else
         @on_delete
+      end
+    end
+
+    # Set a Proc to be run when a scrub_geo notice is received
+    # from the Twitter stream. For example:
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_scrub_geo do |up_to_status_id, user_id|
+    #       Tweet.where(:status_id <= up_to_status_id)
+    #     end
+    #
+    # Block must take two arguments: the upper status id and the user id.
+    # If no block is given, it will return the currently set
+    # scrub_geo proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_scrub_geo(&block)
+      if block_given?
+        @on_scrub_geo = block
+        self
+      else
+        @on_scrub_geo
       end
     end
 
@@ -323,6 +344,7 @@ module TweetStream
     def connect(path, query_parameters = {}, &block)
       method = query_parameters.delete(:method) || :get
       delete_proc = query_parameters.delete(:delete) || self.on_delete
+      scrub_geo_proc = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
       reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
@@ -338,13 +360,13 @@ module TweetStream
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
       stream_params = {
-        :path       => uri,
-        :method     => method.to_s.upcase,
-        :user_agent => user_agent,
-        :on_inited  => inited_proc,
-        :filters    => params.delete(:track),
-        :params     => params,
-        :ssl        => true
+          :path => uri,
+          :method => method.to_s.upcase,
+          :user_agent => user_agent,
+          :on_inited => inited_proc,
+          :filters => params.delete(:track),
+          :params => params,
+          :ssl => true
       }.merge(auth_params).merge(extra_stream_parameters)
 
       if @on_interval_proc.is_a?(Proc)
@@ -373,6 +395,8 @@ module TweetStream
         hash = TweetStream::Hash.new(raw_hash)
         if hash[:delete] && hash[:delete][:status]
           delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+        elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
+          scrub_geo_proc.call(hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id]) if scrub_geo_proc.is_a?(Proc)
         elsif hash[:limit] && hash[:limit][:track]
           limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
 
@@ -455,7 +479,7 @@ module TweetStream
     def normalize_filter_parameters(query_parameters = {})
       [:follow, :track, :locations].each do |param|
         if query_parameters[param].kind_of?(Array)
-          query_parameters[param] = query_parameters[param].flatten.collect{|q| q.to_s}.join(',')
+          query_parameters[param] = query_parameters[param].flatten.collect { |q| q.to_s }.join(',')
         elsif query_parameters[param]
           query_parameters[param] = query_parameters[param].to_s
         end
@@ -465,25 +489,25 @@ module TweetStream
 
     def auth_params
       case auth_method
-      when :basic
-        return :auth => "#{username}:#{password}"
-      when :oauth
-        return :oauth => {
-          :consumer_key => consumer_key,
-          :consumer_secret => consumer_secret,
-          :access_key => oauth_token,
-          :access_secret => oauth_token_secret
-        }
+        when :basic
+          return :auth => "#{username}:#{password}"
+        when :oauth
+          return :oauth => {
+              :consumer_key => consumer_key,
+              :consumer_secret => consumer_secret,
+              :access_key => oauth_token,
+              :access_secret => oauth_token_secret
+          }
       end
     end
 
     def yield_message_to(procedure, message)
       if procedure.is_a?(Proc)
         case procedure.arity
-        when 1
-          procedure.call(message)
-        when 2
-          procedure.call(message, self)
+          when 1
+            procedure.call(message)
+          when 2
+            procedure.call(message, self)
         end
       end
     end

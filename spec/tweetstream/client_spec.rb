@@ -107,7 +107,16 @@ describe TweetStream::Client do
         end
       end
 
-      it 'should call the on_delete if specified' do
+      it 'should call the on_scrub_geo if specified' do
+        scrub_geo = '{ "scrub_geo": { "user_id": 1234, "user_id_str": "1234", "up_to_status_id":9876, "up_to_status_id_string": "9876" } }'
+        @stream.should_receive(:each_item).and_yield(scrub_geo)
+        @client.on_scrub_geo do |up_to_status_id, user_id|
+          up_to_status_id.should == 9876
+          user_id.should == 1234
+        end.track('abc')
+      end
+
+      it 'should call the delete if specified' do
         delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
         @stream.should_receive(:each_item).and_yield(delete)
         @client.on_delete do |id, user_id|
