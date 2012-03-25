@@ -467,6 +467,38 @@ describe TweetStream::Client do
           Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
           @client.sitestream
         end
+
+        context 'data handling' do
+          before do
+            tweet = sample_tweets[0]
+            tweet['id'] = 123
+            tweet['user'] = {}
+            tweet['user']['screen_name'] = 'monkey'
+            tweet['text'] = "Oo oo aa aa"
+            @ss_message = {'for_user' => '12345', 'message' => tweet}
+          end
+
+          it 'yields a site stream message' do
+            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            yielded_status = nil
+            @client.sitestream do |message|
+              yielded_status = message
+            end
+            yielded_status.should_not be_nil
+            yielded_status['for_user'].should == '12345'
+            yielded_status['message']['user']['screen_name'].should == 'monkey'
+            yielded_status['message']['text'].should == 'Oo oo aa aa'
+          end
+          it 'yields itself if block has an arity of 2' do
+            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            yielded_client = nil
+            @client.sitestream do |_, client|
+              yielded_client = client
+            end
+            yielded_client.should_not be_nil
+            yielded_client.should == @client
+          end
+        end
       end
     end
   end

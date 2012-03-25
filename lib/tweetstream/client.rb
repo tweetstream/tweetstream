@@ -123,8 +123,8 @@ module TweetStream
 
     # Make a call to the userstream api
     def sitestream(user_ids = [], &block)
-      stream_params = { :host => "sitestream.twitter.com", :path => "/2b/site.json" }
-      start('', { :follow => user_ids, :extra_stream_parameters => stream_params }, &block)
+      stream_params = { :host => "sitestream.twitter.com", :path => '/2b/site.json' }
+      start('', { :method => :post, :follow => user_ids, :extra_stream_parameters => stream_params }, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -412,6 +412,19 @@ module TweetStream
                 yield @last_status
               when 2
                 yield @last_status, self
+            end
+          end
+        elsif hash['for_user']
+          @message = hash
+
+          if block_given?
+            # Give the block the option to receive either one
+            # or two arguments, depending on its arity.
+            case block.arity
+            when 1
+              yield @message
+            when 2
+              yield @message, self
             end
           end
         end
