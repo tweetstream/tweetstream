@@ -431,6 +431,11 @@ describe TweetStream::Client do
           @client.sitestream
         end
 
+        it 'supports the "with followings"' do
+          @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
+          @client.sitestream(['115192457'], :followings => true)
+        end
+
         context 'control management' do
           it 'assigns the control_uri' do
             control = {"control" =>
