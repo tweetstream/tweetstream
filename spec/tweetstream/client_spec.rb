@@ -468,6 +468,20 @@ describe TweetStream::Client do
           @client.sitestream
         end
 
+        context 'control management' do
+          it 'assigns the control_uri' do
+            control = {"control" =>
+              {
+                "control_uri" =>"/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50"
+              }
+            }
+            @stream.should_receive(:each_item).and_yield(control.to_json)
+            @client.sitestream
+
+            @client.control_uri.should eq("/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
+          end
+        end
+
         context 'data handling' do
           before do
             tweet = sample_tweets[0]
