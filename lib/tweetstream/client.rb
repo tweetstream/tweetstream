@@ -24,6 +24,7 @@ module TweetStream
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
     attr_accessor :timer
+    attr_reader :control_uri
 
     # Creates a new API
     def initialize(options={})
@@ -378,7 +379,9 @@ module TweetStream
         end
 
         hash = TweetStream::Hash.new(raw_hash)
-        if hash[:delete] && hash[:delete][:status]
+        if hash[:control] && hash[:control][:control_uri]
+          @control_uri = hash[:control][:control_uri]
+        elsif hash[:delete] && hash[:delete][:status]
           delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
 
         elsif hash[:limit] && hash[:limit][:track]
