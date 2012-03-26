@@ -115,4 +115,16 @@ describe TweetStream do
     end
   end
 
+  describe '.options' do
+    it 'returns the configuration as a hash' do
+      TweetStream.options.should be_kind_of(Hash)
+    end
+  end
+
+  describe '.oauth_options' do
+    it 'returns the oauth configuration as a hash' do
+      TweetStream.oauth_options.should be_kind_of(Hash)
+    end
+  end
+
 end
