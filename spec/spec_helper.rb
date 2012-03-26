@@ -9,6 +9,7 @@ end
 require 'tweetstream'
 require 'tweetstream/site_stream_client'
 require 'rspec'
+require 'webmock/rspec'
 require 'yajl'
 require 'json'
 
@@ -30,4 +31,12 @@ def sample_direct_messages
     @direct_messages << hash
   end
   @direct_messages
+end
+
+def fixture_path
+  File.expand_path("../fixtures", __FILE__)
+end
+
+def fixture(file)
+  File.new(fixture_path + '/' + file)
 end
