@@ -137,6 +137,16 @@ describe TweetStream::SiteStreamClient do
         called.should be_true
       end
     end
+
+    it 'accepts an array of user_ids' do
+      @client = TweetStream::SiteStreamClient.new('/config_uri')
+      conn = stub('Connection')
+      conn.should_receive(:post).
+        with(:path => '/config_uri/add_user.json', :body => { 'user_id' => '1234,5678' }).
+        and_return(FakeHttp.new)
+      @client.stub(:connection) { conn }
+      @client.add_user(['1234','5678'])
+    end
   end
 
   describe '#remove_user' do
@@ -171,6 +181,16 @@ describe TweetStream::SiteStreamClient do
         end
         called.should be_true
       end
+    end
+
+    it 'accepts an array of user_ids' do
+      @client = TweetStream::SiteStreamClient.new('/config_uri')
+      conn = stub('Connection')
+      conn.should_receive(:post).
+        with(:path => '/config_uri/remove_user.json', :body => { 'user_id' => '1234,5678' }).
+        and_return(FakeHttp.new)
+      @client.stub(:connection) { conn }
+      @client.remove_user(['1234','5678'])
     end
   end
 

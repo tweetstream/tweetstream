@@ -72,6 +72,8 @@ module TweetStream
     private
 
     def user_management(path, user_id, error_msg, &block)
+      user_id = user_id.join(',') if user_id.kind_of?(Array)
+
       http = connection.post(:path => path, :body => { 'user_id' => user_id })
       http.callback do
         if http.response_header.status == 200
