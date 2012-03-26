@@ -404,6 +404,7 @@ module TweetStream
           @control_uri = hash['control']['control_uri']
           require 'tweetstream/site_stream_client'
           @control = TweetStream::SiteStreamClient.new(@control_uri)
+          @control.on_error(&self.on_error)
         elsif hash['delete'] && hash['delete']['status']
           delete_proc.call(hash['delete']['status']['id'], hash['delete']['status']['user_id']) if delete_proc.is_a?(Proc)
         elsif hash['scrub_geo'] && hash['scrub_geo']['up_to_status_id']
