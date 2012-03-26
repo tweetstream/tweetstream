@@ -53,10 +53,10 @@ module TweetStream
       user_management(remove_user_path, user_id, error_msg, &block)
     end
 
-    def fiends_ids(user_id, &block)
+    def friends_ids(user_id, &block)
       error_msg = 'Failed to retrieve SiteStream friends ids.'
 
-      http = connection.post(:path => friends_ids_path)
+      http = connection.post(:path => friends_ids_path, :body => { 'user_id' => user_id })
       http.callback do
         if http.response_header.status == 200
           block.call http.response if block && block.kind_of?(Proc)
