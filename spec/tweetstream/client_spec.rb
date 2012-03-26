@@ -474,16 +474,25 @@ describe TweetStream::Client do
         end
 
         context 'control management' do
-          it 'assigns the control_uri' do
-            control = {"control" =>
+          before do
+            @control_response = {"control" =>
               {
                 "control_uri" =>"/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50"
               }
             }
-            @stream.should_receive(:each_item).and_yield(control.to_json)
+          end
+          it 'assigns the control_uri' do
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
             @client.sitestream
 
             @client.control_uri.should eq("/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
+          end
+
+          it 'instantiates a SiteStreamClient' do
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @client.sitestream
+
+            @client.control.should be_kind_of(TweetStream::SiteStreamClient)
           end
         end
 
