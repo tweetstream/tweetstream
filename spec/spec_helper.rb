@@ -40,3 +40,8 @@ end
 def fixture(file)
   File.new(fixture_path + '/' + file)
 end
+
+FakeHttp = Class.new do
+  def callback; end
+  def errback; end
+end
