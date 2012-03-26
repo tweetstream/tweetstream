@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'yajl-ruby', '~> 1.0'
   s.add_development_dependency 'json', '~> 1.6'
   s.add_development_dependency 'guard-rspec', '~> 0.5'
+  s.add_development_dependency 'webmock', '~> 1.8.4'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
