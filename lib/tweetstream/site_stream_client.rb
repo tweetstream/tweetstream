@@ -28,20 +28,46 @@ module TweetStream
     end
 
     def info(&block)
+      error_msg = 'Failed to retrieve SiteStream info.'
+
       http = connection.get(:path => info_path)
       http.callback do
         if http.response_header.status == 200
           block.call http.response if block && block.kind_of?(Proc)
         else
-          @on_error.call('Failed to retrieve SiteStream info.') if @on_error && @on_error.kind_of?(Proc)
+          @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
         end
       end
       http.errback do
-        @on_error.call('Failed to retrieve SiteStream info.') if @on_error && @on_error.kind_of?(Proc)
+        @on_error.call(error) if @on_error && @on_error.kind_of?(Proc)
       end
     end
 
+    def add_user(user_id, &block)
+      error_msg = 'Failed to add user to SiteStream'
+      user_management(add_user_path, user_id, error_msg, &block)
+    end
+
+    def remove_user(user_id, &block)
+      error_msg = 'Failed to remove user from SiteStream.'
+      user_management(remove_user_path, user_id, error_msg, &block)
+    end
+
     private
+
+    def user_management(path, user_id, error_msg, &block)
+      http = connection.post(:path => path, :body => { 'user_id' => user_id })
+      http.callback do
+        if http.response_header.status == 200
+          block.call if block && block.kind_of?(Proc)
+        else
+          @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
+        end
+      end
+      http.errback do
+        @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
+      end
+    end
 
     def connection
       return @conn if @conn
@@ -62,6 +88,14 @@ module TweetStream
 
     def info_path
       @config_uri + '/info.json'
+    end
+
+    def add_user_path
+      @config_uri + '/add_user.json'
+    end
+
+    def remove_user_path
+      @config_uri + '/remove_user.json'
     end
   end
 end
