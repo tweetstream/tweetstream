@@ -105,11 +105,73 @@ describe TweetStream::SiteStreamClient do
   end
 
   describe '#add_user' do
-    pending
+    context 'success' do
+      it 'calls a block (if passed one)' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5f'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:post, "https://sitestream.twitter.com#{@config_uri}/add_user.json").
+          to_return(:status => 200, :body => '', :headers => {})
+        called = false
+
+        EM.run_block do
+          @client.add_user(12345) { called = true }
+        end
+        called.should be_true
+      end
+    end
+
+    context 'failure' do
+      it 'invokes the on_error callback' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5g'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:post, "https://sitestream.twitter.com#{@config_uri}/add_user.json").
+          to_return(:status => 401, :body => '', :headers => {})
+        called = false
+
+        EM.run_block do
+          @client.on_error { called = true }
+          @client.add_user(12345) { |info| info }
+        end
+        called.should be_true
+      end
+    end
   end
 
   describe '#remove_user' do
-    pending
+    context 'success' do
+      it 'calls a block (if passed one)' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5f'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:post, "https://sitestream.twitter.com#{@config_uri}/remove_user.json").
+          to_return(:status => 200, :body => '', :headers => {})
+        called = false
+
+        EM.run_block do
+          @client.remove_user(12345) { called = true }
+        end
+        called.should be_true
+      end
+    end
+
+    context 'failure' do
+      it 'invokes the on_error callback' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5g'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:post, "https://sitestream.twitter.com#{@config_uri}/remove_user.json").
+          to_return(:status => 401, :body => '', :headers => {})
+        called = false
+
+        EM.run_block do
+          @client.on_error { called = true }
+          @client.remove_user(12345) { |info| info }
+        end
+        called.should be_true
+      end
+    end
   end
 
   describe '#ids' do
