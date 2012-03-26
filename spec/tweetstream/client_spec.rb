@@ -457,6 +457,17 @@ describe TweetStream::Client do
 
             @client.control.should be_kind_of(TweetStream::SiteStreamClient)
           end
+
+          it "passes the client's on_error to the SiteStreamClient" do
+            called = false
+            @client.on_error { |err| called = true }
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @client.sitestream
+
+            @client.control.on_error.call
+
+            called.should be_true
+          end
         end
 
         context 'data handling' do
