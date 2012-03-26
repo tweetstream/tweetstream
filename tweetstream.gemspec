@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'twitter-stream', '= 0.1.14'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.0'
+  s.add_dependency 'em-http-request', '~> 1.0.2'
 
   s.add_development_dependency 'rake', '~> 0.9'
   s.add_development_dependency 'simplecov', '~> 0.5.4'
