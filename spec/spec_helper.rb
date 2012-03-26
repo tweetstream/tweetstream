@@ -7,6 +7,7 @@ unless ENV['CI']
 end
 
 require 'tweetstream'
+require 'tweetstream/site_stream_client'
 require 'rspec'
 require 'yajl'
 require 'json'

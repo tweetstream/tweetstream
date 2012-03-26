@@ -1,0 +1,18 @@
+{
+    "info":
+    {
+        "users":
+        [
+            {
+                "id":119476949,
+                "name":"oauth_dancer",
+                "dm":false
+            }
+        ],
+        "delimited":"none",
+        "include_followings_activity":false,
+        "include_user_changes":false,
+        "replies":"none",
+        "with":"user"
+    }
+}
