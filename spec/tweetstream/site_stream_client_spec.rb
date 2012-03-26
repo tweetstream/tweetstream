@@ -174,8 +174,39 @@ describe TweetStream::SiteStreamClient do
     end
   end
 
-  describe '#ids' do
-    pending
+  describe '#friends_ids' do
+    context 'success' do
+      it 'returns the information hash' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5f'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:get, "https://sitestream.twitter.com#{@config_uri}/friends/ids.json").
+          to_return(:status => 200, :body => fixture('ids.json'), :headers => {})
+        stream_info = nil
+
+        EM.run_block do
+          @client.friends_ids { |info| stream_info = info }
+        end
+        stream_info.should be_kind_of(Hash)
+      end
+    end
+
+    context 'failure' do
+      it 'invokes the on_error callback' do
+        @config_uri = '/2b/site/c/1_1_54e345d655ee3e8df359ac033648530bfbe26c5g'
+        @client = TweetStream::SiteStreamClient.new(@config_uri)
+
+        stub_request(:get, "https://sitestream.twitter.com#{@config_uri}/friends/ids.json").
+          to_return(:status => 401, :body => '', :headers => {})
+        called = false
+
+        EM.run_block do
+          @client.on_error { called = true }
+          @client.friends_ids { |info| info }
+        end
+        called.should be_true
+      end
+    end
   end
 
 end

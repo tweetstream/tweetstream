@@ -53,6 +53,22 @@ module TweetStream
       user_management(remove_user_path, user_id, error_msg, &block)
     end
 
+    def fiends_ids(user_id, &block)
+      error_msg = 'Failed to retrieve SiteStream friends ids.'
+
+      http = connection.post(:path => friends_ids_path)
+      http.callback do
+        if http.response_header.status == 200
+          block.call http.response if block && block.kind_of?(Proc)
+        else
+          @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
+        end
+      end
+      http.errback do
+        @on_error.call(error) if @on_error && @on_error.kind_of?(Proc)
+      end
+    end
+
     private
 
     def user_management(path, user_id, error_msg, &block)
@@ -96,6 +112,10 @@ module TweetStream
 
     def remove_user_path
       @config_uri + '/remove_user.json'
+    end
+
+    def friends_ids_path
+      @config_uri + '/friends/ids.json'
     end
   end
 end
