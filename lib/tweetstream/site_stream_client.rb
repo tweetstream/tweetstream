@@ -39,7 +39,7 @@ module TweetStream
         end
       end
       http.errback do
-        @on_error.call(error) if @on_error && @on_error.kind_of?(Proc)
+        @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
       end
     end
 
@@ -65,7 +65,7 @@ module TweetStream
         end
       end
       http.errback do
-        @on_error.call(error) if @on_error && @on_error.kind_of?(Proc)
+        @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
       end
     end
 
