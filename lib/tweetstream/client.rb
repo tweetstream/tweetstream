@@ -381,7 +381,7 @@ module TweetStream
       @stream = Twitter::JSONStream.connect(stream_params)
       @stream.each_item do |item|
         begin
-          raw_hash = json_parser.decode(item)
+          raw_hash = json_parser.load(item)
         rescue MultiJson::DecodeError
           error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
           next
@@ -455,7 +455,7 @@ module TweetStream
     protected
 
     def parser_from(parser)
-      MultiJson.engine = parser
+      MultiJson.use(parser)
       MultiJson
     end
 
