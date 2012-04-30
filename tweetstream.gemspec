@@ -15,14 +15,14 @@ Gem::Specification.new do |s|
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '>= 1.0'
 
-  s.add_development_dependency 'rake', '~> 0.9'
-  s.add_development_dependency 'simplecov', '~> 0.5.4'
-  s.add_development_dependency 'yard', '~> 0.7'
-  s.add_development_dependency 'rdiscount', '~> 1.6'
-  s.add_development_dependency 'rspec', '~> 2.7'
-  s.add_development_dependency 'yajl-ruby', '~> 1.0'
-  s.add_development_dependency 'json', '~> 1.6'
-  s.add_development_dependency 'guard-rspec', '~> 0.5'
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'yard'
+  s.add_development_dependency 'rdiscount'
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'yajl-ruby'
+  s.add_development_dependency 'json'
+  s.add_development_dependency 'guard-rspec'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
