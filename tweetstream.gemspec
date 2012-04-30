@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{TweetStream is a simple wrapper for consuming the Twitter Streaming API.}
   s.homepage    = 'http://github.com/intridea/tweetstream'
 
-  s.add_dependency 'twitter-stream', '~> 0.1'
+  s.add_dependency 'twitter-stream', ['>= 0.1.14', '< 1']
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.3'
 
