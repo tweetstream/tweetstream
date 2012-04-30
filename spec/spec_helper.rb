@@ -1,4 +1,11 @@
-require 'simplecov'
+unless ENV['CI']
+  require 'simplecov'
+  SimpleCov.start do
+    add_group 'Tweetstream', 'lib/tweetstream'
+    add_group 'Specs', 'spec'
+  end
+end
+
 require 'tweetstream'
 require 'rspec'
 require 'yajl'
