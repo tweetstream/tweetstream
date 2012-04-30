@@ -79,7 +79,7 @@ describe TweetStream::Client do
     describe '#each_item' do
       it 'should call the appropriate parser' do
         @client = TweetStream::Client.new
-        MultiJson.should_receive(:decode).and_return({})
+        MultiJson.should_receive(:load).and_return({})
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end

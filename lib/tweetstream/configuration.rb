@@ -17,7 +17,7 @@ module TweetStream
       :oauth_token_secret].freeze
 
     # The parser that will be used to connect if none is set
-    DEFAULT_PARSER = MultiJson.default_engine
+    DEFAULT_PARSER = MultiJson.default_adapter
 
     # By default, don't set a username
     DEFAULT_USERNAME = nil
