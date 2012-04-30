@@ -1,6 +1,8 @@
-# TweetStream
-
+# TweetStream [![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis] [![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
 TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
+
+[travis]: http://travis-ci.org/intridea/tweetstream
+[gemnasium]: https://gemnasium.com/intridea/tweetstream
 
 ## Installation
 
@@ -11,7 +13,6 @@ TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev
 Using TweetStream is quite simple:
 
 ```ruby
-require 'rubygems'
 require 'tweetstream'
 
 TweetStream.configure do |config|
@@ -129,7 +130,8 @@ TweetStream.configure do |config|
 end
 ```
 
-Available options are `:yajl`, `:json_gem`, `:json_pure`, and `:ok_json`.
+Available options are `:oj`, `:yajl`, `:json_gem`, `:json_pure`, and
+`:ok_json`.
 
 ## Handling Deletes and Rate Limitations
 
@@ -249,11 +251,6 @@ you will see a list of daemonization commands such as start, stop, and run.
 ## TODO
 
 * SiteStream support
-
-## <a name="dependencies"></a>Dependency Status
-[![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
-
-[gemnasium]: https://gemnasium.com/intridea/tweetstream
 
 ## Contributing
 
