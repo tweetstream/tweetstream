@@ -6,7 +6,7 @@ describe 'TweetStream MultiJson Support' do
   end
 
   it "should default to the MultiJson default's paser" do
-    TweetStream::Client.new.json_parser.engine.to_s.should == MultiJson.engine.to_s
+    TweetStream::Client.new.json_parser.engine.to_s.should == MultiJson.adapter.to_s
   end
 
   [:json_gem, :yajl, :json_pure].each do |engine|
@@ -18,7 +18,7 @@ describe 'TweetStream MultiJson Support' do
           config.parser   = engine
         end
         @client = TweetStream::Client.new
-        @class_name = "MultiJson::Engines::#{engine.to_s.split('_').map{|s| s.capitalize}.join('')}"
+        @class_name = "MultiJson::Adapters::#{engine.to_s.split('_').map{|s| s.capitalize}.join('')}"
       end
 
       it 'should set the parser to the appropriate class' do

@@ -455,7 +455,7 @@ module TweetStream
     protected
 
     def parser_from(parser)
-      MultiJson.engine = parser
+      MultiJson.adapter = parser
       MultiJson
     end
 
