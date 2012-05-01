@@ -476,15 +476,17 @@ module TweetStream
 
     def auth_params
       case auth_method
-        when :basic
-          return :auth => "#{username}:#{password}"
-        when :oauth
-          return :oauth => {
-              :consumer_key => consumer_key,
-              :consumer_secret => consumer_secret,
-              :access_key => oauth_token,
-              :access_secret => oauth_token_secret
+      when :basic
+        {:auth => "#{username}:#{password}"}
+      else
+        {
+          :oauth => {
+            :consumer_key => consumer_key,
+            :consumer_secret => consumer_secret,
+            :access_key => oauth_token,
+            :access_secret => oauth_token_secret
           }
+        }
       end
     end
 
