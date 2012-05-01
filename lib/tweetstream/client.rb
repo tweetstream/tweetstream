@@ -31,14 +31,6 @@ module TweetStream
       Configuration::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", options[key])
       end
-
-      # Ensure the json parser can be properly loaded
-      json_parser
-    end
-
-    # Get the JSON parser class for this client.
-    def json_parser
-      parser_from(parser)
     end
 
     # Returns all public statuses. The Firehose is not a generally
@@ -381,7 +373,7 @@ module TweetStream
       @stream = Twitter::JSONStream.connect(stream_params)
       @stream.each_item do |item|
         begin
-          raw_hash = json_parser.decode(item)
+          raw_hash = MultiJson.decode(item)
         rescue MultiJson::DecodeError
           error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
           next
@@ -453,11 +445,6 @@ module TweetStream
     end
 
     protected
-
-    def parser_from(parser)
-      MultiJson.adapter = parser
-      MultiJson
-    end
 
     def build_uri(path, query_parameters = {}) #:nodoc:
       URI.parse("/1/#{path}.json#{build_query_parameters(query_parameters)}")

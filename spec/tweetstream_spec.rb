@@ -39,19 +39,6 @@ describe TweetStream do
     end
   end
 
-  describe ".parser" do
-    it "should return the default parser" do
-      TweetStream.parser.should == TweetStream::Configuration::DEFAULT_PARSER
-    end
-  end
-
-  describe ".parser=" do
-    it "should set the adapter" do
-      TweetStream.parser = :yajl
-      TweetStream.parser.should == :yajl
-    end
-  end
-
   describe ".username" do
     it "should return the default username" do
       TweetStream.username.should == TweetStream::Configuration::DEFAULT_USERNAME
