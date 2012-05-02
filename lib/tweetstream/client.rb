@@ -1,8 +1,9 @@
-require 'uri'
 require 'cgi'
 require 'eventmachine'
-require 'twitter/json_stream'
 require 'multi_json'
+require 'twitter'
+require 'twitter/json_stream'
+require 'uri'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (http://apiwiki.twitter.com/Streaming-API-Documentation)
@@ -11,7 +12,7 @@ module TweetStream
   #
   # Basic usage of the library is to call one of the provided
   # methods and provide a block that will perform actions on
-  # a yielded TweetStream::Status. For example:
+  # a yielded Twitter::Status. For example:
   #
   #     TweetStream::Client.new.track('fail') do |status|
   #       puts "[#{status.user.screen_name}] #{status.text}"
@@ -373,30 +374,27 @@ module TweetStream
       @stream = Twitter::JSONStream.connect(stream_params)
       @stream.each_item do |item|
         begin
-          raw_hash = MultiJson.decode(item)
+          hash = MultiJson.decode(item)
         rescue MultiJson::DecodeError
           error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
           next
         end
 
-        unless raw_hash.is_a?(::Hash)
+        unless hash.is_a?(::Hash)
           error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
           next
         end
 
-        hash = TweetStream::Hash.new(raw_hash)
-        if hash[:delete] && hash[:delete][:status]
-          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
-        elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
-          scrub_geo_proc.call(hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id]) if scrub_geo_proc.is_a?(Proc)
-        elsif hash[:limit] && hash[:limit][:track]
-          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
-
-        elsif hash[:direct_message]
-          yield_message_to direct_message_proc, TweetStream::DirectMessage.new(hash[:direct_message])
-
-        elsif hash[:text] && hash[:user]
-          @last_status = TweetStream::Status.new(hash)
+        if hash['delete'] && hash['delete']['status']
+          delete_proc.call(hash['delete']['status']['id'], hash['delete']['status']['user_id']) if delete_proc.is_a?(Proc)
+        elsif hash['scrub_geo'] && hash['scrub_geo']['up_to_status_id']
+          scrub_geo_proc.call(hash['scrub_geo']['up_to_status_id'], hash['scrub_geo']['user_id']) if scrub_geo_proc.is_a?(Proc)
+        elsif hash['limit'] && hash['limit']['track']
+          limit_proc.call(hash['limit']['track']) if limit_proc.is_a?(Proc)
+        elsif hash['direct_message']
+          yield_message_to direct_message_proc, Twitter::DirectMessage.new(hash['direct_message'])
+        elsif hash['text'] && hash['user']
+          @last_status = Twitter::Status.new(hash)
           yield_message_to timeline_status_proc, @last_status
 
           if block_given?
