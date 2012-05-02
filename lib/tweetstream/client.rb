@@ -250,7 +250,7 @@ module TweetStream
     # processing of the stream.
     #
     #     @client = TweetStream::Client.new
-    #     @client.on_timeline_message do |status|
+    #     @client.on_timeline_status do |status|
     #       # do something with the status
     #     end
     #
