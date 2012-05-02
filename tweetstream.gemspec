@@ -12,17 +12,19 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://github.com/intridea/tweetstream'
 
   s.add_dependency 'twitter-stream', ['>= 0.1.14', '< 1']
+  s.add_dependency 'twitter', '~> 2.2'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.3'
 
+  s.add_development_dependency 'guard-rspec'
+  s.add_development_dependency 'json'
+  s.add_development_dependency 'pry'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'simplecov'
-  s.add_development_dependency 'yard'
   s.add_development_dependency 'rdiscount'
   s.add_development_dependency 'rspec'
+  s.add_development_dependency 'simplecov'
   s.add_development_dependency 'yajl-ruby'
-  s.add_development_dependency 'json'
-  s.add_development_dependency 'guard-rspec'
+  s.add_development_dependency 'yard'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

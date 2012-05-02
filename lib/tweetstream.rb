@@ -1,9 +1,5 @@
 require 'tweetstream/configuration'
 require 'tweetstream/client'
-require 'tweetstream/hash'
-require 'tweetstream/status'
-require 'tweetstream/direct_message'
-require 'tweetstream/user'
 require 'tweetstream/error'
 require 'tweetstream/daemon'
 

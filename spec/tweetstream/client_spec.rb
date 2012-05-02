@@ -84,9 +84,9 @@ describe TweetStream::Client do
         @client.track('abc','def')
       end
 
-      it 'should yield a TweetStream::Status' do
+      it 'should yield a Twitter::Status' do
         @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
-        @client.track('abc'){|s| s.should be_kind_of(TweetStream::Status)}
+        @client.track('abc'){|s| s.should be_kind_of(Twitter::Status)}
       end
 
       it 'should also yield the client if a block with arity 2 is given' do
@@ -142,7 +142,7 @@ describe TweetStream::Client do
             yielded_hash = hash
           end.track('abc')
           yielded_hash.should_not be_nil
-          yielded_hash.id.should == 1234
+          yielded_hash['id'].should == 1234
         end
         it 'yields itself if block has an arity of 2' do
           hash = {:id => 1234}
@@ -195,7 +195,7 @@ describe TweetStream::Client do
           end.userstream
           yielded_dm.should_not be_nil
           yielded_dm.id.should == 1234
-          yielded_dm.user.screen_name.should == "coder"
+          yielded_dm.sender.screen_name.should == "coder"
         end
 
         it 'yields itself if block has an arity of 2' do
