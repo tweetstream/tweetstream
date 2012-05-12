@@ -2,7 +2,7 @@ require 'cgi'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
-require 'twitter/json_stream'
+require 'em-twitter'
 require 'uri'
 
 module TweetStream
@@ -349,17 +349,26 @@ module TweetStream
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
       stream_params = {
-          :path => uri,
-          :method => method.to_s.upcase,
-          :user_agent => user_agent,
-          :on_inited => inited_proc,
-          :filters => params.delete(:track),
-          :params => params,
-          :ssl => true
-      }.merge(auth_params).merge(extra_stream_parameters)
+        :path => uri,
+        :method => method.to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited => inited_proc,
+        :filters => params.delete(:track),
+        :params => params,
+        :oauth => auth_params
+      }.merge(extra_stream_parameters)
 
-      @stream = Twitter::JSONStream.connect(stream_params)
-      @stream.each_item do |item|
+      if @on_interval_proc.is_a?(Proc)
+        interval = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
+        @timer = EventMachine.add_periodic_timer(interval) do
+          EventMachine.defer do
+            @on_interval_proc.call
+          end
+        end
+      end
+
+      @stream = EM::Twitter::Client.connect(stream_params)
+      @stream.each do |item|
         begin
           hash = MultiJson.decode(item)
         rescue MultiJson::DecodeError
@@ -478,19 +487,12 @@ module TweetStream
     end
 
     def auth_params
-      case auth_method
-      when :basic
-        {:auth => "#{username}:#{password}"}
-      else
-        {
-          :oauth => {
-            :consumer_key => consumer_key,
-            :consumer_secret => consumer_secret,
-            :access_key => oauth_token,
-            :access_secret => oauth_token_secret
-          }
-        }
-      end
+      {
+        :consumer_key => consumer_key,
+        :consumer_secret => consumer_secret,
+        :access_key => oauth_token,
+        :access_secret => oauth_token_secret
+      }
     end
 
     def yield_message_to(procedure, message)

@@ -3,9 +3,10 @@ require 'spec_helper'
 describe TweetStream::Client do
   before(:each) do
     TweetStream.configure do |config|
-      config.username = 'abc'
-      config.password = 'def'
-      config.auth_method = :basic
+      config.consumer_key = 'abc'
+      config.consumer_secret = 'def'
+      config.oauth_token = '123'
+      config.oauth_token_secret = '456'
     end
     @client = TweetStream::Client.new
   end
@@ -48,49 +49,53 @@ describe TweetStream::Client do
 
   describe '#start' do
     before do
-      @stream = stub("Twitter::JSONStream",
+      @stream = stub("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
-        :each_item => true,
+        :each => true,
         :on_error => true,
         :on_max_reconnects => true,
         :on_reconnect => true,
         :connection_completed => true
       )
       EM.stub!(:run).and_yield
-      Twitter::JSONStream.stub!(:connect).and_return(@stream)
+      EM::Twitter::Client.stub!(:connect).and_return(@stream)
     end
 
     it 'should try to connect via a JSON stream with basic auth' do
-      Twitter::JSONStream.should_receive(:connect).with(
+      EM::Twitter::Client.should_receive(:connect).with(
         :path => URI.parse('/1/statuses/filter.json'),
         :method => 'POST',
         :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
         :on_inited => nil,
         :filters => 'monday',
         :params => {},
-        :ssl => true,
-        :auth => 'abc:def'
+        :oauth => {
+          :consumer_key => 'abc',
+          :consumer_secret => 'def',
+          :access_key => '123',
+          :access_secret => '456'
+        }
       ).and_return(@stream)
 
       @client.track('monday')
     end
 
-    describe '#each_item' do
+    describe '#each' do
       it 'should call the appropriate parser' do
         @client = TweetStream::Client.new
         MultiJson.should_receive(:decode).and_return({})
-        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end
 
       it 'should yield a Twitter::Status' do
-        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s| s.should be_kind_of(Twitter::Status)}
       end
 
       it 'should also yield the client if a block with arity 2 is given' do
-        @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+        @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s,c| c.should == @client}
       end
 
@@ -99,7 +104,7 @@ describe TweetStream::Client do
         tweet[:id] = 123
         tweet[:user][:screen_name] = 'monkey'
         tweet[:text] = "Oo oo aa aa"
-        @stream.should_receive(:each_item).and_yield(tweet.to_json)
+        @stream.should_receive(:each).and_yield(tweet.to_json)
         @client.track('abc') do |s|
           s[:id].should == 123
           s.user.screen_name.should == 'monkey'
@@ -109,7 +114,7 @@ describe TweetStream::Client do
 
       it 'should call the on_scrub_geo if specified' do
         scrub_geo = '{ "scrub_geo": { "user_id": 1234, "user_id_str": "1234", "up_to_status_id":9876, "up_to_status_id_string": "9876" } }'
-        @stream.should_receive(:each_item).and_yield(scrub_geo)
+        @stream.should_receive(:each).and_yield(scrub_geo)
         @client.on_scrub_geo do |up_to_status_id, user_id|
           up_to_status_id.should == 9876
           user_id.should == 1234
@@ -118,7 +123,7 @@ describe TweetStream::Client do
 
       it 'should call the delete if specified' do
         delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
-        @stream.should_receive(:each_item).and_yield(delete)
+        @stream.should_receive(:each).and_yield(delete)
         @client.on_delete do |id, user_id|
           id.should == 1234
           user_id.should == 3
@@ -127,7 +132,7 @@ describe TweetStream::Client do
 
       it 'should call the on_limit if specified' do
         limit = '{ "limit": { "track": 1234 } }'
-        @stream.should_receive(:each_item).and_yield(limit)
+        @stream.should_receive(:each).and_yield(limit)
         @client.on_limit do |track|
           track.should == 1234
         end.track('abc')
@@ -136,7 +141,7 @@ describe TweetStream::Client do
       context "using on_anything" do
         it "yields the raw hash" do
           hash = {:id => 1234}
-          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          @stream.should_receive(:each).and_yield(hash.to_json)
           yielded_hash = nil
           @client.on_anything do |hash|
             yielded_hash = hash
@@ -146,7 +151,7 @@ describe TweetStream::Client do
         end
         it 'yields itself if block has an arity of 2' do
           hash = {:id => 1234}
-          @stream.should_receive(:each_item).and_yield(hash.to_json)
+          @stream.should_receive(:each).and_yield(hash.to_json)
           yielded_client = nil
           @client.on_anything do |_, client|
             yielded_client = client
@@ -162,7 +167,7 @@ describe TweetStream::Client do
           tweet[:id] = 123
           tweet[:user][:screen_name] = 'monkey'
           tweet[:text] = "Oo oo aa aa"
-          @stream.should_receive(:each_item).and_yield(tweet.to_json)
+          @stream.should_receive(:each).and_yield(tweet.to_json)
           yielded_status = nil
           @client.on_timeline_status do |status|
             yielded_status = status
@@ -173,7 +178,7 @@ describe TweetStream::Client do
           yielded_status.text.should == 'Oo oo aa aa'
         end
         it 'yields itself if block has an arity of 2' do
-          @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
+          @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
           yielded_client = nil
           @client.on_timeline_status do |_, client|
             yielded_client = client
@@ -188,7 +193,7 @@ describe TweetStream::Client do
           direct_message = sample_direct_messages[0]
           direct_message["direct_message"]["id"] = 1234
           direct_message["direct_message"]["sender"]["screen_name"] = "coder"
-          @stream.should_receive(:each_item).and_yield(direct_message.to_json)
+          @stream.should_receive(:each).and_yield(direct_message.to_json)
           yielded_dm = nil
           @client.on_direct_message do |dm|
             yielded_dm = dm
@@ -199,7 +204,7 @@ describe TweetStream::Client do
         end
 
         it 'yields itself if block has an arity of 2' do
-          @stream.should_receive(:each_item).and_yield(sample_direct_messages[0].to_json)
+          @stream.should_receive(:each).and_yield(sample_direct_messages[0].to_json)
           yielded_client = nil
           @client.on_direct_message do |_, client|
             yielded_client = client
@@ -209,14 +214,14 @@ describe TweetStream::Client do
       end
 
       it 'should call on_error if a non-hash response is received' do
-        @stream.should_receive(:each_item).and_yield('["favorited"]')
+        @stream.should_receive(:each).and_yield('["favorited"]')
         @client.on_error do |message|
           message.should == 'Unexpected JSON object in stream: ["favorited"]'
         end.track('abc')
       end
 
       it 'should call on_error if a json parse error occurs' do
-        @stream.should_receive(:each_item).and_yield("{'a_key':}")
+        @stream.should_receive(:each).and_yield("{'a_key':}")
         @client.on_error do |message|
           message.should == "MultiJson::DecodeError occured in stream: {'a_key':}"
         end.track('abc')
@@ -357,17 +362,17 @@ describe TweetStream::Client do
 
   describe '#stop_stream' do
     before(:each) do
-      @stream = stub("Twitter::JSONStream",
+      @stream = stub("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
-        :each_item => true,
+        :each => true,
         :on_error => true,
         :on_max_reconnects => true,
         :on_reconnect => true,
         :connection_completed => true,
         :stop => true
       )
-      Twitter::JSONStream.stub!(:connect).and_return(@stream)
+      EM::Twitter::Client.stub!(:connect).and_return(@stream)
       @client = TweetStream::Client.new
       @client.connect('/')
     end
@@ -395,28 +400,27 @@ describe TweetStream::Client do
         end
         @client = TweetStream::Client.new
 
-        @stream = stub("Twitter::JSONStream",
+        @stream = stub("EM::Twitter::Client",
           :connect => true,
           :unbind => true,
-          :each_item => true,
+          :each => true,
           :on_error => true,
           :on_max_reconnects => true,
           :on_reconnect => true,
           :connection_completed => true
         )
         EM.stub!(:run).and_yield
-        Twitter::JSONStream.stub!(:connect).and_return(@stream)
+        EM::Twitter::Client.stub!(:connect).and_return(@stream)
       end
 
       it 'should try to connect via a JSON stream with oauth' do
-        Twitter::JSONStream.should_receive(:connect).with(
+        EM::Twitter::Client.should_receive(:connect).with(
           :path => URI.parse('/1/statuses/filter.json'),
           :method => 'POST',
           :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
           :on_inited => nil,
           :filters => 'monday',
           :params => {},
-          :ssl => true,
           :oauth => {
             :consumer_key => '123456789',
             :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',
@@ -430,12 +434,12 @@ describe TweetStream::Client do
 
       context "when calling #userstream" do
         it "sends the userstream host" do
-          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
+          EM::Twitter::Client.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
           @client.userstream
         end
 
         it "uses the userstream uri" do
-          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
+          EM::Twitter::Client.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
           @client.userstream
         end
       end
