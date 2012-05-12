@@ -510,11 +510,7 @@ describe TweetStream::Client do
         context 'data handling' do
           before do
             tweet = sample_tweets[0]
-            tweet['id'] = 123
-            tweet['user'] = {}
-            tweet['user']['screen_name'] = 'monkey'
-            tweet['text'] = "Oo oo aa aa"
-            @ss_message = {'for_user' => '12345', 'message' => tweet}
+            @ss_message = {'for_user' => '12345', 'message' => {'id' => 123, 'user' => {'screen_name' => 'monkey'}, 'text' => 'Oo oo aa aa'}}
           end
 
           it 'yields a site stream message' do
