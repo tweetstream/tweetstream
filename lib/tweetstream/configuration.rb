@@ -44,9 +44,6 @@ module TweetStream
     # By default, don't set a user oauth secret
     DEFAULT_OAUTH_TOKEN_SECRET = nil
 
-    # Default time interval for use with on_interval
-    DEFAULT_TIMER_INTERVAL = 30
-
     # @private
     attr_accessor *VALID_OPTIONS_KEYS
 
