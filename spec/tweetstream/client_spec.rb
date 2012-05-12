@@ -68,13 +68,12 @@ describe TweetStream::Client do
         :method => 'POST',
         :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
         :on_inited => nil,
-        :filters => 'monday',
-        :params => {},
+        :params => { :track => 'monday'},
         :oauth => {
           :consumer_key => 'abc',
           :consumer_secret => 'def',
-          :access_key => '123',
-          :access_secret => '456'
+          :token => '123',
+          :token_secret => '456'
         }
       ).and_return(@stream)
 
@@ -418,13 +417,12 @@ describe TweetStream::Client do
           :method => 'POST',
           :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
           :on_inited => nil,
-          :filters => 'monday',
-          :params => {},
+          :params => {:track => 'monday'},
           :oauth => {
             :consumer_key => '123456789',
             :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',
-            :access_key => '123456789',
-            :access_secret => 'abcdefghijklmnopqrstuvwxyz'
+            :token => '123456789',
+            :token_secret => 'abcdefghijklmnopqrstuvwxyz'
           }
         ).and_return(@stream)
 
