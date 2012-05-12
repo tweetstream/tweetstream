@@ -16,6 +16,15 @@ module TweetStream
       :oauth_token,
       :oauth_token_secret].freeze
 
+    OAUTH_OPTIONS_KEYS = [
+      :consumer_key,
+      :consumer_secret,
+      :oauth_token,
+      :oauth_token_secret].freeze
+
+    # The parser that will be used to connect if none is set
+    DEFAULT_PARSER = MultiJson.default_engine
+
     # By default, don't set a username
     DEFAULT_USERNAME = nil
 
@@ -63,6 +72,11 @@ module TweetStream
     # Create a hash of options and their values
     def options
       Hash[*VALID_OPTIONS_KEYS.map {|key| [key, send(key)] }.flatten]
+    end
+
+    # Create a hash of options and their values
+    def oauth_options
+      Hash[*OAUTH_OPTIONS_KEYS.map {|key| [key, send(key)] }.flatten]
     end
 
     # Reset all configuration options to defaults

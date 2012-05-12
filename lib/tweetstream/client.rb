@@ -25,6 +25,8 @@ module TweetStream
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
     attr_accessor :timer
+    attr_reader :control_uri
+    attr_reader :control
 
     # Creates a new API
     def initialize(options={})
@@ -117,7 +119,20 @@ module TweetStream
 
     # Make a call to the userstream api for currently authenticated user
     def userstream(&block)
-      start('', :extra_stream_parameters => {:host => "userstream.twitter.com", :path => "/2/user.json"}, &block)
+      stream_params = { :host => "userstream.twitter.com", :path => "/2/user.json" }
+      start('', :extra_stream_parameters => stream_params, &block)
+    end
+
+    # Make a call to the userstream api
+    def sitestream(user_ids = [], query_params = {}, &block)
+      stream_params = { :host => "sitestream.twitter.com", :path => '/2b/site.json' }
+      sitestream_params = {
+        :method => :post,
+        :follow => user_ids,
+        :extra_stream_parameters => stream_params
+      }
+      sitestream_params.merge!(:with => 'followings') if query_params[:followings]
+      start('', sitestream_params, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -385,7 +400,12 @@ module TweetStream
           next
         end
 
-        if hash['delete'] && hash['delete']['status']
+        if hash['control'] && hash['control']['control_uri']
+          @control_uri = hash['control']['control_uri']
+          require 'tweetstream/site_stream_client'
+          @control = TweetStream::SiteStreamClient.new(@control_uri)
+          @control.on_error(&self.on_error)
+        elsif hash['delete'] && hash['delete']['status']
           delete_proc.call(hash['delete']['status']['id'], hash['delete']['status']['user_id']) if delete_proc.is_a?(Proc)
         elsif hash['scrub_geo'] && hash['scrub_geo']['up_to_status_id']
           scrub_geo_proc.call(hash['scrub_geo']['up_to_status_id'], hash['scrub_geo']['user_id']) if scrub_geo_proc.is_a?(Proc)
@@ -405,6 +425,19 @@ module TweetStream
                 yield @last_status
               when 2
                 yield @last_status, self
+            end
+          end
+        elsif hash['for_user']
+          @message = hash
+
+          if block_given?
+            # Give the block the option to receive either one
+            # or two arguments, depending on its arity.
+            case block.arity
+            when 1
+              yield @message
+            when 2
+              yield @message, self
             end
           end
         end
