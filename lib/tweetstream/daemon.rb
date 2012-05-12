@@ -13,7 +13,6 @@ require 'daemons'
 #       config.consumer_secret = '0123456789'
 #       config.oauth_token = 'abcdefghijklmnopqrstuvwxyz'
 #       config.oauth_token_secret = '0123456789'
-#       config.auth_method = :oauth
 #     end
 #
 #     TweetStream::Daemon.new('tracker').track('intridea') do |status|

@@ -10,7 +10,6 @@ module TweetStream
       :username,
       :password,
       :user_agent,
-      :auth_method,
       :consumer_key,
       :consumer_secret,
       :oauth_token,
@@ -33,13 +32,6 @@ module TweetStream
 
     # The user agent that will be sent to the API endpoint if none is set
     DEFAULT_USER_AGENT = "TweetStream Ruby Gem #{TweetStream::VERSION}".freeze
-
-    # The default authentication method
-    DEFAULT_AUTH_METHOD = :oauth
-
-    VALID_FORMATS = [
-      :basic,
-      :oauth].freeze
 
     # By default, don't set an application key
     DEFAULT_CONSUMER_KEY = nil
@@ -81,7 +73,6 @@ module TweetStream
       self.username           = DEFAULT_USERNAME
       self.password           = DEFAULT_PASSWORD
       self.user_agent         = DEFAULT_USER_AGENT
-      self.auth_method        = DEFAULT_AUTH_METHOD
       self.consumer_key       = DEFAULT_CONSUMER_KEY
       self.consumer_secret    = DEFAULT_CONSUMER_SECRET
       self.oauth_token        = DEFAULT_OAUTH_TOKEN

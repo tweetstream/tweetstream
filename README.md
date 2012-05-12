@@ -20,7 +20,6 @@ TweetStream.configure do |config|
   config.consumer_secret = '0123456789'
   config.oauth_token = 'abcdefghijklmnopqrstuvwxyz'
   config.oauth_token_secret = '0123456789'
-  config.auth_method = :oauth
   config.parser   = :yajl
 end
 
@@ -98,25 +97,11 @@ TweetStream.configure do |config|
   config.consumer_secret = 'yYgVgvTT9uCFAi2IuscbYTCqwJZ1sdQxzISvLhNWUA'
   config.oauth_token = '4618-H3gU7mjDQ7MtFkAwHhCqD91Cp4RqDTp1AKwGzpHGL3I'
   config.oauth_token_secret = 'xmc9kFgOXpMdQ590Tho2gV7fE71v5OmBrX8qPGh7Y'
-  config.auth_method = :oauth
   config.parser   = :yajl
 end
 ```
 
-If you are using Basic Auth:
-
-```ruby
-TweetStream.configure do |config|
-  config.username = 'username'
-  config.password = 'password'
-  config.auth_method = :basic
-  config.parser   = :yajl
-end
-```
-
-TweetStream assumes OAuth by default.  If you are using Basic Auth, it is recommended
-that you update your code to use OAuth as Twitter is likely to phase out Basic Auth
-support.
+TweetStream only supports OAuth.
 
 ## Swappable JSON Parsing
 
