@@ -456,6 +456,85 @@ describe TweetStream::Client do
           @client.userstream
         end
       end
+
+      context "when calling #sitestream" do
+        it "sends the sitestream host" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
+          @client.sitestream
+        end
+
+        it "uses the userstream uri" do
+          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
+          @client.sitestream
+        end
+
+        it 'supports the "with followings"' do
+          @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
+          @client.sitestream(['115192457'], :followings => true)
+        end
+
+        context 'control management' do
+          before do
+            @control_response = {"control" =>
+              {
+                "control_uri" =>"/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50"
+              }
+            }
+          end
+          it 'assigns the control_uri' do
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @client.sitestream
+
+            @client.control_uri.should eq("/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
+          end
+
+          it 'instantiates a SiteStreamClient' do
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @client.sitestream
+
+            @client.control.should be_kind_of(TweetStream::SiteStreamClient)
+          end
+
+          it "passes the client's on_error to the SiteStreamClient" do
+            called = false
+            @client.on_error { |err| called = true }
+            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @client.sitestream
+
+            @client.control.on_error.call
+
+            called.should be_true
+          end
+        end
+
+        context 'data handling' do
+          before do
+            tweet = sample_tweets[0]
+            @ss_message = {'for_user' => '12345', 'message' => {'id' => 123, 'user' => {'screen_name' => 'monkey'}, 'text' => 'Oo oo aa aa'}}
+          end
+
+          it 'yields a site stream message' do
+            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            yielded_status = nil
+            @client.sitestream do |message|
+              yielded_status = message
+            end
+            yielded_status.should_not be_nil
+            yielded_status['for_user'].should == '12345'
+            yielded_status['message']['user']['screen_name'].should == 'monkey'
+            yielded_status['message']['text'].should == 'Oo oo aa aa'
+          end
+          it 'yields itself if block has an arity of 2' do
+            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            yielded_client = nil
+            @client.sitestream do |_, client|
+              yielded_client = client
+            end
+            yielded_client.should_not be_nil
+            yielded_client.should == @client
+          end
+        end
+      end
     end
   end
 

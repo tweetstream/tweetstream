@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'twitter', '~> 2.2'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.3'
+  s.add_dependency 'em-http-request', '~> 1.0.2'
 
   s.add_development_dependency 'guard-rspec'
   s.add_development_dependency 'json'
@@ -23,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rdiscount'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'simplecov'
+  s.add_development_dependency 'webmock'
   s.add_development_dependency 'yajl-ruby'
   s.add_development_dependency 'yard'
 
