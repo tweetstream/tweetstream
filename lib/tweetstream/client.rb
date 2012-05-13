@@ -24,7 +24,6 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
-    attr_accessor :timer
     attr_reader :control_uri
     attr_reader :control
 
@@ -316,24 +315,6 @@ module TweetStream
       end
     end
 
-    # Set a Proc to be run on a regular interval
-    # independent of timeline status updates
-    #
-    #     @client = TweetStream::Client.new
-    #     @client.on_interval(20) do
-    #       # do something every 20 seconds
-    #     end
-    #
-    def on_interval(time_interval=nil, &block)
-      if block_given?
-        @on_interval_time = time_interval
-        @on_interval_proc = block
-        self
-      else
-        [@on_interval_time, @on_interval_proc]
-      end
-    end
-
     # connect to twitter while starting a new EventMachine run loop
     def start(path, query_parameters = {}, &block)
       if EventMachine.reactor_running?
@@ -376,15 +357,6 @@ module TweetStream
           :params => params,
           :ssl => true
       }.merge(auth_params).merge(extra_stream_parameters)
-
-      if @on_interval_proc.is_a?(Proc)
-        interval = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
-        @timer = EventMachine.add_periodic_timer(interval) do
-          EventMachine.defer do
-            @on_interval_proc.call
-          end
-        end
-      end
 
       @stream = Twitter::JSONStream.connect(stream_params)
       @stream.each_item do |item|
