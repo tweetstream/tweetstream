@@ -353,9 +353,8 @@ module TweetStream
         :method => method.to_s.upcase,
         :user_agent => user_agent,
         :on_inited => inited_proc,
-        :params => params,
-        :oauth => auth_params
-      }.merge(extra_stream_parameters)
+        :params => params
+      }.merge(extra_stream_parameters).merge(auth_params)
 
       if @on_interval_proc.is_a?(Proc)
         interval = @on_interval_time || Configuration::DEFAULT_TIMER_INTERVAL
@@ -486,6 +485,21 @@ module TweetStream
     end
 
     def auth_params
+      if auth_method == :basic
+        { :basic => basic_auth_params }
+      elsif auth_method == :oauth
+        { :oauth => oauth_params }
+      end
+    end
+
+    def basic_auth_params
+      {
+        :username => username,
+        :password => password
+      }
+    end
+
+    def oauth_params
       {
         :consumer_key => consumer_key,
         :consumer_secret => consumer_secret,

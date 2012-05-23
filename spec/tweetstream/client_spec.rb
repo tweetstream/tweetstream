@@ -387,6 +387,45 @@ describe TweetStream::Client do
     end
   end
 
+  describe "basic auth" do
+    before do
+      TweetStream.configure do |config|
+        config.username = 'tweetstream'
+        config.password = 'rubygem'
+        config.auth_method = :basic
+      end
+      @client = TweetStream::Client.new
+
+      @stream = stub("EM::Twitter::Client",
+        :connect => true,
+        :unbind => true,
+        :each => true,
+        :on_error => true,
+        :on_max_reconnects => true,
+        :on_reconnect => true,
+        :connection_completed => true
+      )
+      EM.stub!(:run).and_yield
+      EM::Twitter::Client.stub!(:connect).and_return(@stream)
+    end
+
+    it 'should try to connect via a JSON stream with oauth' do
+      EM::Twitter::Client.should_receive(:connect).with(
+        :path => URI.parse('/1/statuses/filter.json'),
+        :method => 'POST',
+        :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
+        :on_inited => nil,
+        :params => {:track => 'monday'},
+        :basic => {
+          :username => 'tweetstream',
+          :password => 'rubygem'
+        }
+      ).and_return(@stream)
+
+      @client.track('monday')
+    end
+  end
+
   describe "oauth" do
     describe '#start' do
       before do
