@@ -395,6 +395,7 @@ describe TweetStream::Client do
           config.consumer_secret = 'abcdefghijklmnopqrstuvwxyz'
           config.oauth_token = '123456789'
           config.oauth_token_secret = 'abcdefghijklmnopqrstuvwxyz'
+          config.auth_method = :oauth
         end
         @client = TweetStream::Client.new
 

@@ -65,6 +65,19 @@ describe TweetStream do
     end
   end
 
+  describe ".auth_method" do
+    it "shold return the default auth method" do
+      TweetStream.auth_method.should == TweetStream::Configuration::DEFAULT_AUTH_METHOD
+    end
+  end
+
+  describe ".auth_method=" do
+    it "should set the auth method" do
+      TweetStream.auth_method = :basic
+      TweetStream.auth_method.should == :basic
+    end
+  end
+
   describe ".user_agent" do
     it "should return the default user agent" do
       TweetStream.user_agent.should == TweetStream::Configuration::DEFAULT_USER_AGENT
