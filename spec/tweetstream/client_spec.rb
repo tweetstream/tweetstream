@@ -443,12 +443,12 @@ describe TweetStream::Client do
 
       context "when calling #sitestream" do
         it "sends the sitestream host" do
-          Twitter::JSONStream.should_receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
+          EM::Twitter::Client.should_receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
           @client.sitestream
         end
 
         it "uses the userstream uri" do
-          Twitter::JSONStream.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
+          EM::Twitter::Client.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
           @client.sitestream
         end
 
@@ -466,14 +466,14 @@ describe TweetStream::Client do
             }
           end
           it 'assigns the control_uri' do
-            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @stream.should_receive(:each).and_yield(@control_response.to_json)
             @client.sitestream
 
             @client.control_uri.should eq("/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
           end
 
           it 'instantiates a SiteStreamClient' do
-            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @stream.should_receive(:each).and_yield(@control_response.to_json)
             @client.sitestream
 
             @client.control.should be_kind_of(TweetStream::SiteStreamClient)
@@ -482,7 +482,7 @@ describe TweetStream::Client do
           it "passes the client's on_error to the SiteStreamClient" do
             called = false
             @client.on_error { |err| called = true }
-            @stream.should_receive(:each_item).and_yield(@control_response.to_json)
+            @stream.should_receive(:each).and_yield(@control_response.to_json)
             @client.sitestream
 
             @client.control.on_error.call
@@ -498,7 +498,7 @@ describe TweetStream::Client do
           end
 
           it 'yields a site stream message' do
-            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            @stream.should_receive(:each).and_yield(@ss_message.to_json)
             yielded_status = nil
             @client.sitestream do |message|
               yielded_status = message
@@ -509,7 +509,7 @@ describe TweetStream::Client do
             yielded_status['message']['text'].should == 'Oo oo aa aa'
           end
           it 'yields itself if block has an arity of 2' do
-            @stream.should_receive(:each_item).and_yield(@ss_message.to_json)
+            @stream.should_receive(:each).and_yield(@ss_message.to_json)
             yielded_client = nil
             @client.sitestream do |_, client|
               yielded_client = client
