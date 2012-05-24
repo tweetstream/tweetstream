@@ -24,13 +24,15 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
+    attr_accessor :options
     attr_reader :control_uri, :control, :stream
 
     # Creates a new API
     def initialize(options={})
-      options = TweetStream.options.merge(options)
+      self.options = options
+      merged_options = TweetStream.options.merge(options)
       Configuration::VALID_OPTIONS_KEYS.each do |key|
-        send("#{key}=", options[key])
+        send("#{key}=", merged_options[key])
       end
     end
 
@@ -372,7 +374,7 @@ module TweetStream
         if hash['control'] && hash['control']['control_uri']
           @control_uri = hash['control']['control_uri']
           require 'tweetstream/site_stream_client'
-          @control = TweetStream::SiteStreamClient.new(@control_uri)
+          @control = TweetStream::SiteStreamClient.new(@control_uri, options)
           @control.on_error(&self.on_error)
         elsif hash['delete'] && hash['delete']['status']
           delete_proc.call(hash['delete']['status']['id'], hash['delete']['status']['user_id']) if delete_proc.is_a?(Proc)
