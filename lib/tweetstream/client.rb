@@ -2,7 +2,7 @@ require 'cgi'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
-require 'twitter/json_stream'
+require 'em-twitter'
 require 'uri'
 
 module TweetStream
@@ -24,8 +24,7 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
-    attr_reader :control_uri
-    attr_reader :control
+    attr_reader :control_uri, :control, :stream
 
     # Creates a new API
     def initialize(options={})
@@ -349,17 +348,15 @@ module TweetStream
       uri = method == :get ? build_uri(path, params) : build_uri(path)
 
       stream_params = {
-          :path => uri,
-          :method => method.to_s.upcase,
-          :user_agent => user_agent,
-          :on_inited => inited_proc,
-          :filters => params.delete(:track),
-          :params => params,
-          :ssl => true
-      }.merge(auth_params).merge(extra_stream_parameters)
+        :path => uri,
+        :method => method.to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited => inited_proc,
+        :params => params
+      }.merge(extra_stream_parameters).merge(auth_params)
 
-      @stream = Twitter::JSONStream.connect(stream_params)
-      @stream.each_item do |item|
+      @stream = EM::Twitter::Client.connect(stream_params)
+      @stream.each do |item|
         begin
           hash = MultiJson.decode(item)
         rescue MultiJson::DecodeError
@@ -478,19 +475,27 @@ module TweetStream
     end
 
     def auth_params
-      case auth_method
-      when :basic
-        {:auth => "#{username}:#{password}"}
-      else
-        {
-          :oauth => {
-            :consumer_key => consumer_key,
-            :consumer_secret => consumer_secret,
-            :access_key => oauth_token,
-            :access_secret => oauth_token_secret
-          }
-        }
+      if auth_method == :basic
+        { :basic => basic_auth_params }
+      elsif auth_method == :oauth
+        { :oauth => oauth_params }
       end
+    end
+
+    def basic_auth_params
+      {
+        :username => username,
+        :password => password
+      }
+    end
+
+    def oauth_params
+      {
+        :consumer_key => consumer_key,
+        :consumer_secret => consumer_secret,
+        :token => oauth_token,
+        :token_secret => oauth_token_secret
+      }
     end
 
     def yield_message_to(procedure, message)
