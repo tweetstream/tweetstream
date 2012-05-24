@@ -24,8 +24,7 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
-    attr_reader :control_uri
-    attr_reader :control
+    attr_reader :control_uri, :control, :stream
 
     # Creates a new API
     def initialize(options={})
