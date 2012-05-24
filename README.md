@@ -57,10 +57,45 @@ Using the Twitter userstream works similarly to the regular streaming, except yo
 
 ```ruby
 # Use 'userstream' to get message from your stream
-TweetStream::Client.new.userstream do |status|
+client = TweetStream::Client.new
+
+client.userstream do |status|
   puts status.text
 end
 ```
+
+## Using Twitter Site Streams
+
+```ruby
+client = TweetStream::Client.new
+
+client.sitestream(['115192457'], :followings => true) do |status|
+  puts status.inspect
+end
+```
+
+Once connected, you can [control the Site Stream connection](https://dev.twitter.com/docs/streaming-apis/streams/site/control):
+
+```ruby
+# add users to the stream
+client.control.add_user('2039761')
+
+# remove users from the stream
+client.control.remove_user('115192457')
+
+# obtain a list of followings of users in the stream
+client.control.friends_ids('115192457') do |friends|
+  # do something
+end
+
+# obtain the current state of the stream
+client.control.info do |info| 
+  # do something
+end
+```
+
+Note that per Twitter's documentation, connection management features are not 
+immediately available when connected
 
 You also can use method hooks for both regular timeline statuses and direct messages.
 
@@ -116,7 +151,8 @@ end
 
 TweetStream assumes OAuth by default.  If you are using Basic Auth, it is recommended
 that you update your code to use OAuth as Twitter is likely to phase out Basic Auth
-support.
+support.  Basic Auth is only available for public streams as User Stream and Site Stream 
+functionality [only support OAuth](https://dev.twitter.com/docs/streaming-apis/connecting#Authentication).
 
 ## Swappable JSON Parsing
 

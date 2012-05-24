@@ -7,7 +7,7 @@ describe TweetStream do
 
   context "when delegating to a client" do
     before do
-      @stream = stub("Twitter::JSONStream",
+      @stream = stub("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
         :each_item => true,
@@ -17,13 +17,13 @@ describe TweetStream do
         :connection_completed => true
       )
       EM.stub!(:run).and_yield
-      Twitter::JSONStream.stub!(:connect).and_return(@stream)
+      EM::Twitter::Client.stub!(:connect).and_return(@stream)
     end
 
     it "should return the same results as a client" do
       MultiJson.should_receive(:decode).and_return({})
-      @stream.should_receive(:each_item).and_yield(sample_tweets[0].to_json)
-      TweetStream.track('abc','def').should == TweetStream::Client.new.track('abc','def')
+      @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
+      TweetStream.track('abc','def')
     end
   end
 
