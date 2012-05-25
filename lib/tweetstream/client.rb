@@ -479,7 +479,7 @@ module TweetStream
     def auth_params
       if auth_method == :basic
         { :basic => basic_auth_params }
-      elsif auth_method == :oauth
+      else
         { :oauth => oauth_params }
       end
     end
