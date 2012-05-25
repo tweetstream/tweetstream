@@ -1,3 +1,18 @@
+Version 2.0.0
+=============
+
+* Added Site Stream support
+* Switched to [em-twitter](https://github.com/spagalloco/em-twitter) for underlying streaming lib
+* Switched to Twitter gem objects instead of custom hashes, see [47e5cd3d21a9562b3d959bc231009af460b37567](https://github.com/intridea/tweetstream/commit/47e5cd3d21a9562b3d959bc231009af460b37567) for details (sferik)
+* Made OAuth the default authentication method
+* Removed on_interval callback
+
+Version 1.1.5
+=============
+
+* Added support for the scrub_geo response (augustj)
+* Update multi_json and twitter-stream version dependencies
+
 Version 1.1.4
 =============
 
@@ -27,8 +42,9 @@ Version 1.1.0
 * OAuth authentication
 * User Stream support
 * Removed swappable JSON backend support for MultiJson
-* Added epoll and kqueue EventMachine support
-* Added on___interval and on_inited callbacks
+* Added EventMachine epoll and kqueue support
+* Added on_interval callback
+* Added on_inited callback
 
 Version 1.0.5
 =============
