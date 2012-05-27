@@ -14,7 +14,8 @@ describe TweetStream do
         :on_error => true,
         :on_max_reconnects => true,
         :on_reconnect => true,
-        :connection_completed => true
+        :connection_completed => true,
+        :on_no_data_received => true
       )
       EM.stub!(:run).and_yield
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
