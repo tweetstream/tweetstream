@@ -52,11 +52,8 @@ with the methods available on the Streaming API wiki page.
 
 ## Changes in 2.0
 
-TweetStream 2.0 introduces a number of requested features and bug fixes. Notable
+TweetStream 2.0 introduces a number of requested features and bug fixes. For the complete list refer to the [changelog](https://github.com/intridea/tweetstream/blob/master/CHANGELOG.md#version-200). Notable
 additions in 2.0 include:
-
-* Switched to Twitter gem objects instead of custom hashes, see [47e5cd3d21a9562b3d959bc231009af460b37567](https://github.com/intridea/tweetstream/commit/47e5cd3d21a9562b3d959bc231009af460b37567) for details (sferik)
-* Removed parser configuration option
 
 ### OAuth
 
