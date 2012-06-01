@@ -16,12 +16,11 @@ Using TweetStream is quite simple:
 require 'tweetstream'
 
 TweetStream.configure do |config|
-  config.consumer_key = 'abcdefghijklmnopqrstuvwxyz'
-  config.consumer_secret = '0123456789'
-  config.oauth_token = 'abcdefghijklmnopqrstuvwxyz'
+  config.consumer_key       = 'abcdefghijklmnopqrstuvwxyz'
+  config.consumer_secret    = '0123456789'
+  config.oauth_token        = 'abcdefghijklmnopqrstuvwxyz'
   config.oauth_token_secret = '0123456789'
-  config.auth_method = :oauth
-  config.parser   = :yajl
+  config.auth_method        = :oauth
 end
 
 # This will pull a sample of all tweets based on
@@ -48,12 +47,68 @@ TweetStream::Client.new.follow(14252, 53235) do |status|
 end
 ```
 
-The methods available to TweetStream::Client will be kept in parity
+The methods available to TweetStream::Client are kept in parity
 with the methods available on the Streaming API wiki page.
+
+## Changes in 2.0
+
+TweetStream 2.0 introduces a number of requested features and bug fixes. Notable
+additions in 2.0 include:
+
+* Switched to Twitter gem objects instead of custom hashes, see [47e5cd3d21a9562b3d959bc231009af460b37567](https://github.com/intridea/tweetstream/commit/47e5cd3d21a9562b3d959bc231009af460b37567) for details (sferik)
+* Removed parser configuration option
+
+### OAuth
+
+OAuth is now the default authentication method.  Both userstreams and Site 
+Streams exclusively work with OAuth.  TweetStream still supports Basic Auth,
+however it is no longer the default.  If you are still using Basic Auth, you
+should plan to move to OAuth as soon as possible.
+
+### Site Stream Support
+
+Site Streams are now fully supported, including the connection management functionality.
+
+### Compatablity with the Twitter gem
+
+TweetStream now emits objects from the [Twitter gem](https://github.com/jnunemaker/twitter) instead of custom hashes. These objects are already defined in the `twitter` gem and are superior to the custom objects in the following ways:
+
+1. Object equivalence (`#==` returns true if `#id`s are the same).
+2. The `#created_at` method returns a `Date` instead of a `String`.
+3. Allows boolean methods to be called with a question mark (e.g.
+   `User#protected?`)
+
+Additionally, any new features that are added to objects in the
+`twitter` gem (e.g. identity map) will be automatically inherited by TweetStream.
+
+### em-twitter
+
+We've replaced the underlying gem that connects to the streaming API. [twitter-stream](https://github.com/voloko/twitter-stream) has been replaced with [em-twitter](https://github.com/spagalloco/em-twitter).
+It offers functionality parity with twitter-stream while also supporting several new features.
+
+### Removal of on_interval callback
+
+We have removed the `on_interval` callback.  If you require interval-based timers, it is possible to run 
+TweetStream inside an already running EventMachine reactor in which you can define `EM::Timer` or `EM::PeriodicTimer`
+for time-based operations:
+
+```ruby
+EM.run do
+  client = TweetStream::Client.new
+  
+  EM::PeriodicTimer.new(10) do
+    # do something on an interval
+  end
+end
+```
+
+### Additional Notes
+
+The parser configuration method has been removed as MultiJson automatically detects existing parsers.
 
 ## Using the Twitter Userstream
 
-Using the Twitter userstream works similarly to the regular streaming, except you use the userstream method.
+Using the Twitter userstream works similarly to regular streaming, except you use the `userstream` method.
 
 ```ruby
 # Use 'userstream' to get message from your stream
@@ -115,11 +170,10 @@ end
 client.userstream
 ```
 
-## Configuration and Changes in 1.1.0
+## Authentication
 
-As of version 1.1.0.rc1 TweetStream supports OAuth.  Please note that in order
-to support OAuth, the `TweetStream::Client` initializer no longer accepts a
-username/password.  `TweetStream::Client` now accepts a hash:
+TweetStream supports OAuth and Basic Auth.  `TweetStream::Client` now accepts 
+a hash:
 
 ```ruby
 TweetStream::Client.new(:username => 'you', :password => 'pass')
@@ -129,12 +183,11 @@ Alternatively, you can configure TweetStream via the configure method:
 
 ```ruby
 TweetStream.configure do |config|
-  config.consumer_key = 'cVcIw5zoLFE2a4BdDsmmA'
-  config.consumer_secret = 'yYgVgvTT9uCFAi2IuscbYTCqwJZ1sdQxzISvLhNWUA'
-  config.oauth_token = '4618-H3gU7mjDQ7MtFkAwHhCqD91Cp4RqDTp1AKwGzpHGL3I'
+  config.consumer_key       = 'cVcIw5zoLFE2a4BdDsmmA'
+  config.consumer_secret    = 'yYgVgvTT9uCFAi2IuscbYTCqwJZ1sdQxzISvLhNWUA'
+  config.oauth_token        = '4618-H3gU7mjDQ7MtFkAwHhCqD91Cp4RqDTp1AKwGzpHGL3I'
   config.oauth_token_secret = 'xmc9kFgOXpMdQ590Tho2gV7fE71v5OmBrX8qPGh7Y'
-  config.auth_method = :oauth
-  config.parser   = :yajl
+  config.auth_method        = :oauth
 end
 ```
 
@@ -142,10 +195,9 @@ If you are using Basic Auth:
 
 ```ruby
 TweetStream.configure do |config|
-  config.username = 'username'
-  config.password = 'password'
-  config.auth_method = :basic
-  config.parser   = :yajl
+  config.username     = 'username'
+  config.password     = 'password'
+  config.auth_method  = :basic
 end
 ```
 
@@ -154,20 +206,10 @@ that you update your code to use OAuth as Twitter is likely to phase out Basic A
 support.  Basic Auth is only available for public streams as User Stream and Site Stream 
 functionality [only support OAuth](https://dev.twitter.com/docs/streaming-apis/connecting#Authentication).
 
-## Swappable JSON Parsing
+## Parsing JSON 
 
-As of version 1.1, TweetStream supports swappable JSON backends via MultiJson. You can
-specify a parser during configuration:
-
-```ruby
-# Parse tweets using Yajl-Ruby
-TweetStream.configure do |config|
-  config.parser   = :yajl
-end
-```
-
-Available options are `:oj`, `:yajl`, `:json_gem`, `:json_pure`, and
-`:ok_json`.
+TweetStream supports swappable JSON backends via MultiJson. Simply require your preferred 
+JSON parser and it will be used to parse responses.
 
 ## Handling Deletes and Rate Limitations
 
@@ -190,7 +232,7 @@ end
 @client.track('intridea')
 ```
 
-The on_delete and on_limit methods can also be chained, like so:
+The on_delete and on_limit methods can also be chained:
 
 ```ruby
 TweetStream::Client.new.on_delete{ |status_id, user_id|
@@ -284,10 +326,6 @@ end
 If you put the above into a script and run the script with `ruby scriptname.rb`,
 you will see a list of daemonization commands such as start, stop, and run.
 
-## TODO
-
-* SiteStream support
-
 ## Contributing
 
 * Fork the project.
@@ -298,9 +336,11 @@ you will see a list of daemonization commands such as start, stop, and run.
 
 ## Contributors
 
-* Michael Bleigh (initial gem)
-* Steve Agalloco (current maintainer)
+* [Michael Bleigh](https://github.com/mbleigh) (initial gem)
+* [Steve Agalloco](https://github.com/spagalloco) (current maintainer)
+* [Erik Michaels-Ober](https://github.com/sferik) (current maintainer)
+* [Countless others](https://github.com/intridea/tweetstream/graphs/contributors)
 
 ## Copyright
 
-Copyright (c) 2011 Intridea, Inc. (http://www.intridea.com/). See [LICENSE](https://github.com/intridea/tweetstream/blob/master/LICENSE.md) for details.
+Copyright (c) 2012 Intridea, Inc. (http://www.intridea.com/). See [LICENSE](https://github.com/intridea/tweetstream/blob/master/LICENSE.md) for details.
