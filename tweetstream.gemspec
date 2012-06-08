@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://github.com/intridea/tweetstream'
 
   s.add_dependency 'em-twitter', '~> 0.1'
-  s.add_dependency 'twitter', '~> 2.2'
+  s.add_dependency 'twitter', '~> 3.0.0.rc.1'
   s.add_dependency 'daemons', '~> 1.1'
   s.add_dependency 'multi_json', '~> 1.3'
   s.add_dependency 'em-http-request', '~> 1.0.2'
