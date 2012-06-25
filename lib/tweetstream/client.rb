@@ -232,7 +232,7 @@ module TweetStream
         @on_unauthorized = block
         self
       else
-        @on_error
+        @on_unauthorized
       end
     end
 
