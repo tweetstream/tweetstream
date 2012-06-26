@@ -220,6 +220,22 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run when an HTTP status 401 is encountered while
+    # connecting to Twitter. This could happen when system clock drift
+    # has occured.
+    #
+    # If no block is given, it will return the currently set
+    # unauthorized proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_unauthorized(&block)
+      if block_given?
+        @on_unauthorized = block
+        self
+      else
+        @on_unauthorized
+      end
+    end
+
     # Set a Proc to be run when a direct message is encountered in the
     # processing of the stream.
     #
@@ -353,6 +369,7 @@ module TweetStream
       scrub_geo_proc = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
+      unauthorized_proc = query_parameters.delete(:unauthorized) || self.on_unauthorized
       reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
       inited_proc = query_parameters.delete(:inited) || self.on_inited
       direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
@@ -435,6 +452,10 @@ module TweetStream
 
       @stream.on_error do |message|
         error_proc.call(message) if error_proc.is_a?(Proc)
+      end
+
+      @stream.on_unauthorized do
+        unauthorized_proc.call if unauthorized_proc.is_a?(Proc)
       end
 
       @stream.on_reconnect do |timeout, retries|
