@@ -1,3 +1,9 @@
+Version 2.0.1
+=============
+
+* Fixed Twitter gem objects
+* Added on_unauthorized callback method (koenpunt)
+
 Version 2.0.0
 =============
 
@@ -5,7 +11,7 @@ Version 2.0.0
 * Switched to [em-twitter](https://github.com/spagalloco/em-twitter) for underlying streaming lib
 * Switched to Twitter gem objects instead of custom hashes, see [47e5cd3d21a9562b3d959bc231009af460b37567](https://github.com/intridea/tweetstream/commit/47e5cd3d21a9562b3d959bc231009af460b37567) for details (sferik)
 * Made OAuth the default authentication method
-* Removed on_interval callback
+* Removed on_interval callback method
 * Removed parser configuration option
 
 Version 1.1.5
