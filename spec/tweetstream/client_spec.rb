@@ -57,7 +57,8 @@ describe TweetStream::Client do
         :on_max_reconnects => true,
         :on_reconnect => true,
         :connection_completed => true,
-        :on_no_data_received => true
+        :on_no_data_received => true,
+        :on_unauthorized => true
       )
       EM.stub!(:run).and_yield
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
@@ -325,7 +326,7 @@ describe TweetStream::Client do
     end
   end
 
-  %w(on_delete on_limit on_inited on_reconnect on_no_data_received).each do |proc_setter|
+  %w(on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized).each do |proc_setter|
     describe "##{proc_setter}" do
       it 'should set when a block is given' do
         proc = Proc.new{|a,b| puts a }
@@ -371,6 +372,7 @@ describe TweetStream::Client do
         :on_reconnect => true,
         :connection_completed => true,
         :on_no_data_received => true,
+        :on_unauthorized => true,
         :stop => true
       )
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
@@ -406,7 +408,8 @@ describe TweetStream::Client do
         :on_max_reconnects => true,
         :on_reconnect => true,
         :connection_completed => true,
-        :on_no_data_received => true
+        :on_no_data_received => true,
+        :on_unauthorized => true
       )
       EM.stub!(:run).and_yield
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
@@ -449,7 +452,8 @@ describe TweetStream::Client do
           :on_max_reconnects => true,
           :on_reconnect => true,
           :connection_completed => true,
-          :on_no_data_received => true
+          :on_no_data_received => true,
+          :on_unauthorized => true
         )
         EM.stub!(:run).and_yield
         EM::Twitter::Client.stub!(:connect).and_return(@stream)
