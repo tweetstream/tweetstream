@@ -147,7 +147,7 @@ describe TweetStream::Client do
             yielded_hash = hash
           end.track('abc')
           yielded_hash.should_not be_nil
-          yielded_hash['id'].should == 1234
+          yielded_hash[:id].should == 1234
         end
         it 'yields itself if block has an arity of 2' do
           hash = {:id => 1234}
@@ -548,9 +548,9 @@ describe TweetStream::Client do
               yielded_status = message
             end
             yielded_status.should_not be_nil
-            yielded_status['for_user'].should == '12345'
-            yielded_status['message']['user']['screen_name'].should == 'monkey'
-            yielded_status['message']['text'].should == 'Oo oo aa aa'
+            yielded_status[:for_user].should == '12345'
+            yielded_status[:message][:user][:screen_name].should == 'monkey'
+            yielded_status[:message][:text].should == 'Oo oo aa aa'
           end
           it 'yields itself if block has an arity of 2' do
             @stream.should_receive(:each).and_yield(@ss_message.to_json)

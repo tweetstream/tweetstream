@@ -394,7 +394,7 @@ module TweetStream
       @stream = EM::Twitter::Client.connect(stream_params)
       @stream.each do |item|
         begin
-          hash = MultiJson.decode(item)
+          hash = MultiJson.decode(item, :symbolize_keys => true)
         rescue MultiJson::DecodeError
           error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
           next
@@ -405,20 +405,20 @@ module TweetStream
           next
         end
 
-        if hash['control'] && hash['control']['control_uri']
-          @control_uri = hash['control']['control_uri']
+        if hash[:control] && hash[:control][:control_uri]
+          @control_uri = hash[:control][:control_uri]
           require 'tweetstream/site_stream_client'
           @control = TweetStream::SiteStreamClient.new(@control_uri, options)
           @control.on_error(&self.on_error)
-        elsif hash['delete'] && hash['delete']['status']
-          delete_proc.call(hash['delete']['status']['id'], hash['delete']['status']['user_id']) if delete_proc.is_a?(Proc)
-        elsif hash['scrub_geo'] && hash['scrub_geo']['up_to_status_id']
-          scrub_geo_proc.call(hash['scrub_geo']['up_to_status_id'], hash['scrub_geo']['user_id']) if scrub_geo_proc.is_a?(Proc)
-        elsif hash['limit'] && hash['limit']['track']
-          limit_proc.call(hash['limit']['track']) if limit_proc.is_a?(Proc)
-        elsif hash['direct_message']
-          yield_message_to direct_message_proc, Twitter::DirectMessage.new(hash['direct_message'])
-        elsif hash['text'] && hash['user']
+        elsif hash[:delete] && hash[:delete][:status]
+          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+        elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
+          scrub_geo_proc.call(hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id]) if scrub_geo_proc.is_a?(Proc)
+        elsif hash[:limit] && hash[:limit][:track]
+          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+        elsif hash[:direct_message]
+          yield_message_to direct_message_proc, Twitter::DirectMessage.new(hash[:direct_message])
+        elsif hash[:text] && hash[:user]
           @last_status = Twitter::Status.new(hash)
           yield_message_to timeline_status_proc, @last_status
 
@@ -432,7 +432,7 @@ module TweetStream
                 yield @last_status, self
             end
           end
-        elsif hash['for_user']
+        elsif hash[:for_user]
           @message = hash
 
           if block_given?
