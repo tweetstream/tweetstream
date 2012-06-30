@@ -18,4 +18,12 @@ describe TweetStream::Daemon do
       client.app_name.should eq('tweet_tracker')
     end
   end
+
+  describe '#start' do
+    it 'starts the daemon' do
+      client = TweetStream::Daemon.new
+      Daemons.should_receive(:run_proc).once
+      client.track('intridea')
+    end
+  end
 end
