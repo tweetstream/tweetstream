@@ -33,22 +33,18 @@ module TweetStream
     end
 
     def add_user(user_id, &block)
-      user_id = user_id.join(',') if user_id.kind_of?(Array)
-
       options = {
                   :error_msg => 'Failed to add user to SiteStream',
-                  :body => { 'user_id' => user_id }
+                  :body => { 'user_id' => normalized_user_ids(user_id) }
                 }
 
       request(:post, add_user_path, options, &block)
     end
 
     def remove_user(user_id, &block)
-      user_id = user_id.join(',') if user_id.kind_of?(Array)
-
       options = {
                   :error_msg => 'Failed to remove user from SiteStream.',
-                  :body => { 'user_id' => user_id }
+                  :body => { 'user_id' => normalized_user_ids(user_id) }
                 }
 
       request(:post, remove_user_path, options, &block)
@@ -115,6 +111,10 @@ module TweetStream
       http.errback do
         @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
       end
+    end
+
+    def normalized_user_ids(user_id)
+      user_id.join(',') if user_id.kind_of?(Array)
     end
 
   end
