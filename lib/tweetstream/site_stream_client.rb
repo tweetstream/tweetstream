@@ -99,9 +99,10 @@ module TweetStream
       http.callback do
         if http.response_header.status == 200
           if block && block.kind_of?(Proc)
-            case block.arity
-            when 1 then block.call http.response
-            else block.call
+            if block.arity == 1
+              block.call http.response
+            else
+              block.call
             end
           end
         else
