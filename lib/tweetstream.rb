@@ -1,10 +1,18 @@
 require 'tweetstream/configuration'
 require 'tweetstream/client'
-require 'tweetstream/error'
 require 'tweetstream/daemon'
 
 module TweetStream
   extend Configuration
+
+  class ReconnectError < StandardError
+    attr_accessor :timeout, :retries
+    def initialize(timeout, retries)
+      self.timeout = timeout
+      self.retries = retries
+      super("Failed to reconnect after #{retries} tries.")
+    end
+  end
 
   class << self
     # Alias for TweetStream::Client.new
