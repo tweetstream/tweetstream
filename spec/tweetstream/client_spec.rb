@@ -65,6 +65,17 @@ describe TweetStream::Client do
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
     end
 
+    it 'connects if the reactor is already running' do
+      EM.stub!(:reactor_running?).and_return(true)
+      @client.should_receive(:connect)
+      @client.track('abc')
+    end
+
+    it 'starts the reactor if not already running' do
+      EM.should_receive(:run).once
+      @client.track('abc')
+    end
+
     describe '#each' do
       it 'should call the appropriate parser' do
         @client = TweetStream::Client.new
