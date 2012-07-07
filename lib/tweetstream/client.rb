@@ -118,21 +118,22 @@ module TweetStream
     end
 
     # Make a call to the userstream api for currently authenticated user
-    def userstream(&block)
+    def userstream(query_params = {}, &block)
       stream_params = { :host => "userstream.twitter.com", :path => "/2/user.json" }
-      start('', :extra_stream_parameters => stream_params, &block)
+      query_params.merge!(:extra_stream_parameters => stream_params)
+      start('', query_params, &block)
     end
 
     # Make a call to the userstream api
     def sitestream(user_ids = [], query_params = {}, &block)
       stream_params = { :host => "sitestream.twitter.com", :path => '/2b/site.json' }
-      sitestream_params = {
+      query_params.merge!({
         :method => :post,
         :follow => user_ids,
         :extra_stream_parameters => stream_params
-      }
-      sitestream_params.merge!(:with => 'followings') if query_params[:followings]
-      start('', sitestream_params, &block)
+      })
+      query_params.merge!(:with => 'followings') if query_params.delete(:followings)
+      start('', query_params, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received

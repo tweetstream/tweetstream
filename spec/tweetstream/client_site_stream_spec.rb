@@ -38,14 +38,24 @@ describe TweetStream::Client do
         @client.sitestream
       end
 
-      it 'supports the "with followings" when followings set as a boolean' do
+      it 'supports "with followings" when followings set as a boolean' do
         @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :followings => true)
       end
 
-      it 'supports the "with followings" when followings set as an option' do
+      it 'supports "with followings" when followings set as an option' do
         @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'followings')
+      end
+
+      it 'supports "with user"' do
+        @client.should_receive(:start).once.with('', hash_including(:with => 'user')).and_return(@stream)
+        @client.sitestream(['115192457'], :with => 'user')
+      end
+
+      it 'supports "replies all"' do
+        @client.should_receive(:start).once.with('', hash_including(:replies => 'all')).and_return(@stream)
+        @client.sitestream(['115192457'], :replies => 'all')
       end
 
       context 'control management' do
