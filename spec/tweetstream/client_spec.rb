@@ -232,9 +232,7 @@ describe TweetStream::Client do
       end
 
       it 'should return the block when defined' do
-        @client.on_error do |m|
-          puts 'ohai'
-        end
+        @client.on_error { |m| true; }
         @client.on_error.should be_kind_of(Proc)
       end
 
@@ -246,10 +244,7 @@ describe TweetStream::Client do
     describe '#on_max_reconnects' do
       it 'should raise a ReconnectError' do
         @stream.should_receive(:on_max_reconnects).and_yield(30, 20)
-        lambda{@client.track('abc')}.should raise_error(TweetStream::ReconnectError) do |e|
-          e.timeout.should == 30
-          e.retries.should == 20
-        end
+        lambda{@client.track('abc')}.should raise_error(TweetStream::ReconnectError, "Failed to reconnect after 20 tries.")
       end
     end
   end
