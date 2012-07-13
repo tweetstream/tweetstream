@@ -348,6 +348,21 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run when enhance_your_calm signal is received.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_enhance_your_calm do
+    #       # do something, your account has been blocked
+    #     end
+    def on_enhance_your_calm(&block)
+      if block_given?
+        @on_enhance_your_calm = block
+        self
+      else
+        @on_enhance_your_calm
+      end
+    end
+
     # connect to twitter while starting a new EventMachine run loop
     def start(path, query_parameters = {}, &block)
       if EventMachine.reactor_running?
@@ -369,6 +384,7 @@ module TweetStream
       scrub_geo_proc = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
+      enhance_your_calm_proc = query_parameters.delete(:enhance_your_calm) || self.on_error
       unauthorized_proc = query_parameters.delete(:unauthorized) || self.on_unauthorized
       reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
       inited_proc = query_parameters.delete(:inited) || self.on_inited
@@ -456,6 +472,10 @@ module TweetStream
 
       @stream.on_unauthorized do
         unauthorized_proc.call if unauthorized_proc.is_a?(Proc)
+      end
+
+      @stream.on_enhance_your_calm do
+        enhance_your_calm_proc.call if enhance_your_calm_proc.is_a?(Proc)
       end
 
       @stream.on_reconnect do |timeout, retries|

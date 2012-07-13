@@ -101,6 +101,7 @@ describe TweetStream::SiteStreamClient do
         end
         called.should be_true
       end
+
     end
   end
 
