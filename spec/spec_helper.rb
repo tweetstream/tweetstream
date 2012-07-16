@@ -27,7 +27,7 @@ def sample_direct_messages
   return @direct_messages if @direct_messages
 
   @direct_messages = []
-  Yajl::Parser.parse(fixture('direct_messages.json')) do |hash|
+  Yajl::Parser.parse(fixture('direct_messages.json'), :symbolize_keys => true) do |hash|
     @direct_messages << hash
   end
   @direct_messages

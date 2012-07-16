@@ -186,8 +186,8 @@ describe TweetStream::Client do
       context 'using on_direct_message' do
         it 'yields a DirectMessage' do
           direct_message = sample_direct_messages[0]
-          direct_message["direct_message"]["id"] = 1234
-          direct_message["direct_message"]["sender"]["screen_name"] = "coder"
+          direct_message[:direct_message][:id] = 1234
+          direct_message[:direct_message][:sender][:screen_name] = "coder"
           @stream.should_receive(:each).and_yield(direct_message.to_json)
           yielded_dm = nil
           @client.on_direct_message do |dm|
