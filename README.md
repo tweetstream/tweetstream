@@ -213,7 +213,7 @@ JSON parser and it will be used to parse responses.
 Sometimes the Streaming API will send messages other than statuses.
 Specifically, it does so when a status is deleted or rate limitations
 have caused some tweets not to appear in the stream. To handle these,
-you can use the on_delete and on_limit methods. Example:
+you can use the on_delete, on_limit and on_enhance_your_calm methods. Example:
 
 ```ruby
 @client = TweetStream::Client.new
@@ -223,6 +223,10 @@ you can use the on_delete and on_limit methods. Example:
 end
 
 @client.on_limit do |skip_count|
+  # do something
+end
+
+@client.on_enhance_your_calm do
   # do something
 end
 

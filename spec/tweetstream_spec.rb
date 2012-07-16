@@ -16,7 +16,8 @@ describe TweetStream do
         :on_reconnect => true,
         :connection_completed => true,
         :on_no_data_received => true,
-        :on_unauthorized => true
+        :on_unauthorized => true,
+        :on_enhance_your_calm => true
       )
       EM.stub!(:run).and_yield
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
