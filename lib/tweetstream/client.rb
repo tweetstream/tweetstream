@@ -1,8 +1,8 @@
 require 'cgi'
+require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
-require 'em-twitter'
 require 'uri'
 
 module TweetStream
@@ -404,6 +404,8 @@ module TweetStream
           error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
           next
         end
+
+        Twitter.identity_map = false
 
         if hash[:control] && hash[:control][:control_uri]
           @control_uri = hash[:control][:control_uri]
