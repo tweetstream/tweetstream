@@ -77,24 +77,24 @@ describe TweetStream::Client do
     end
 
     describe '#each' do
-      it 'should call the appropriate parser' do
+      it 'calls the appropriate parser' do
         @client = TweetStream::Client.new
         MultiJson.should_receive(:decode).and_return({})
         @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end
 
-      it 'should yield a Twitter::Status' do
+      it 'yields a Twitter::Status' do
         @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s| s.should be_kind_of(Twitter::Status)}
       end
 
-      it 'should also yield the client if a block with arity 2 is given' do
+      it 'yields the client if a block with arity 2 is given' do
         @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc'){|s,c| c.should == @client}
       end
 
-      it 'should include the proper values' do
+      it 'includes the proper values' do
         tweet = sample_tweets[0]
         tweet[:id] = 123
         tweet[:user][:screen_name] = 'monkey'
@@ -107,7 +107,7 @@ describe TweetStream::Client do
         end
       end
 
-      it 'should call the on_scrub_geo if specified' do
+      it 'should call the on_scrub_geo callback if specified' do
         scrub_geo = '{ "scrub_geo": { "user_id": 1234, "user_id_str": "1234", "up_to_status_id":9876, "up_to_status_id_string": "9876" } }'
         @stream.should_receive(:each).and_yield(scrub_geo)
         @client.on_scrub_geo do |up_to_status_id, user_id|
@@ -116,7 +116,7 @@ describe TweetStream::Client do
         end.track('abc')
       end
 
-      it 'should call the delete if specified' do
+      it 'calls the on_delete callback' do
         delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
         @stream.should_receive(:each).and_yield(delete)
         @client.on_delete do |id, user_id|
@@ -125,7 +125,7 @@ describe TweetStream::Client do
         end.track('abc')
       end
 
-      it 'should call the on_limit if specified' do
+      it 'calls the on_limit callback' do
         limit = '{ "limit": { "track": 1234 } }'
         @stream.should_receive(:each).and_yield(limit)
         @client.on_limit do |track|
