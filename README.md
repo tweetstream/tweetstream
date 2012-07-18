@@ -68,7 +68,7 @@ Site Streams are now fully supported, including the connection management functi
 
 ### Compatablity with the Twitter gem
 
-TweetStream now emits objects from the [Twitter gem](https://github.com/jnunemaker/twitter) instead of custom hashes. These objects are already defined in the `twitter` gem and are superior to the custom objects in the following ways:
+TweetStream now emits objects from the [Twitter gem](https://github.com/sferik/twitter) instead of custom hashes. These objects are already defined in the `twitter` gem and are superior to the custom objects in the following ways:
 
 1. Object equivalence (`#==` returns true if `#id`s are the same).
 2. The `#created_at` method returns a `Date` instead of a `String`.
