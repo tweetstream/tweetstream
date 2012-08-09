@@ -385,7 +385,7 @@ module TweetStream
       scrub_geo_proc = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
       limit_proc = query_parameters.delete(:limit) || self.on_limit
       error_proc = query_parameters.delete(:error) || self.on_error
-      enhance_your_calm_proc = query_parameters.delete(:enhance_your_calm) || self.on_error
+      enhance_your_calm_proc = query_parameters.delete(:enhance_your_calm) || self.on_enhance_your_calm
       unauthorized_proc = query_parameters.delete(:unauthorized) || self.on_unauthorized
       reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
       inited_proc = query_parameters.delete(:inited) || self.on_inited
