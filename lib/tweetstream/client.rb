@@ -34,6 +34,7 @@ module TweetStream
       Configuration::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", merged_options[key])
       end
+      @callbacks = {}
     end
 
     # Returns all public statuses. The Firehose is not a generally
@@ -394,6 +395,21 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run on userstream events
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.event(:favorite) do |event|
+    #       # do something with the status
+    #     end
+    def on_event(event, &block)
+      if block_given?
+        @callbacks[event.to_s] = block
+        self
+      else
+        @callbacks[event.to_s]
+      end
+    end
+
     # connect to twitter while starting a new EventMachine run loop
     def start(path, query_parameters = {}, &block)
       if EventMachine.reactor_running?
@@ -473,6 +489,8 @@ module TweetStream
           yield_message_to status_withheld_proc, hash[:status_withheld]
         elsif hash[:user_withheld]
           yield_message_to user_withheld_proc, hash[:user_withheld]
+        elsif hash[:event]
+          yield_message_to @callbacks[hash[:event].to_s], hash
         elsif hash[:text] && hash[:user]
           @last_status = Twitter::Status.new(hash)
           yield_message_to timeline_status_proc, @last_status

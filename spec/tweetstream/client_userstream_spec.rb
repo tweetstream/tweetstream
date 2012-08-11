@@ -57,6 +57,17 @@ describe TweetStream::Client do
         @client.should_receive(:start).once.with('', hash_including(:with => 'user')).and_return(@stream)
         @client.userstream(:with => 'user')
       end
+
+      it 'supports event callbacks' do
+        event = nil
+        @stream.should_receive(:each).and_yield(fixture('favorite.json'))
+        @client.on_event(:favorite) do |e|
+          event = e
+        end.userstream
+
+        event[:source].should_not be_nil
+        event[:target].should_not be_nil
+      end
     end
   end
 
