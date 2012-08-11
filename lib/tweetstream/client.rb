@@ -6,7 +6,7 @@ require 'twitter'
 require 'uri'
 
 module TweetStream
-  # Provides simple access to the Twitter Streaming API (http://apiwiki.twitter.com/Streaming-API-Documentation)
+  # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
   # for Ruby scripts that need to create a long connection to
   # Twitter for tracking and other purposes.
   #
@@ -426,21 +426,21 @@ module TweetStream
 
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, query_parameters = {}, &block)
-      method = query_parameters.delete(:method) || :get
-      delete_proc = query_parameters.delete(:delete) || self.on_delete
-      scrub_geo_proc = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
-      limit_proc = query_parameters.delete(:limit) || self.on_limit
-      error_proc = query_parameters.delete(:error) || self.on_error
-      enhance_your_calm_proc = query_parameters.delete(:enhance_your_calm) || self.on_enhance_your_calm
-      unauthorized_proc = query_parameters.delete(:unauthorized) || self.on_unauthorized
-      reconnect_proc = query_parameters.delete(:reconnect) || self.on_reconnect
-      inited_proc = query_parameters.delete(:inited) || self.on_inited
-      direct_message_proc = query_parameters.delete(:direct_message) || self.on_direct_message
-      timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
-      anything_proc = query_parameters.delete(:anything) || self.on_anything
-      no_data_proc = query_parameters.delete(:no_data_received) || self.on_no_data_received
-      status_withheld_proc = query_parameters.delete(:status_withheld) || self.on_status_withheld
-      user_withheld_proc = query_parameters.delete(:user_withheld) || self.on_user_withheld
+      method                  = query_parameters.delete(:method) || :get
+      delete_proc             = query_parameters.delete(:delete) || self.on_delete
+      scrub_geo_proc          = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
+      limit_proc              = query_parameters.delete(:limit) || self.on_limit
+      error_proc              = query_parameters.delete(:error) || self.on_error
+      enhance_your_calm_proc  = query_parameters.delete(:enhance_your_calm) || self.on_enhance_your_calm
+      unauthorized_proc       = query_parameters.delete(:unauthorized) || self.on_unauthorized
+      reconnect_proc          = query_parameters.delete(:reconnect) || self.on_reconnect
+      inited_proc             = query_parameters.delete(:inited) || self.on_inited
+      direct_message_proc     = query_parameters.delete(:direct_message) || self.on_direct_message
+      timeline_status_proc    = query_parameters.delete(:timeline_status) || self.on_timeline_status
+      anything_proc           = query_parameters.delete(:anything) || self.on_anything
+      no_data_proc            = query_parameters.delete(:no_data_received) || self.on_no_data_received
+      status_withheld_proc    = query_parameters.delete(:status_withheld) || self.on_status_withheld
+      user_withheld_proc      = query_parameters.delete(:user_withheld) || self.on_user_withheld
 
       params = normalize_filter_parameters(query_parameters)
 
