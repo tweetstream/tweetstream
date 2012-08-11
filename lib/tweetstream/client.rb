@@ -495,29 +495,11 @@ module TweetStream
           @last_status = Twitter::Status.new(hash)
           yield_message_to timeline_status_proc, @last_status
 
-          if block_given?
-            # Give the block the option to receive either one
-            # or two arguments, depending on its arity.
-            case block.arity
-              when 1
-                yield @last_status
-              when 2
-                yield @last_status, self
-            end
-          end
+          yield_message_to block, @last_status if block_given?
         elsif hash[:for_user]
           @message = hash
 
-          if block_given?
-            # Give the block the option to receive either one
-            # or two arguments, depending on its arity.
-            case block.arity
-            when 1
-              yield @message
-            when 2
-              yield @message, self
-            end
-          end
+          yield_message_to block, @message if block_given?
         end
 
         yield_message_to anything_proc, hash
@@ -620,6 +602,8 @@ module TweetStream
     end
 
     def yield_message_to(procedure, message)
+      # Give the block the option to receive either one
+      # or two arguments, depending on its arity.
       if procedure.is_a?(Proc)
         case procedure.arity
           when 1
