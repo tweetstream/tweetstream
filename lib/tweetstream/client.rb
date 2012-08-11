@@ -364,6 +364,36 @@ module TweetStream
       end
     end
 
+    # Set a Proc to be run when a status_withheld message is received.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_status_withheld do |status|
+    #       # do something with the status
+    #     end
+    def on_status_withheld(&block)
+      if block_given?
+        @on_status_withheld = block
+        self
+      else
+        @on_status_withheld
+      end
+    end
+
+    # Set a Proc to be run when a status_withheld message is received.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_user_withheld do |status|
+    #       # do something with the status
+    #     end
+    def on_user_withheld(&block)
+      if block_given?
+        @on_user_withheld = block
+        self
+      else
+        @on_user_withheld
+      end
+    end
+
     # connect to twitter while starting a new EventMachine run loop
     def start(path, query_parameters = {}, &block)
       if EventMachine.reactor_running?
@@ -393,6 +423,8 @@ module TweetStream
       timeline_status_proc = query_parameters.delete(:timeline_status) || self.on_timeline_status
       anything_proc = query_parameters.delete(:anything) || self.on_anything
       no_data_proc = query_parameters.delete(:no_data_received) || self.on_no_data_received
+      status_withheld_proc = query_parameters.delete(:status_withheld) || self.on_status_withheld
+      user_withheld_proc = query_parameters.delete(:user_withheld) || self.on_user_withheld
 
       params = normalize_filter_parameters(query_parameters)
 
@@ -437,6 +469,10 @@ module TweetStream
           limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
         elsif hash[:direct_message]
           yield_message_to direct_message_proc, Twitter::DirectMessage.new(hash[:direct_message])
+        elsif hash[:status_withheld]
+          yield_message_to status_withheld_proc, hash[:status_withheld]
+        elsif hash[:user_withheld]
+          yield_message_to user_withheld_proc, hash[:user_withheld]
         elsif hash[:text] && hash[:user]
           @last_status = Twitter::Status.new(hash)
           yield_message_to timeline_status_proc, @last_status

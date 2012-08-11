@@ -108,8 +108,7 @@ describe TweetStream::Client do
       end
 
       it 'should call the on_scrub_geo callback if specified' do
-        scrub_geo = '{ "scrub_geo": { "user_id": 1234, "user_id_str": "1234", "up_to_status_id":9876, "up_to_status_id_string": "9876" } }'
-        @stream.should_receive(:each).and_yield(scrub_geo)
+        @stream.should_receive(:each).and_yield(fixture('scrub_geo.json'))
         @client.on_scrub_geo do |up_to_status_id, user_id|
           up_to_status_id.should == 9876
           user_id.should == 1234
@@ -117,8 +116,7 @@ describe TweetStream::Client do
       end
 
       it 'calls the on_delete callback' do
-        delete = '{ "delete": { "status": { "id": 1234, "user_id": 3 } } }'
-        @stream.should_receive(:each).and_yield(delete)
+        @stream.should_receive(:each).and_yield(fixture('delete.json'))
         @client.on_delete do |id, user_id|
           id.should == 1234
           user_id.should == 3
@@ -126,11 +124,33 @@ describe TweetStream::Client do
       end
 
       it 'calls the on_limit callback' do
-        limit = '{ "limit": { "track": 1234 } }'
-        @stream.should_receive(:each).and_yield(limit)
-        @client.on_limit do |track|
-          track.should == 1234
+        limit = nil
+        @stream.should_receive(:each).and_yield(fixture('limit.json'))
+        @client.on_limit do |l|
+          limit = l
         end.track('abc')
+
+        limit.should eq(1234)
+      end
+
+      it 'calls the on_status_withheld callback' do
+        status = nil
+        @stream.should_receive(:each).and_yield(fixture('status_withheld.json'))
+        @client.on_status_withheld do |s|
+          status = s
+        end.track('abc')
+
+        status[:user_id].should eq(123456)
+      end
+
+      it 'calls the on_user_withheld callback' do
+        status = nil
+        @stream.should_receive(:each).and_yield(fixture('user_withheld.json'))
+        @client.on_user_withheld do |s|
+          status = s
+        end.track('abc')
+
+        status[:id].should eq(123456)
       end
 
       context "using on_anything" do
@@ -138,11 +158,12 @@ describe TweetStream::Client do
           hash = {:id => 1234}
           @stream.should_receive(:each).and_yield(hash.to_json)
           yielded_hash = nil
-          @client.on_anything do |hash|
-            yielded_hash = hash
+          @client.on_anything do |h|
+            yielded_hash = h
           end.track('abc')
+
           yielded_hash.should_not be_nil
-          yielded_hash[:id].should == 1234
+          yielded_hash[:id].should eq(1234)
         end
         it 'yields itself if block has an arity of 2' do
           hash = {:id => 1234}
