@@ -13,24 +13,22 @@ require 'webmock/rspec'
 require 'yajl'
 require 'json'
 
+def samples(fixture)
+  samples = []
+  Yajl::Parser.parse(fixture(fixture), :symbolize_keys => true) do |hash|
+    samples << hash
+  end
+  samples
+end
+
 def sample_tweets
   return @tweets if @tweets
-
-  @tweets = []
-  Yajl::Parser.parse(fixture('statuses.json'), :symbolize_keys => true) do |hash|
-    @tweets << hash
-  end
-  @tweets
+  @tweets = samples('statuses.json')
 end
 
 def sample_direct_messages
   return @direct_messages if @direct_messages
-
-  @direct_messages = []
-  Yajl::Parser.parse(fixture('direct_messages.json'), :symbolize_keys => true) do |hash|
-    @direct_messages << hash
-  end
-  @direct_messages
+  @direct_messages = samples('direct_messages.json')
 end
 
 def fixture_path
