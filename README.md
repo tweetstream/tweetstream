@@ -1,8 +1,9 @@
-# TweetStream [![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis] [![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
+# TweetStream [![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis] [![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium] [![Code Climate](https://codeclimate.com/badge.png)][codeclimate]
 TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
 
 [travis]: http://travis-ci.org/intridea/tweetstream
 [gemnasium]: https://gemnasium.com/intridea/tweetstream
+[codeclimate]: https://codeclimate.com/github/intridea/tweetstream
 
 ## Installation
 
@@ -57,7 +58,7 @@ additions in 2.0 include:
 
 ### OAuth
 
-OAuth is now the default authentication method.  Both userstreams and Site 
+OAuth is now the default authentication method.  Both userstreams and Site
 Streams exclusively work with OAuth.  TweetStream still supports Basic Auth,
 however it is no longer the default.  If you are still using Basic Auth, you
 should plan to move to OAuth as soon as possible.
@@ -85,14 +86,14 @@ It offers functionality parity with twitter-stream while also supporting several
 
 ### Removal of on_interval callback
 
-We have removed the `on_interval` callback.  If you require interval-based timers, it is possible to run 
+We have removed the `on_interval` callback.  If you require interval-based timers, it is possible to run
 TweetStream inside an already running EventMachine reactor in which you can define `EM::Timer` or `EM::PeriodicTimer`
 for time-based operations:
 
 ```ruby
 EM.run do
   client = TweetStream::Client.new
-  
+
   EM::PeriodicTimer.new(10) do
     # do something on an interval
   end
@@ -141,12 +142,12 @@ client.control.friends_ids('115192457') do |friends|
 end
 
 # obtain the current state of the stream
-client.control.info do |info| 
+client.control.info do |info|
   # do something
 end
 ```
 
-Note that per Twitter's documentation, connection management features are not 
+Note that per Twitter's documentation, connection management features are not
 immediately available when connected
 
 You also can use method hooks for both regular timeline statuses and direct messages.
@@ -169,7 +170,7 @@ client.userstream
 
 ## Authentication
 
-TweetStream supports OAuth and Basic Auth.  `TweetStream::Client` now accepts 
+TweetStream supports OAuth and Basic Auth.  `TweetStream::Client` now accepts
 a hash:
 
 ```ruby
@@ -200,12 +201,12 @@ end
 
 TweetStream assumes OAuth by default.  If you are using Basic Auth, it is recommended
 that you update your code to use OAuth as Twitter is likely to phase out Basic Auth
-support.  Basic Auth is only available for public streams as User Stream and Site Stream 
+support.  Basic Auth is only available for public streams as User Stream and Site Stream
 functionality [only support OAuth](https://dev.twitter.com/docs/streaming-apis/connecting#Authentication).
 
-## Parsing JSON 
+## Parsing JSON
 
-TweetStream supports swappable JSON backends via MultiJson. Simply require your preferred 
+TweetStream supports swappable JSON backends via MultiJson. Simply require your preferred
 JSON parser and it will be used to parse responses.
 
 ## Handling Deletes and Rate Limitations
