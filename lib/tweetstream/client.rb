@@ -312,7 +312,7 @@ module TweetStream
     #       # do something with the status
     #     end
     def on_status_withheld(&block)
-      on(:status_withheld, &block)
+      on('status_withheld', &block)
     end
 
     # Set a Proc to be run when a status_withheld message is received.
@@ -322,7 +322,7 @@ module TweetStream
     #       # do something with the status
     #     end
     def on_user_withheld(&block)
-      on(:user_withheld, &block)
+      on('user_withheld', &block)
     end
 
     # Set a Proc to be run on userstream events
