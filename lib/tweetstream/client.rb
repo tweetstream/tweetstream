@@ -150,12 +150,7 @@ module TweetStream
     # deletion proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_delete(&block)
-      if block_given?
-        @on_delete = block
-        self
-      else
-        @on_delete
-      end
+      on('delete', &block)
     end
 
     # Set a Proc to be run when a scrub_geo notice is received
@@ -171,12 +166,7 @@ module TweetStream
     # scrub_geo proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_scrub_geo(&block)
-      if block_given?
-        @on_scrub_geo = block
-        self
-      else
-        @on_scrub_geo
-      end
+      on('scrub_geo', &block)
     end
 
     # Set a Proc to be run when a rate limit notice is received
@@ -192,12 +182,7 @@ module TweetStream
     # limit proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_limit(&block)
-      if block_given?
-        @on_limit = block
-        self
-      else
-        @on_limit
-      end
+      on('limit', &block)
     end
 
     # Set a Proc to be run when an HTTP error is encountered in the
@@ -214,12 +199,7 @@ module TweetStream
     # error proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_error(&block)
-      if block_given?
-        @on_error = block
-        self
-      else
-        @on_error
-      end
+      on('error', &block)
     end
 
     # Set a Proc to be run when an HTTP status 401 is encountered while
@@ -230,12 +210,7 @@ module TweetStream
     # unauthorized proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_unauthorized(&block)
-      if block_given?
-        @on_unauthorized = block
-        self
-      else
-        @on_unauthorized
-      end
+      on('unauthorized', &block)
     end
 
     # Set a Proc to be run when a direct message is encountered in the
@@ -251,12 +226,7 @@ module TweetStream
     # direct message proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_direct_message(&block)
-      if block_given?
-        @on_direct_message = block
-        self
-      else
-        @on_direct_message
-      end
+      on('direct_message', &block)
     end
 
     # Set a Proc to be run whenever anything is encountered in the
@@ -272,12 +242,7 @@ module TweetStream
     # timeline status proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_anything(&block)
-      if block_given?
-        @on_anything = block
-        self
-      else
-        @on_anything
-      end
+      on('anything', &block)
     end
 
     # Set a Proc to be run when a regular timeline message is encountered in the
@@ -293,12 +258,7 @@ module TweetStream
     # timeline status proc. When a block is given, the TweetStream::Client
     # object is returned to allow for chaining.
     def on_timeline_status(&block)
-      if block_given?
-        @on_timeline_status = block
-        self
-      else
-        @on_timeline_status
-      end
+      on('timeline_status', &block)
     end
 
     # Set a Proc to be run on reconnect.
@@ -309,12 +269,7 @@ module TweetStream
     #     end
     #
     def on_reconnect(&block)
-      if block_given?
-        @on_reconnect = block
-        self
-      else
-        @on_reconnect
-      end
+      on('reconnect', &block)
     end
 
     # Set a Proc to be run when connection established.
@@ -326,28 +281,18 @@ module TweetStream
     #     end
     #
     def on_inited(&block)
-      if block_given?
-        @on_inited = block
-        self
-      else
-        @on_inited
-      end
+      on('inited', &block)
     end
 
     # Set a Proc to be run when no data is received from the server
     # and a stall occurs.  Twitter defines this to be 90 seconds.
     #
     #     @client = TweetStream::Client.new
-    #     @client.on_no_data do
+    #     @client.on_no_data_received do
     #       # Make note of no data, possi
     #     end
     def on_no_data_received(&block)
-      if block_given?
-        @on_no_data = block
-        self
-      else
-        @on_no_data
-      end
+      on('no_data_received', &block)
     end
 
     # Set a Proc to be run when enhance_your_calm signal is received.
@@ -357,12 +302,7 @@ module TweetStream
     #       # do something, your account has been blocked
     #     end
     def on_enhance_your_calm(&block)
-      if block_given?
-        @on_enhance_your_calm = block
-        self
-      else
-        @on_enhance_your_calm
-      end
+      on('enhance_your_calm', &block)
     end
 
     # Set a Proc to be run when a status_withheld message is received.
@@ -372,12 +312,7 @@ module TweetStream
     #       # do something with the status
     #     end
     def on_status_withheld(&block)
-      if block_given?
-        @on_status_withheld = block
-        self
-      else
-        @on_status_withheld
-      end
+      on(:status_withheld, &block)
     end
 
     # Set a Proc to be run when a status_withheld message is received.
@@ -387,12 +322,7 @@ module TweetStream
     #       # do something with the status
     #     end
     def on_user_withheld(&block)
-      if block_given?
-        @on_user_withheld = block
-        self
-      else
-        @on_user_withheld
-      end
+      on(:user_withheld, &block)
     end
 
     # Set a Proc to be run on userstream events
@@ -402,6 +332,10 @@ module TweetStream
     #       # do something with the status
     #     end
     def on_event(event, &block)
+      on(event, &block)
+    end
+
+    def on(event, &block)
       if block_given?
         @callbacks[event.to_s] = block
         self
@@ -426,21 +360,21 @@ module TweetStream
 
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, query_parameters = {}, &block)
-      method                  = query_parameters.delete(:method) || :get
-      delete_proc             = query_parameters.delete(:delete) || self.on_delete
-      scrub_geo_proc          = query_parameters.delete(:scrub_geo) || self.on_scrub_geo
-      limit_proc              = query_parameters.delete(:limit) || self.on_limit
-      error_proc              = query_parameters.delete(:error) || self.on_error
-      enhance_your_calm_proc  = query_parameters.delete(:enhance_your_calm) || self.on_enhance_your_calm
-      unauthorized_proc       = query_parameters.delete(:unauthorized) || self.on_unauthorized
-      reconnect_proc          = query_parameters.delete(:reconnect) || self.on_reconnect
-      inited_proc             = query_parameters.delete(:inited) || self.on_inited
-      direct_message_proc     = query_parameters.delete(:direct_message) || self.on_direct_message
-      timeline_status_proc    = query_parameters.delete(:timeline_status) || self.on_timeline_status
-      anything_proc           = query_parameters.delete(:anything) || self.on_anything
-      no_data_proc            = query_parameters.delete(:no_data_received) || self.on_no_data_received
-      status_withheld_proc    = query_parameters.delete(:status_withheld) || self.on_status_withheld
-      user_withheld_proc      = query_parameters.delete(:user_withheld) || self.on_user_withheld
+      method                  = query_parameters.delete(:method)              || :get
+      delete_proc             = query_parameters.delete(:delete)              || @callbacks['delete']
+      scrub_geo_proc          = query_parameters.delete(:scrub_geo)           || @callbacks['scrub_geo']
+      limit_proc              = query_parameters.delete(:limit)               || @callbacks['limit']
+      error_proc              = query_parameters.delete(:error)               || @callbacks['error']
+      enhance_your_calm_proc  = query_parameters.delete(:enhance_your_calm)   || @callbacks['enhance_your_calm']
+      unauthorized_proc       = query_parameters.delete(:unauthorized)        || @callbacks['unauthorized']
+      reconnect_proc          = query_parameters.delete(:reconnect)           || @callbacks['reconnect']
+      inited_proc             = query_parameters.delete(:inited)              || @callbacks['inited']
+      direct_message_proc     = query_parameters.delete(:direct_message)      || @callbacks['direct_message']
+      timeline_status_proc    = query_parameters.delete(:timeline_status)     || @callbacks['timeline_status']
+      anything_proc           = query_parameters.delete(:anything)            || @callbacks['anything']
+      no_data_proc            = query_parameters.delete(:no_data_received)    || @callbacks['no_data_received']
+      status_withheld_proc    = query_parameters.delete(:status_withheld)     || @callbacks['status_withheld']
+      user_withheld_proc      = query_parameters.delete(:user_withheld)       || @callbacks['user_withheld']
 
       params = normalize_filter_parameters(query_parameters)
 
@@ -461,12 +395,12 @@ module TweetStream
         begin
           hash = MultiJson.decode(item, :symbolize_keys => true)
         rescue MultiJson::DecodeError
-          error_proc.call("MultiJson::DecodeError occured in stream: #{item}") if error_proc.is_a?(Proc)
+          invoke_callback(error_proc, "MultiJson::DecodeError occured in stream: #{item}")
           next
         end
 
         unless hash.is_a?(::Hash)
-          error_proc.call("Unexpected JSON object in stream: #{item}") if error_proc.is_a?(Proc)
+          invoke_callback(error_proc, "Unexpected JSON object in stream: #{item}")
           next
         end
 
@@ -476,49 +410,47 @@ module TweetStream
           @control_uri = hash[:control][:control_uri]
           require 'tweetstream/site_stream_client'
           @control = TweetStream::SiteStreamClient.new(@control_uri, options)
-          @control.on_error(&self.on_error)
+          @control.on_error(&error_proc)
         elsif hash[:delete] && hash[:delete][:status]
-          delete_proc.call(hash[:delete][:status][:id], hash[:delete][:status][:user_id]) if delete_proc.is_a?(Proc)
+          invoke_callback(delete_proc, hash[:delete][:status][:id], hash[:delete][:status][:user_id])
         elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
-          scrub_geo_proc.call(hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id]) if scrub_geo_proc.is_a?(Proc)
+          invoke_callback(scrub_geo_proc, hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id])
         elsif hash[:limit] && hash[:limit][:track]
-          limit_proc.call(hash[:limit][:track]) if limit_proc.is_a?(Proc)
+          invoke_callback(limit_proc, hash[:limit][:track])
         elsif hash[:direct_message]
-          yield_message_to direct_message_proc, Twitter::DirectMessage.new(hash[:direct_message])
+          yield_message_to(direct_message_proc, Twitter::DirectMessage.new(hash[:direct_message]))
         elsif hash[:status_withheld]
-          yield_message_to status_withheld_proc, hash[:status_withheld]
+          invoke_callback(status_withheld_proc, hash[:status_withheld])
         elsif hash[:user_withheld]
-          yield_message_to user_withheld_proc, hash[:user_withheld]
+          invoke_callback(user_withheld_proc, hash[:user_withheld])
         elsif hash[:event]
-          yield_message_to @callbacks[hash[:event].to_s], hash
+          invoke_callback(@callbacks[hash[:event].to_s], hash)
         elsif hash[:text] && hash[:user]
           @last_status = Twitter::Status.new(hash)
-          yield_message_to timeline_status_proc, @last_status
+          yield_message_to(timeline_status_proc, @last_status)
 
-          yield_message_to block, @last_status if block_given?
+          yield_message_to(block, @last_status) if block_given?
         elsif hash[:for_user]
-          @message = hash
-
-          yield_message_to block, @message if block_given?
+          yield_message_to(block, hash) if block_given?
         end
 
-        yield_message_to anything_proc, hash
+        yield_message_to(anything_proc, hash)
       end
 
       @stream.on_error do |message|
-        error_proc.call(message) if error_proc.is_a?(Proc)
+        invoke_callback(error_proc, message)
       end
 
       @stream.on_unauthorized do
-        unauthorized_proc.call if unauthorized_proc.is_a?(Proc)
+        invoke_callback(unauthorized_proc)
       end
 
       @stream.on_enhance_your_calm do
-        enhance_your_calm_proc.call if enhance_your_calm_proc.is_a?(Proc)
+        invoke_callback(enhance_your_calm_proc)
       end
 
       @stream.on_reconnect do |timeout, retries|
-        reconnect_proc.call(timeout, retries) if reconnect_proc.is_a?(Proc)
+        invoke_callback(reconnect_proc, timeout, retries)
       end
 
       @stream.on_max_reconnects do |timeout, retries|
@@ -526,7 +458,7 @@ module TweetStream
       end
 
       @stream.on_no_data_received do
-        no_data_proc.call if no_data_proc.is_a?(Proc)
+        invoke_callback(no_data_proc)
       end
 
       @stream
@@ -601,15 +533,18 @@ module TweetStream
       }
     end
 
+    # A utility method used to invoke callback methods against the Client
+    def invoke_callback(callback, *args)
+      callback.call(*args) if callback
+    end
+
     def yield_message_to(procedure, message)
       # Give the block the option to receive either one
       # or two arguments, depending on its arity.
       if procedure.is_a?(Proc)
         case procedure.arity
-          when 1
-            procedure.call(message)
-          when 2
-            procedure.call(message, self)
+        when 1 then invoke_callback(procedure, message)
+        when 2 then invoke_callback(procedure, message, self)
         end
       end
     end
