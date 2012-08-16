@@ -14,10 +14,6 @@ describe TweetStream::Client do
       @client.send(:build_uri, '').should be_kind_of(URI)
     end
 
-    it 'should have the specified path with the version prefix and a json extension' do
-      @client.send(:build_uri, 'awesome').path.should == '/1/awesome.json'
-    end
-
     it 'should add on a query string if such parameters are specified' do
       @client.send(:build_uri, 'awesome', :q => 'abc').query.should == 'q=abc'
     end
@@ -271,64 +267,64 @@ describe TweetStream::Client do
   describe 'API methods' do
     %w(firehose retweet sample links).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
-        @client.should_receive(:start).once.with('statuses/' + method, {})
+        @client.should_receive(:start).once.with('/1/statuses/' + method + '.json', {})
         @client.send(method)
       end
     end
 
     describe '#filter' do
       it 'makes a call to "statuses/filter" with the query params provided' do
-        @client.should_receive(:start).once.with('statuses/filter', :follow => 123, :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :follow => 123, :method => :post)
         @client.filter(:follow => 123)
       end
       it 'makes a call to "statuses/filter" with the query params provided longitude/latitude pairs, separated by commas ' do
-        @client.should_receive(:start).once.with('statuses/filter', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41', :method => :post)
         @client.filter(:locations => '-122.75,36.8,-121.75,37.8,-74,40,-73,41')
       end
     end
 
     describe '#follow' do
       it 'makes a call to start with "statuses/filter" and a follow query parameter' do
-        @client.should_receive(:start).once.with('statuses/filter', :follow => [123], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :follow => [123], :method => :post)
         @client.follow(123)
       end
 
       it 'comma-joins multiple arguments' do
-        @client.should_receive(:start).once.with('statuses/filter', :follow => [123,456], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :follow => [123,456], :method => :post)
         @client.follow(123, 456)
       end
     end
 
     describe '#locations' do
       it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs' do
-        @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :method => :post)
         @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41')
       end
 
       it 'should call #start with "statuses/filter" with the query params provided longitude/latitude pairs and additional filter' do
-        @client.should_receive(:start).once.with('statuses/filter', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :track => 'rock', :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :locations => ['-122.75,36.8,-121.75,37.8,-74,40,-73,41'], :track => 'rock', :method => :post)
         @client.locations('-122.75,36.8,-121.75,37.8,-74,40,-73,41', :track => 'rock')
       end
     end
 
     describe '#track' do
       it 'makes a call to start with "statuses/filter" and a track query parameter' do
-        @client.should_receive(:start).once.with('statuses/filter', :track => ['test'], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :track => ['test'], :method => :post)
         @client.track('test')
       end
 
       it 'comma-joins multiple arguments' do
-        @client.should_receive(:start).once.with('statuses/filter', :track => ['foo', 'bar', 'baz'], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :track => ['foo', 'bar', 'baz'], :method => :post)
         @client.track('foo', 'bar', 'baz')
       end
 
       it 'comma-joins an array of arguments' do
-        @client.should_receive(:start).once.with('statuses/filter', :track => [['foo','bar','baz']], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :track => [['foo','bar','baz']], :method => :post)
         @client.track(['foo','bar','baz'])
       end
 
       it 'should call #start with "statuses/filter" and the provided queries' do
-        @client.should_receive(:start).once.with('statuses/filter', :track => ['rock'], :method => :post)
+        @client.should_receive(:start).once.with('/1/statuses/filter.json', :track => ['rock'], :method => :post)
         @client.track('rock')
       end
     end

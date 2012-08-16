@@ -34,27 +34,27 @@ describe TweetStream::Client do
       end
 
       it "uses the userstream uri" do
-        EM::Twitter::Client.should_receive(:connect).with(hash_including(:path => "/2/user.json")).and_return(@stream)
+        @client.should_receive(:start).once.with("/2/user.json", an_instance_of(Hash)).and_return(@stream)
         @client.userstream
       end
 
       it 'supports "replies"' do
-        @client.should_receive(:start).once.with('', hash_including(:replies => 'all')).and_return(@stream)
+        @client.should_receive(:start).once.with("/2/user.json", hash_including(:replies => 'all')).and_return(@stream)
         @client.userstream(:replies => 'all')
       end
 
       it 'supports "stall_warnings"' do
-        @client.should_receive(:start).once.with('', hash_including(:stall_warnings => 'true')).and_return(@stream)
+        @client.should_receive(:start).once.with("/2/user.json", hash_including(:stall_warnings => 'true')).and_return(@stream)
         @client.userstream(:stall_warnings => 'true')
       end
 
       it 'supports "with followings"' do
-        @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
+        @client.should_receive(:start).once.with("/2/user.json", hash_including(:with => 'followings')).and_return(@stream)
         @client.userstream(:with => 'followings')
       end
 
       it 'supports "with user"' do
-        @client.should_receive(:start).once.with('', hash_including(:with => 'user')).and_return(@stream)
+        @client.should_receive(:start).once.with("/2/user.json", hash_including(:with => 'user')).and_return(@stream)
         @client.userstream(:with => 'user')
       end
 

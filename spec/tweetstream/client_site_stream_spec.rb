@@ -34,27 +34,27 @@ describe TweetStream::Client do
       end
 
       it "uses the sitestream uri" do
-        EM::Twitter::Client.should_receive(:connect).with(hash_including(:path => "/2b/site.json")).and_return(@stream)
+        @client.should_receive(:start).once.with('/2b/site.json', an_instance_of(Hash)).and_return(@stream)
         @client.sitestream
       end
 
       it 'supports "with followings" when followings set as a boolean' do
-        @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
+        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :followings => true)
       end
 
       it 'supports "with followings" when followings set as an option' do
-        @client.should_receive(:start).once.with('', hash_including(:with => 'followings')).and_return(@stream)
+        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'followings')
       end
 
       it 'supports "with user"' do
-        @client.should_receive(:start).once.with('', hash_including(:with => 'user')).and_return(@stream)
+        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'user')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'user')
       end
 
       it 'supports "replies all"' do
-        @client.should_receive(:start).once.with('', hash_including(:replies => 'all')).and_return(@stream)
+        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:replies => 'all')).and_return(@stream)
         @client.sitestream(['115192457'], :replies => 'all')
       end
 
