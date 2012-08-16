@@ -9,38 +9,6 @@ describe TweetStream::Client do
     @client = TweetStream::Client.new
   end
 
-  describe '#build_uri' do
-    it 'should return a URI' do
-      @client.send(:build_uri, '').should be_kind_of(URI)
-    end
-
-    it 'should add on a query string if such parameters are specified' do
-      @client.send(:build_uri, 'awesome', :q => 'abc').query.should == 'q=abc'
-    end
-  end
-
-  describe '#build_post_body' do
-    it 'should return a blank string if passed a nil value' do
-      @client.send(:build_post_body, nil).should == ''
-    end
-
-    it 'should return a blank string if passed an empty hash' do
-      @client.send(:build_post_body, {}).should == ''
-    end
-
-    it 'should add a query parameter for a key' do
-      @client.send(:build_post_body, {:query => 'abc'}).should == 'query=abc'
-    end
-
-    it 'should escape characters in the value' do
-      @client.send(:build_post_body, {:query => 'awesome guy'}).should == 'query=awesome+guy'
-    end
-
-    it 'should join multiple pairs together' do
-      ['a=b&c=d','c=d&a=b'].include?(@client.send(:build_post_body, {:a => 'b', :c => 'd'})).should be_true
-    end
-  end
-
   describe '#start' do
     before do
       @stream = stub("EM::Twitter::Client",

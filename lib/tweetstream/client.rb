@@ -1,9 +1,7 @@
-require 'cgi'
 require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
-require 'uri'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
@@ -359,33 +357,30 @@ module TweetStream
     end
 
     # connect to twitter without starting a new EventMachine run loop
-    def connect(path, query_parameters = {}, &block)
-      method                  = query_parameters.delete(:method)              || :get
-      delete_proc             = query_parameters.delete(:delete)              || @callbacks['delete']
-      scrub_geo_proc          = query_parameters.delete(:scrub_geo)           || @callbacks['scrub_geo']
-      limit_proc              = query_parameters.delete(:limit)               || @callbacks['limit']
-      error_proc              = query_parameters.delete(:error)               || @callbacks['error']
-      enhance_your_calm_proc  = query_parameters.delete(:enhance_your_calm)   || @callbacks['enhance_your_calm']
-      unauthorized_proc       = query_parameters.delete(:unauthorized)        || @callbacks['unauthorized']
-      reconnect_proc          = query_parameters.delete(:reconnect)           || @callbacks['reconnect']
-      inited_proc             = query_parameters.delete(:inited)              || @callbacks['inited']
-      direct_message_proc     = query_parameters.delete(:direct_message)      || @callbacks['direct_message']
-      timeline_status_proc    = query_parameters.delete(:timeline_status)     || @callbacks['timeline_status']
-      anything_proc           = query_parameters.delete(:anything)            || @callbacks['anything']
-      no_data_proc            = query_parameters.delete(:no_data_received)    || @callbacks['no_data_received']
-      status_withheld_proc    = query_parameters.delete(:status_withheld)     || @callbacks['status_withheld']
-      user_withheld_proc      = query_parameters.delete(:user_withheld)       || @callbacks['user_withheld']
-      extra_stream_parameters = query_parameters.delete(:extra_stream_parameters) || {}
-
-      params = normalize_filter_parameters(query_parameters)
-      uri = method == :get ? build_uri(path, params) : build_uri(path)
+    def connect(path, options = {}, &block)
+      method                  = options.delete(:method)              || :get
+      delete_proc             = options.delete(:delete)              || @callbacks['delete']
+      scrub_geo_proc          = options.delete(:scrub_geo)           || @callbacks['scrub_geo']
+      limit_proc              = options.delete(:limit)               || @callbacks['limit']
+      error_proc              = options.delete(:error)               || @callbacks['error']
+      enhance_your_calm_proc  = options.delete(:enhance_your_calm)   || @callbacks['enhance_your_calm']
+      unauthorized_proc       = options.delete(:unauthorized)        || @callbacks['unauthorized']
+      reconnect_proc          = options.delete(:reconnect)           || @callbacks['reconnect']
+      inited_proc             = options.delete(:inited)              || @callbacks['inited']
+      direct_message_proc     = options.delete(:direct_message)      || @callbacks['direct_message']
+      timeline_status_proc    = options.delete(:timeline_status)     || @callbacks['timeline_status']
+      anything_proc           = options.delete(:anything)            || @callbacks['anything']
+      no_data_proc            = options.delete(:no_data_received)    || @callbacks['no_data_received']
+      status_withheld_proc    = options.delete(:status_withheld)     || @callbacks['status_withheld']
+      user_withheld_proc      = options.delete(:user_withheld)       || @callbacks['user_withheld']
+      extra_stream_parameters = options.delete(:extra_stream_parameters) || {}
 
       stream_params = {
-        :path => uri,
-        :method => method.to_s.upcase,
+        :path       => path,
+        :method     => method.to_s.upcase,
         :user_agent => user_agent,
-        :on_inited => inited_proc,
-        :params => params
+        :on_inited  => inited_proc,
+        :params     => normalize_filter_parameters(options)
       }.merge(extra_stream_parameters).merge(auth_params)
 
       @stream = EM::Twitter::Client.connect(stream_params)
@@ -479,23 +474,6 @@ module TweetStream
 
     protected
 
-    def build_uri(path, query_parameters = {}) #:nodoc:
-      URI.parse("#{path}#{build_query_parameters(query_parameters)}")
-    end
-
-    def build_query_parameters(query)
-      query.size > 0 ? "?#{build_post_body(query)}" : ''
-    end
-
-    def build_post_body(query) #:nodoc:
-      return '' unless query && query.is_a?(::Hash) && query.size > 0
-
-      query.map do |k, v|
-        v = v.flatten.collect { |q| q.to_s }.join(',') if v.is_a?(Array)
-        "#{k.to_s}=#{CGI.escape(v.to_s)}"
-      end.join('&')
-    end
-
     def normalize_filter_parameters(query_parameters = {})
       [:follow, :track, :locations].each do |param|
         if query_parameters[param].kind_of?(Array)
@@ -508,27 +486,21 @@ module TweetStream
     end
 
     def auth_params
-      if auth_method == :basic
-        { :basic => basic_auth_params }
+      if auth_method.to_s == 'basic'
+        { :basic => {
+            :username => username,
+            :password => password
+          }
+        }
       else
-        { :oauth => oauth_params }
+        { :oauth => {
+          :consumer_key => consumer_key,
+          :consumer_secret => consumer_secret,
+          :token => oauth_token,
+          :token_secret => oauth_token_secret
+        }
+       }
       end
-    end
-
-    def basic_auth_params
-      {
-        :username => username,
-        :password => password
-      }
-    end
-
-    def oauth_params
-      {
-        :consumer_key => consumer_key,
-        :consumer_secret => consumer_secret,
-        :token => oauth_token,
-        :token_secret => oauth_token_secret
-      }
     end
 
     # A utility method used to invoke callback methods against the Client
