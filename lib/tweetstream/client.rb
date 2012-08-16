@@ -359,6 +359,7 @@ module TweetStream
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, options = {}, &block)
       method                  = options.delete(:method)              || :get
+      warn_if_callbacks(options)
       delete_proc             = options.delete(:delete)              || @callbacks['delete']
       scrub_geo_proc          = options.delete(:scrub_geo)           || @callbacks['scrub_geo']
       limit_proc              = options.delete(:limit)               || @callbacks['limit']
@@ -516,6 +517,16 @@ module TweetStream
         when 1 then invoke_callback(procedure, message)
         when 2 then invoke_callback(procedure, message, self)
         end
+      end
+    end
+
+    def warn_if_callbacks(options={})
+      callbacks = [:delete, :scrub_geo, :limit, :error, :enhance_your_calm, :unauthorized, 
+        :reconnect, :inited, :direct_message, :timeline_status, :anything, :no_data_received, 
+        :status_withheld, :user_withheld]
+
+      if callbacks.select { |callback| options[callback] }.size > 0
+        Kernel.warn("Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0")
       end
     end
   end

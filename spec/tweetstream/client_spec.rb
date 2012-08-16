@@ -38,6 +38,12 @@ describe TweetStream::Client do
       @client.track('abc')
     end
 
+    it 'warns when callbacks are passed as options' do
+      @stream.stub(:each).and_yield(nil)
+      Kernel.should_receive(:warn).with(/Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0/)
+      @client.track('abc', :inited => Proc.new { })
+    end
+
     describe '#each' do
       it 'calls the appropriate parser' do
         @client = TweetStream::Client.new
@@ -227,7 +233,7 @@ describe TweetStream::Client do
     describe '#on_max_reconnects' do
       it 'should raise a ReconnectError' do
         @stream.should_receive(:on_max_reconnects).and_yield(30, 20)
-        lambda{@client.track('abc')}.should raise_error(TweetStream::ReconnectError, "Failed to reconnect after 20 tries.")
+        lambda{ @client.track('abc') }.should raise_error(TweetStream::ReconnectError, "Failed to reconnect after 20 tries.")
       end
     end
   end
