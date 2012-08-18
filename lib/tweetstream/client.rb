@@ -355,7 +355,7 @@ module TweetStream
 
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, options = {}, &block)
-      method                  = options.delete(:method)              || :get
+      request_method          = options.delete(:method)              || :get
       warn_if_callbacks(options)
       delete_proc             = options.delete(:delete)              || @callbacks['delete']
       scrub_geo_proc          = options.delete(:scrub_geo)           || @callbacks['scrub_geo']
@@ -375,7 +375,7 @@ module TweetStream
 
       stream_params = {
         :path       => path,
-        :method     => method.to_s.upcase,
+        :method     => request_method.to_s.upcase,
         :user_agent => user_agent,
         :on_inited  => inited_proc,
         :params     => normalize_filter_parameters(options)
@@ -518,8 +518,8 @@ module TweetStream
     end
 
     def warn_if_callbacks(options={})
-      callbacks = [:delete, :scrub_geo, :limit, :error, :enhance_your_calm, :unauthorized, 
-        :reconnect, :inited, :direct_message, :timeline_status, :anything, :no_data_received, 
+      callbacks = [:delete, :scrub_geo, :limit, :error, :enhance_your_calm, :unauthorized,
+        :reconnect, :inited, :direct_message, :timeline_status, :anything, :no_data_received,
         :status_withheld, :user_withheld]
 
       if callbacks.select { |callback| options[callback] }.size > 0
