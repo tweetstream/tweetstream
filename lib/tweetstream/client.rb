@@ -20,6 +20,21 @@ module TweetStream
   # view the TweetStream::Daemon class.
   class Client
 
+    OPTION_CALLBACKS = [:delete,
+                        :scrub_geo,
+                        :limit,
+                        :error,
+                        :enhance_your_calm,
+                        :unauthorized,
+                        :reconnect,
+                        :inited,
+                        :direct_message,
+                        :timeline_status,
+                        :anything,
+                        :no_data_received,
+                        :status_withheld,
+                        :user_withheld].freeze unless defined?(OPTION_CALLBACKS)
+
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
     attr_accessor :options
@@ -355,22 +370,15 @@ module TweetStream
 
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, options = {}, &block)
-      request_method          = options.delete(:method)              || :get
+      request_method          = options.delete(:method) || :get
       warn_if_callbacks(options)
-      delete_proc             = options.delete(:delete)              || @callbacks['delete']
-      scrub_geo_proc          = options.delete(:scrub_geo)           || @callbacks['scrub_geo']
-      limit_proc              = options.delete(:limit)               || @callbacks['limit']
-      error_proc              = options.delete(:error)               || @callbacks['error']
-      enhance_your_calm_proc  = options.delete(:enhance_your_calm)   || @callbacks['enhance_your_calm']
-      unauthorized_proc       = options.delete(:unauthorized)        || @callbacks['unauthorized']
-      reconnect_proc          = options.delete(:reconnect)           || @callbacks['reconnect']
-      inited_proc             = options.delete(:inited)              || @callbacks['inited']
-      direct_message_proc     = options.delete(:direct_message)      || @callbacks['direct_message']
-      timeline_status_proc    = options.delete(:timeline_status)     || @callbacks['timeline_status']
-      anything_proc           = options.delete(:anything)            || @callbacks['anything']
-      no_data_proc            = options.delete(:no_data_received)    || @callbacks['no_data_received']
-      status_withheld_proc    = options.delete(:status_withheld)     || @callbacks['status_withheld']
-      user_withheld_proc      = options.delete(:user_withheld)       || @callbacks['user_withheld']
+
+      callbacks = @callbacks.dup
+      OPTION_CALLBACKS.each do |callback|
+        callbacks.merge(callback.to_s => options.delete(callback)) if options[callback]
+      end
+
+      inited_proc             = options.delete(:inited)                  || @callbacks['inited']
       extra_stream_parameters = options.delete(:extra_stream_parameters) || {}
 
       stream_params = {
@@ -386,62 +394,36 @@ module TweetStream
         begin
           hash = MultiJson.decode(item, :symbolize_keys => true)
         rescue MultiJson::DecodeError
-          invoke_callback(error_proc, "MultiJson::DecodeError occured in stream: #{item}")
+          invoke_callback(callbacks['error'], "MultiJson::DecodeError occured in stream: #{item}")
           next
         end
 
         unless hash.is_a?(::Hash)
-          invoke_callback(error_proc, "Unexpected JSON object in stream: #{item}")
+          invoke_callback(callbacks['error'], "Unexpected JSON object in stream: #{item}")
           next
         end
 
         Twitter.identity_map = false
 
-        if hash[:control] && hash[:control][:control_uri]
-          @control_uri = hash[:control][:control_uri]
-          require 'tweetstream/site_stream_client'
-          @control = TweetStream::SiteStreamClient.new(@control_uri, options)
-          @control.on_error(&error_proc)
-        elsif hash[:delete] && hash[:delete][:status]
-          invoke_callback(delete_proc, hash[:delete][:status][:id], hash[:delete][:status][:user_id])
-        elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
-          invoke_callback(scrub_geo_proc, hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id])
-        elsif hash[:limit] && hash[:limit][:track]
-          invoke_callback(limit_proc, hash[:limit][:track])
-        elsif hash[:direct_message]
-          yield_message_to(direct_message_proc, Twitter::DirectMessage.new(hash[:direct_message]))
-        elsif hash[:status_withheld]
-          invoke_callback(status_withheld_proc, hash[:status_withheld])
-        elsif hash[:user_withheld]
-          invoke_callback(user_withheld_proc, hash[:user_withheld])
-        elsif hash[:event]
-          invoke_callback(@callbacks[hash[:event].to_s], hash)
-        elsif hash[:text] && hash[:user]
-          @last_status = Twitter::Status.new(hash)
-          yield_message_to(timeline_status_proc, @last_status)
+        respond_to(hash, callbacks, &block)
 
-          yield_message_to(block, @last_status) if block_given?
-        elsif hash[:for_user]
-          yield_message_to(block, hash) if block_given?
-        end
-
-        yield_message_to(anything_proc, hash)
+        yield_message_to(callbacks['anything'], hash)
       end
 
       @stream.on_error do |message|
-        invoke_callback(error_proc, message)
+        invoke_callback(callbacks['error'], message)
       end
 
       @stream.on_unauthorized do
-        invoke_callback(unauthorized_proc)
+        invoke_callback(callbacks['unauthorized'])
       end
 
       @stream.on_enhance_your_calm do
-        invoke_callback(enhance_your_calm_proc)
+        invoke_callback(callbacks['enhance_your_calm'])
       end
 
       @stream.on_reconnect do |timeout, retries|
-        invoke_callback(reconnect_proc, timeout, retries)
+        invoke_callback(callbacks['reconnect'], timeout, retries)
       end
 
       @stream.on_max_reconnects do |timeout, retries|
@@ -449,10 +431,40 @@ module TweetStream
       end
 
       @stream.on_no_data_received do
-        invoke_callback(no_data_proc)
+        invoke_callback(callbacks['no_data_received'])
       end
 
       @stream
+    end
+
+    def respond_to(hash, callbacks, &block)
+      if hash[:control] && hash[:control][:control_uri]
+        @control_uri = hash[:control][:control_uri]
+        require 'tweetstream/site_stream_client'
+        @control = TweetStream::SiteStreamClient.new(@control_uri, options)
+        @control.on_error(&callbacks['error'])
+      elsif hash[:delete] && hash[:delete][:status]
+        invoke_callback(callbacks['delete'], hash[:delete][:status][:id], hash[:delete][:status][:user_id])
+      elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
+        invoke_callback(callbacks['scrub_geo'], hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id])
+      elsif hash[:limit] && hash[:limit][:track]
+        invoke_callback(callbacks['limit'], hash[:limit][:track])
+      elsif hash[:direct_message]
+        yield_message_to(callbacks['direct_message'], Twitter::DirectMessage.new(hash[:direct_message]))
+      elsif hash[:status_withheld]
+        invoke_callback(callbacks['status_withheld'], hash[:status_withheld])
+      elsif hash[:user_withheld]
+        invoke_callback(callbacks['user_withheld'], hash[:user_withheld])
+      elsif hash[:event]
+        invoke_callback(callbacks[hash[:event].to_s], hash)
+      elsif hash[:text] && hash[:user]
+        @last_status = Twitter::Status.new(hash)
+        yield_message_to(callbacks['timeline_status'], @last_status)
+
+        yield_message_to(block, @last_status) if block_given?
+      elsif hash[:for_user]
+        yield_message_to(block, hash) if block_given?
+      end
     end
 
     # Terminate the currently running TweetStream and close EventMachine loop
@@ -518,11 +530,7 @@ module TweetStream
     end
 
     def warn_if_callbacks(options={})
-      callbacks = [:delete, :scrub_geo, :limit, :error, :enhance_your_calm, :unauthorized,
-        :reconnect, :inited, :direct_message, :timeline_status, :anything, :no_data_received,
-        :status_withheld, :user_withheld]
-
-      if callbacks.select { |callback| options[callback] }.size > 0
+      if OPTION_CALLBACKS.select { |callback| options[callback] }.size > 0
         Kernel.warn("Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0")
       end
     end
