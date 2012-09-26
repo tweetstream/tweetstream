@@ -335,6 +335,16 @@ module TweetStream
       on('user_withheld', &block)
     end
 
+    # Set a Proc to be run when a Site Stream friends list is received.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_friends do |friends|
+    #       # do something with the friends list
+    #     end
+    def on_friends(&block)
+      on('friends', &block)
+    end
+
     # Set a Proc to be run on userstream events
     #
     #     @client = TweetStream::Client.new
@@ -440,6 +450,8 @@ module TweetStream
         invoke_callback(callbacks['user_withheld'], hash[:user_withheld])
       elsif hash[:event]
         invoke_callback(callbacks[hash[:event].to_s], hash)
+      elsif hash[:friends]
+        invoke_callback(callbacks['friends'], hash[:friends])
       elsif hash[:text] && hash[:user]
         @last_status = Twitter::Tweet.new(hash)
         yield_message_to(callbacks['timeline_status'], @last_status)

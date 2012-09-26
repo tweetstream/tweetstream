@@ -58,7 +58,7 @@ describe TweetStream::Client do
         @client.sitestream(['115192457'], :replies => 'all')
       end
 
-      context 'control management' do
+      describe 'control management' do
         before do
           @control_response = {"control" =>
             {
@@ -92,31 +92,51 @@ describe TweetStream::Client do
         end
       end
 
-      context 'data handling' do
-        before do
-          tweet = sample_tweets[0]
-          @ss_message = {'for_user' => '12345', 'message' => {'id' => 123, 'user' => {'screen_name' => 'monkey'}, 'text' => 'Oo oo aa aa'}}
+      describe 'data handling' do
+        context 'messages' do
+          before do
+            @ss_message = {'for_user' => '12345', 'message' => {'id' => 123, 'user' => {'screen_name' => 'monkey'}, 'text' => 'Oo oo aa aa'}}
+          end
+
+          it 'yields a site stream message' do
+            @stream.should_receive(:each).and_yield(@ss_message.to_json)
+            yielded_status = nil
+            @client.sitestream do |message|
+              yielded_status = message
+            end
+            yielded_status.should_not be_nil
+            yielded_status[:for_user].should == '12345'
+            yielded_status[:message][:user][:screen_name].should == 'monkey'
+            yielded_status[:message][:text].should == 'Oo oo aa aa'
+          end
+          it 'yields itself if block has an arity of 2' do
+            @stream.should_receive(:each).and_yield(@ss_message.to_json)
+            yielded_client = nil
+            @client.sitestream do |_, client|
+              yielded_client = client
+            end
+            yielded_client.should_not be_nil
+            yielded_client.should == @client
+          end
         end
 
-        it 'yields a site stream message' do
-          @stream.should_receive(:each).and_yield(@ss_message.to_json)
-          yielded_status = nil
-          @client.sitestream do |message|
-            yielded_status = message
+        context 'friends list' do
+          before do
+            @friends_list = { 'friends' => [123, 456] }
+         end
+
+          it 'yields a friends list array' do
+            @stream.should_receive(:each).and_yield(@friends_list.to_json)
+            yielded_list = nil
+            @client.on_friends do |friends|
+              yielded_list = friends
+            end
+            @client.sitestream
+
+            yielded_list.should_not be_nil
+            yielded_list.should be_an(Array)
+            yielded_list.first.should eq(123)
           end
-          yielded_status.should_not be_nil
-          yielded_status[:for_user].should == '12345'
-          yielded_status[:message][:user][:screen_name].should == 'monkey'
-          yielded_status[:message][:text].should == 'Oo oo aa aa'
-        end
-        it 'yields itself if block has an arity of 2' do
-          @stream.should_receive(:each).and_yield(@ss_message.to_json)
-          yielded_client = nil
-          @client.sitestream do |_, client|
-            yielded_client = client
-          end
-          yielded_client.should_not be_nil
-          yielded_client.should == @client
         end
       end
     end
