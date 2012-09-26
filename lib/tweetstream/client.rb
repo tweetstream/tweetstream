@@ -370,26 +370,9 @@ module TweetStream
 
     # connect to twitter without starting a new EventMachine run loop
     def connect(path, options = {}, &block)
-      request_method          = options.delete(:method) || :get
-      warn_if_callbacks(options)
+      stream_parameters, callbacks = connection_options(path, options)
 
-      callbacks = @callbacks.dup
-      OPTION_CALLBACKS.each do |callback|
-        callbacks.merge(callback.to_s => options.delete(callback)) if options[callback]
-      end
-
-      inited_proc             = options.delete(:inited)                  || @callbacks['inited']
-      extra_stream_parameters = options.delete(:extra_stream_parameters) || {}
-
-      stream_params = {
-        :path       => path,
-        :method     => request_method.to_s.upcase,
-        :user_agent => user_agent,
-        :on_inited  => inited_proc,
-        :params     => normalize_filter_parameters(options)
-      }.merge(extra_stream_parameters).merge(auth_params)
-
-      @stream = EM::Twitter::Client.connect(stream_params)
+      @stream = EM::Twitter::Client.connect(stream_parameters)
       @stream.each do |item|
         begin
           hash = MultiJson.decode(item, :symbolize_keys => true)
@@ -527,6 +510,28 @@ module TweetStream
         when 2 then invoke_callback(procedure, message, self)
         end
       end
+    end
+
+    def connection_options(path, options)
+      warn_if_callbacks(options)
+
+      callbacks = @callbacks.dup
+      OPTION_CALLBACKS.each do |callback|
+        callbacks.merge(callback.to_s => options.delete(callback)) if options[callback]
+      end
+
+      inited_proc             = options.delete(:inited)                  || @callbacks['inited']
+      extra_stream_parameters = options.delete(:extra_stream_parameters) || {}
+
+      stream_params = {
+        :path       => path,
+        :method     => (options.delete(:method) || 'get').to_s.upcase,
+        :user_agent => user_agent,
+        :on_inited  => inited_proc,
+        :params     => normalize_filter_parameters(options)
+      }.merge(extra_stream_parameters).merge(auth_params)
+
+      [stream_params, callbacks]
     end
 
     def warn_if_callbacks(options={})
