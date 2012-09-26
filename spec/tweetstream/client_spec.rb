@@ -52,9 +52,9 @@ describe TweetStream::Client do
         @client.track('abc','def')
       end
 
-      it 'yields a Twitter::Status' do
+      it 'yields a Twitter::Tweet' do
         @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
-        @client.track('abc'){|s| s.should be_kind_of(Twitter::Status)}
+        @client.track('abc'){|s| s.should be_kind_of(Twitter::Tweet)}
       end
 
       it 'yields the client if a block with arity 2 is given' do

@@ -10,7 +10,7 @@ module TweetStream
   #
   # Basic usage of the library is to call one of the provided
   # methods and provide a block that will perform actions on
-  # a yielded Twitter::Status. For example:
+  # a yielded Twitter::Tweet. For example:
   #
   #     TweetStream::Client.new.track('fail') do |status|
   #       puts "[#{status.user.screen_name}] #{status.text}"
@@ -458,7 +458,7 @@ module TweetStream
       elsif hash[:event]
         invoke_callback(callbacks[hash[:event].to_s], hash)
       elsif hash[:text] && hash[:user]
-        @last_status = Twitter::Status.new(hash)
+        @last_status = Twitter::Tweet.new(hash)
         yield_message_to(callbacks['timeline_status'], @last_status)
 
         yield_message_to(block, @last_status) if block_given?
