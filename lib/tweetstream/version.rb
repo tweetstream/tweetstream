@@ -1,3 +1,3 @@
 module TweetStream
-  VERSION = '2.1.0' unless defined?(TweetStream::VERSION)
+  VERSION = '2.2.0' unless defined?(TweetStream::VERSION)
 end
