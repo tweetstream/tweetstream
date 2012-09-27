@@ -34,27 +34,27 @@ describe TweetStream::Client do
       end
 
       it "uses the sitestream uri" do
-        @client.should_receive(:start).once.with('/2b/site.json', an_instance_of(Hash)).and_return(@stream)
+        @client.should_receive(:start).once.with('/1.1/site.json', an_instance_of(Hash)).and_return(@stream)
         @client.sitestream
       end
 
       it 'supports "with followings" when followings set as a boolean' do
-        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'followings')).and_return(@stream)
+        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :followings => true)
       end
 
       it 'supports "with followings" when followings set as an option' do
-        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'followings')).and_return(@stream)
+        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'followings')
       end
 
       it 'supports "with user"' do
-        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:with => 'user')).and_return(@stream)
+        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'user')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'user')
       end
 
       it 'supports "replies all"' do
-        @client.should_receive(:start).once.with('/2b/site.json', hash_including(:replies => 'all')).and_return(@stream)
+        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:replies => 'all')).and_return(@stream)
         @client.sitestream(['115192457'], :replies => 'all')
       end
 
@@ -62,7 +62,7 @@ describe TweetStream::Client do
         before do
           @control_response = {"control" =>
             {
-              "control_uri" =>"/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50"
+              "control_uri" =>"/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50"
             }
           }
         end
@@ -70,7 +70,7 @@ describe TweetStream::Client do
           @stream.should_receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
-          @client.control_uri.should eq("/2b/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
+          @client.control_uri.should eq("/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
         end
 
         it 'instantiates a SiteStreamClient' do

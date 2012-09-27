@@ -55,7 +55,7 @@ module TweetStream
     # Creative use of a combination of other resources and various access
     # levels can satisfy nearly every application use case.
     def firehose(query_parameters = {}, &block)
-      start('/1/statuses/firehose.json', query_parameters, &block)
+      start('/1.1/statuses/firehose.json', query_parameters, &block)
     end
 
     # Returns all statuses containing http: and https:. The links stream is
@@ -63,7 +63,7 @@ module TweetStream
     # of access. Creative use of a combination of other resources and various
     # access levels can satisfy nearly every application use case.
     def links(query_parameters = {}, &block)
-      start('/1/statuses/links.json', query_parameters, &block)
+      start('/1.1/statuses/links.json', query_parameters, &block)
     end
 
     # Returns all retweets. The retweet stream is not a generally available
@@ -73,7 +73,7 @@ module TweetStream
     # the site-wide retweet feature has not yet launched,
     # so there are currently few, if any, retweets on this stream.
     def retweet(query_parameters = {}, &block)
-      start('/1/statuses/retweet.json', query_parameters, &block)
+      start('/1.1/statuses/retweet.json', query_parameters, &block)
     end
 
     # Returns a random sample of all public statuses. The default access level
@@ -82,7 +82,7 @@ module TweetStream
     # research applications that desire a larger proportion to be statistically
     # significant sample.
     def sample(query_parameters = {}, &block)
-      start('/1/statuses/sample.json', query_parameters, &block)
+      start('/1.1/statuses/sample.json', query_parameters, &block)
     end
 
     # Specify keywords to track. Queries are subject to Track Limitations,
@@ -125,14 +125,14 @@ module TweetStream
     # method is provided separately for cases when it would conserve the
     # number of HTTP connections to combine track and follow.
     def filter(query_params = {}, &block)
-      start('/1/statuses/filter.json', query_params.merge(:method => :post), &block)
+      start('/1.1/statuses/filter.json', query_params.merge(:method => :post), &block)
     end
 
     # Make a call to the userstream api for currently authenticated user
     def userstream(query_params = {}, &block)
       stream_params = { :host => "userstream.twitter.com" }
       query_params.merge!(:extra_stream_parameters => stream_params)
-      start('/2/user.json', query_params, &block)
+      start('/1.1/user.json', query_params, &block)
     end
 
     # Make a call to the userstream api
@@ -144,7 +144,7 @@ module TweetStream
         :extra_stream_parameters => stream_params
       })
       query_params.merge!(:with => 'followings') if query_params.delete(:followings)
-      start('/2b/site.json', query_params, &block)
+      start('/1.1/site.json', query_params, &block)
     end
 
     # Set a Proc to be run when a deletion notice is received

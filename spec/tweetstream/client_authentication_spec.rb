@@ -31,7 +31,7 @@ describe TweetStream::Client do
 
     it 'should try to connect via a JSON stream with basic auth' do
       EM::Twitter::Client.should_receive(:connect).with(
-        :path => '/1/statuses/filter.json',
+        :path => '/1.1/statuses/filter.json',
         :method => 'POST',
         :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
         :on_inited => nil,
@@ -61,7 +61,7 @@ describe TweetStream::Client do
 
     it 'should try to connect via a JSON stream with oauth' do
       EM::Twitter::Client.should_receive(:connect).with(
-        :path => '/1/statuses/filter.json',
+        :path => '/1.1/statuses/filter.json',
         :method => 'POST',
         :user_agent => TweetStream::Configuration::DEFAULT_USER_AGENT,
         :on_inited => nil,
