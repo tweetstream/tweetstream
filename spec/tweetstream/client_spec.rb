@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe TweetStream::Client do
   before(:each) do
     TweetStream.configure do |config|
