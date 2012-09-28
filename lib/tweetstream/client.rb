@@ -387,12 +387,12 @@ module TweetStream
         begin
           hash = MultiJson.decode(item, :symbolize_keys => true)
         rescue MultiJson::DecodeError
-          invoke_callback(callbacks['error'], "MultiJson::DecodeError occured in stream: #{item}")
+          TweetStream::ErrorResponse.new(callbacks['error'], "MultiJson::DecodeError occured in stream: #{item}").invoke
           next
         end
 
         unless hash.is_a?(::Hash)
-          invoke_callback(callbacks['error'], "Unexpected JSON object in stream: #{item}")
+          TweetStream::ErrorResponse.new(callbacks['error'], "Unexpected JSON object in stream: #{item}").invoke
           next
         end
 
@@ -401,30 +401,12 @@ module TweetStream
         TweetStream::Response.new(self, hash, callbacks, &block).invoke
       end
 
-      @stream.on_error do |message|
-        invoke_callback(callbacks['error'], message)
-      end
-
-      @stream.on_unauthorized do
-        invoke_callback(callbacks['unauthorized'])
-      end
-
-      @stream.on_enhance_your_calm do
-        invoke_callback(callbacks['enhance_your_calm'])
-      end
-
-      @stream.on_reconnect do |timeout, retries|
-        invoke_callback(callbacks['reconnect'], timeout, retries)
-      end
-
-      @stream.on_max_reconnects do |timeout, retries|
-        raise TweetStream::ReconnectError.new(timeout, retries)
-      end
-
-      @stream.on_no_data_received do
-        invoke_callback(callbacks['no_data_received'])
-      end
-
+      @stream.on_error { |message| TweetStream::ErrorResponse.new(callbacks['error'], message).invoke }
+      @stream.on_unauthorized { TweetStream::ErrorResponse.new(callbacks['unauthorized']).invoke }
+      @stream.on_enhance_your_calm { TweetStream::ErrorResponse.new(callbacks['enhance_your_calm']).invoke }
+      @stream.on_reconnect { |timeout, retries| TweetStream::ErrorResponse.new(callbacks['reconnect'], timeout, retries).invoke }
+      @stream.on_max_reconnects { |timeout, retries| raise TweetStream::ReconnectError.new(timeout, retries) }
+      @stream.on_no_data_received { TweetStream::ErrorResponse.new(callbacks['no_data_received']).invoke }
       @stream
     end
 
@@ -471,22 +453,6 @@ module TweetStream
           :token_secret => oauth_token_secret
         }
        }
-      end
-    end
-
-    # A utility method used to invoke callback methods against the Client
-    def invoke_callback(callback, *args)
-      callback.call(*args) if callback
-    end
-
-    def yield_message_to(procedure, message)
-      # Give the block the option to receive either one
-      # or two arguments, depending on its arity.
-      if procedure.is_a?(Proc)
-        case procedure.arity
-        when 1 then invoke_callback(procedure, message)
-        when 2 then invoke_callback(procedure, message, self)
-        end
       end
     end
 

@@ -53,6 +53,7 @@ module TweetStream
   end
 end
 
+require 'tweetstream/response/error_response'
 require 'tweetstream/response/anything_response'
 require 'tweetstream/response/control_response'
 require 'tweetstream/response/delete_response'
