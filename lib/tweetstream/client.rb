@@ -2,6 +2,7 @@ require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
+require 'tweetstream/response'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
@@ -37,8 +38,7 @@ module TweetStream
 
     # @private
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
-    attr_accessor :options
-    attr_reader :control_uri, :control, :stream
+    attr_accessor :options, :control_uri, :control, :stream
 
     # Creates a new API
     def initialize(options={})
@@ -398,9 +398,7 @@ module TweetStream
 
         Twitter.identity_map = false
 
-        respond_to(hash, callbacks, &block)
-
-        yield_message_to(callbacks['anything'], hash)
+        TweetStream::Response.new(self, hash, callbacks, &block).invoke
       end
 
       @stream.on_error do |message|
@@ -428,38 +426,6 @@ module TweetStream
       end
 
       @stream
-    end
-
-    def respond_to(hash, callbacks, &block)
-      if hash[:control] && hash[:control][:control_uri]
-        @control_uri = hash[:control][:control_uri]
-        require 'tweetstream/site_stream_client'
-        @control = TweetStream::SiteStreamClient.new(@control_uri, options)
-        @control.on_error(&callbacks['error'])
-      elsif hash[:delete] && hash[:delete][:status]
-        invoke_callback(callbacks['delete'], hash[:delete][:status][:id], hash[:delete][:status][:user_id])
-      elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]
-        invoke_callback(callbacks['scrub_geo'], hash[:scrub_geo][:up_to_status_id], hash[:scrub_geo][:user_id])
-      elsif hash[:limit] && hash[:limit][:track]
-        invoke_callback(callbacks['limit'], hash[:limit][:track])
-      elsif hash[:direct_message]
-        yield_message_to(callbacks['direct_message'], Twitter::DirectMessage.new(hash[:direct_message]))
-      elsif hash[:status_withheld]
-        invoke_callback(callbacks['status_withheld'], hash[:status_withheld])
-      elsif hash[:user_withheld]
-        invoke_callback(callbacks['user_withheld'], hash[:user_withheld])
-      elsif hash[:event]
-        invoke_callback(callbacks[hash[:event].to_s], hash)
-      elsif hash[:friends]
-        invoke_callback(callbacks['friends'], hash[:friends])
-      elsif hash[:text] && hash[:user]
-        @last_status = Twitter::Tweet.new(hash)
-        yield_message_to(callbacks['timeline_status'], @last_status)
-
-        yield_message_to(block, @last_status) if block_given?
-      elsif hash[:for_user]
-        yield_message_to(block, hash) if block_given?
-      end
     end
 
     # Terminate the currently running TweetStream and close EventMachine loop
