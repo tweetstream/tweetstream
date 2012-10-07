@@ -345,6 +345,16 @@ module TweetStream
       on('friends', &block)
     end
 
+    # Set a Proc to be run when a stall warning is received.
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_stall_warning do |warning|
+    #       # do something with the friends list
+    #     end
+    def on_stall_warning(&block)
+      on('stall_warning', &block)
+    end
+
     # Set a Proc to be run on userstream events
     #
     #     @client = TweetStream::Client.new
@@ -436,6 +446,8 @@ module TweetStream
         require 'tweetstream/site_stream_client'
         @control = TweetStream::SiteStreamClient.new(@control_uri, options)
         @control.on_error(&callbacks['error'])
+      elsif hash[:warning]
+        invoke_callback(callbacks['stall_warning'], hash[:warning])
       elsif hash[:delete] && hash[:delete][:status]
         invoke_callback(callbacks['delete'], hash[:delete][:status][:id], hash[:delete][:status][:user_id])
       elsif hash[:scrub_geo] && hash[:scrub_geo][:up_to_status_id]

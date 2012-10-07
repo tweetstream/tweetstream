@@ -75,7 +75,14 @@ describe TweetStream::Client do
         end
       end
 
-      it 'should call the on_scrub_geo callback if specified' do
+      it 'calls the on_stall_warning callback if specified' do
+        @stream.should_receive(:each).and_yield(fixture('stall_warning.json'))
+        @client.on_stall_warning do |warning|
+          warning[:code].should eq('FALLING_BEHIND')
+        end.track('abc')
+      end
+
+      it 'calls the on_scrub_geo callback if specified' do
         @stream.should_receive(:each).and_yield(fixture('scrub_geo.json'))
         @client.on_scrub_geo do |up_to_status_id, user_id|
           up_to_status_id.should == 9876
