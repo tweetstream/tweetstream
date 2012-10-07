@@ -328,6 +328,12 @@ end
 If you put the above into a script and run the script with `ruby scriptname.rb`,
 you will see a list of daemonization commands such as start, stop, and run.
 
+## REST
+
+To access the Twitter REST API, we recommend the [Twitter][] gem.
+
+[twitter]: https://github.com/sferik/twitter
+
 ## Contributing
 
 * Fork the project.
