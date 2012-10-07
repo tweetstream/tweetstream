@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rdiscount'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'simplecov'
-  s.add_development_dependency 'webmock'
+  s.add_development_dependency 'webmock', '>= 1.8.8'
   s.add_development_dependency 'yajl-ruby'
   s.add_development_dependency 'yard'
 
