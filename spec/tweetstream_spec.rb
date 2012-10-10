@@ -23,7 +23,7 @@ describe TweetStream do
       EM::Twitter::Client.stub!(:connect).and_return(@stream)
     end
 
-    it "should return the same results as a client" do
+    it "returns the same results as a client" do
       MultiJson.should_receive(:decode).and_return({})
       @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
       TweetStream.track('abc','def')
@@ -31,89 +31,89 @@ describe TweetStream do
   end
 
   describe ".new" do
-    it "should be a TweetStream::Client" do
-      TweetStream.new.should be_a TweetStream::Client
+    it "is a TweetStream::Client" do
+      expect(TweetStream.new).to be_a TweetStream::Client
     end
   end
 
-  describe '.respond_to?' do
-    it "should take an optional argument" do
-      TweetStream.respond_to?(:new, true).should be_true
+  describe ".respond_to?" do
+    it "takes an optional argument" do
+      expect(TweetStream.respond_to?(:new, true)).to be_true
     end
   end
 
   describe ".username" do
-    it "should return the default username" do
-      TweetStream.username.should == TweetStream::Configuration::DEFAULT_USERNAME
+    it "returns the default username" do
+      expect(TweetStream.username).to eq(TweetStream::Configuration::DEFAULT_USERNAME)
     end
   end
 
   describe ".username=" do
-    it "should set the username" do
+    it "sets the username" do
       TweetStream.username = 'jack'
-      TweetStream.username.should == 'jack'
+      expect(TweetStream.username).to eq('jack')
     end
   end
 
   describe ".password" do
-    it "should return the default password" do
-      TweetStream.password.should == TweetStream::Configuration::DEFAULT_PASSWORD
+    it "returns the default password" do
+      expect(TweetStream.password).to eq(TweetStream::Configuration::DEFAULT_PASSWORD)
     end
   end
 
   describe ".password=" do
-    it "should set the password" do
+    it "sets the password" do
       TweetStream.password = 'passw0rd'
-      TweetStream.password.should == 'passw0rd'
+      expect(TweetStream.password).to eq('passw0rd')
     end
   end
 
   describe ".auth_method" do
     it "shold return the default auth method" do
-      TweetStream.auth_method.should == TweetStream::Configuration::DEFAULT_AUTH_METHOD
+      expect(TweetStream.auth_method).to eq(TweetStream::Configuration::DEFAULT_AUTH_METHOD)
     end
   end
 
   describe ".auth_method=" do
-    it "should set the auth method" do
+    it "sets the auth method" do
       TweetStream.auth_method = :basic
-      TweetStream.auth_method.should == :basic
+      expect(TweetStream.auth_method).to eq(:basic)
     end
   end
 
   describe ".user_agent" do
-    it "should return the default user agent" do
-      TweetStream.user_agent.should == TweetStream::Configuration::DEFAULT_USER_AGENT
+    it "returns the default user agent" do
+      expect(TweetStream.user_agent).to eq(TweetStream::Configuration::DEFAULT_USER_AGENT)
     end
   end
 
   describe ".user_agent=" do
-    it "should set the user_agent" do
+    it "sets the user_agent" do
       TweetStream.user_agent = 'Custom User Agent'
-      TweetStream.user_agent.should == 'Custom User Agent'
+      expect(TweetStream.user_agent).to eq('Custom User Agent')
     end
   end
 
   describe ".configure" do
     TweetStream::Configuration::VALID_OPTIONS_KEYS.each do |key|
-      it "should set the #{key}" do
+      it "sets the #{key}" do
         TweetStream.configure do |config|
           config.send("#{key}=", key)
-          TweetStream.send(key).should == key
+          expect(TweetStream.send(key)).to eq(key)
         end
       end
     end
   end
 
-  describe '.options' do
-    it 'returns the configuration as a hash' do
-      TweetStream.options.should be_kind_of(Hash)
+  describe ".options" do
+    it "returns the configuration as a hash" do
+      expect(TweetStream.options).to be_kind_of(Hash)
     end
   end
 
-  describe '.oauth_options' do
-    it 'returns the oauth configuration as a hash' do
-      TweetStream.oauth_options.should be_kind_of(Hash)
+  describe ".oauth_options" do
+    it "returns the oauth configuration as a hash" do
+      expect(TweetStream.oauth_options).to be_kind_of(Hash)
     end
   end
 

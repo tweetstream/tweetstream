@@ -27,7 +27,7 @@ describe TweetStream::Client do
   end
 
   describe "User Stream support" do
-    context 'when calling #userstream' do
+    context "when calling #userstream" do
       it "sends the userstream host" do
         EM::Twitter::Client.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
         @client.userstream
@@ -38,35 +38,35 @@ describe TweetStream::Client do
         @client.userstream
       end
 
-      it 'supports "replies"' do
+      it "supports :replies => 'all'" do
         @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:replies => 'all')).and_return(@stream)
         @client.userstream(:replies => 'all')
       end
 
-      it 'supports "stall_warnings"' do
+      it "supports :stall_warnings => 'true'" do
         @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:stall_warnings => 'true')).and_return(@stream)
         @client.userstream(:stall_warnings => 'true')
       end
 
-      it 'supports "with followings"' do
+      it "supports :with => 'followings'" do
         @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:with => 'followings')).and_return(@stream)
         @client.userstream(:with => 'followings')
       end
 
-      it 'supports "with user"' do
+      it "supports :with => 'user'" do
         @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:with => 'user')).and_return(@stream)
         @client.userstream(:with => 'user')
       end
 
-      it 'supports event callbacks' do
+      it "supports event callbacks" do
         event = nil
         @stream.should_receive(:each).and_yield(fixture('favorite.json'))
         @client.on_event(:favorite) do |e|
           event = e
         end.userstream
 
-        event[:source].should_not be_nil
-        event[:target].should_not be_nil
+        expect(event[:source]).not_to be_nil
+        expect(event[:target]).not_to be_nil
       end
     end
   end

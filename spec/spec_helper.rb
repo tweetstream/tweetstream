@@ -13,6 +13,12 @@ require 'webmock/rspec'
 require 'yajl'
 require 'json'
 
+RSpec.configure do |config|
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+end
+
 def samples(fixture)
   samples = []
   Yajl::Parser.parse(fixture(fixture), :symbolize_keys => true) do |hash|
