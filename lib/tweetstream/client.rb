@@ -93,7 +93,8 @@ module TweetStream
     # Keywords containing punctuation will only exact match tokens.
     # Query parameters may be passed as the last argument.
     def track(*keywords, &block)
-      query_params = keywords.extract_options!
+      query_params = keywords.pop if keywords.last.is_a?(::Hash)
+      query_params ||= {}
       filter(query_params.merge(:track => keywords), &block)
     end
 
@@ -102,7 +103,8 @@ module TweetStream
     # pressing the reply "swoosh") are not matched. Requires integer user
     # IDs, not screen names. Query parameters may be passed as the last argument.
     def follow(*user_ids, &block)
-      query_params = user_ids.extract_options!
+      query_params = user_ids.pop if user_ids.last.is_a?(::Hash)
+      query_params ||= {}
       filter(query_params.merge(:follow => user_ids), &block)
     end
 
@@ -115,7 +117,8 @@ module TweetStream
     # the first pair denoting the southwest corner of the box
     # longitude/latitude pairs, separated by commas. The first pair specifies the southwest corner of the box.
     def locations(*locations_map, &block)
-      query_params = locations_map.extract_options!
+      query_params = locations_map.pop if locations_map.last.is_a?(::Hash)
+      query_params ||= {}
       filter(query_params.merge(:locations => locations_map), &block)
     end
 
