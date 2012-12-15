@@ -1,6 +1,0 @@
-source "http://rubygems.org"
-
-gem 'twitter', '4.1.0'
-gem "tweetstream", :path=>"../"
-
-gemspec :path=>"../"

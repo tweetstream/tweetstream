@@ -1,0 +1,5 @@
+source :rubygems
+
+gem 'twitter', '~> 4.2.0'
+
+gemspec :path => '..'

@@ -11,8 +11,8 @@ rvm:
   - ruby-head
 gemfile:
   - Gemfile
-  - gemfiles/twitter4_0_0.gemfile
-  - gemfiles/twitter4_1_0.gemfile
-  - gemfiles/twitter4_2_0.gemfile
-  - gemfiles/twitter4_3_0.gemfile
-  - gemfiles/twitter4_4_0.gemfile
+  - gemfiles/twitter4_0.gemfile
+  - gemfiles/twitter4_1.gemfile
+  - gemfiles/twitter4_2.gemfile
+  - gemfiles/twitter4_3.gemfile
+  - gemfiles/twitter4_4.gemfile
