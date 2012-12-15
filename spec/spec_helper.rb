@@ -8,6 +8,7 @@ end
 
 require 'tweetstream'
 require 'tweetstream/site_stream_client'
+require 'json'
 require 'rspec'
 require 'webmock/rspec'
 require 'yajl'
