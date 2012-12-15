@@ -2,7 +2,7 @@ source :rubygems
 
 gem 'twitter', '~> 4.0.0'
 gem 'rake'
-gme 'yard'
+gem 'yard'
 
 group :test do
   gem 'rspec'
