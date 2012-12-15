@@ -1,5 +1,11 @@
 source :rubygems
 
 gem 'twitter', '~> 4.0.0'
+gem 'rake'
+
+group :test do
+  gem 'rspec'
+  gem 'webmock'
+end
 
 gemspec :path => '..'

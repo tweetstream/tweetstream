@@ -1,7 +1,10 @@
-source 'https://rubygems.org'
+source :rubygems
 
-group :development do
-  gem 'pry-debugger'
+gem 'rake'
+
+group :test do
+  gem 'rspec'
+  gem 'webmock'
 end
 
 gemspec
