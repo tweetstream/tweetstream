@@ -1,4 +1,3 @@
-require 'yajl'
 require 'tweetstream'
 
 TweetStream.configure do |config|

@@ -1,7 +1,7 @@
 require 'em-twitter'
 require 'eventmachine'
-require 'multi_json'
 require 'twitter'
+require 'yajl'
 
 module TweetStream
   # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
@@ -398,9 +398,9 @@ module TweetStream
       @stream = EM::Twitter::Client.connect(stream_parameters)
       @stream.each do |item|
         begin
-          hash = MultiJson.decode(item, :symbolize_keys => true)
-        rescue MultiJson::DecodeError
-          invoke_callback(callbacks['error'], "MultiJson::DecodeError occured in stream: #{item}")
+          hash = Yajl::Parser.parse(item, :symbolize_keys => true)
+        rescue Yajl::ParseError
+          invoke_callback(callbacks['error'], "Yajl::ParseError occured in stream: #{item}")
           next
         end
 

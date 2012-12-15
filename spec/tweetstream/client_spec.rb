@@ -49,7 +49,7 @@ describe TweetStream::Client do
     describe "#each" do
       it "calls the appropriate parser" do
         @client = TweetStream::Client.new
-        MultiJson.should_receive(:decode).and_return({})
+        Yajl::Parser.should_receive(:parse).twice.and_return({})
         @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end
@@ -216,7 +216,7 @@ describe TweetStream::Client do
       it "calls on_error if a json parse error occurs" do
         @stream.should_receive(:each).and_yield("{'a_key':}")
         @client.on_error do |message|
-          expect(message).to eq("MultiJson::DecodeError occured in stream: {'a_key':}")
+          expect(message).to eq("Yajl::ParseError occured in stream: {'a_key':}")
         end.track('abc')
       end
     end
