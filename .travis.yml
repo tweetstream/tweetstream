@@ -15,4 +15,3 @@ gemfile:
   - gemfiles/twitter4_1.gemfile
   - gemfiles/twitter4_2.gemfile
   - gemfiles/twitter4_3.gemfile
-  - gemfiles/twitter4_4.gemfile
