@@ -11,7 +11,6 @@ require 'tweetstream/site_stream_client'
 require 'rspec'
 require 'webmock/rspec'
 require 'yajl'
-require 'json'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
