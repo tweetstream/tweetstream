@@ -4,7 +4,6 @@ matrix:
   allow_failures:
     - rvm: ruby-head
 rvm:
-  - rbx-19mode
   - 1.8.7
   - 1.9.2
   - 1.9.3
