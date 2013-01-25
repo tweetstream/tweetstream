@@ -18,13 +18,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'twitter', '~> 4.0'
   spec.add_dependency 'yajl-ruby', '~> 1.1'
 
-  spec.add_development_dependency 'guard-rspec'
-  spec.add_development_dependency 'kramdown'
-  spec.add_development_dependency 'pry'
-  spec.add_development_dependency 'simplecov'
+  spec.files = %w(.yardopts CHANGELOG.md CONTRIBUTING.md LICENSE.md README.md Rakefile tweetstream.gemspec)
+  spec.files += Dir.glob("lib/**/*.rb")
+  spec.files += Dir.glob("spec/**/*")
+  spec.test_files = Dir.glob("spec/**/*")
 
-  spec.files         = `git ls-files`.split("\n")
-  spec.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  spec.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   spec.require_paths = ["lib"]
 end
