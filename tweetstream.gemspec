@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'daemons', '~> 1.1'
   spec.add_dependency 'em-twitter', '~> 0.2'
   spec.add_dependency 'em-http-request', '~> 1.0.2'
-  spec.add_dependency 'twitter', '~> 4.0'
+  spec.add_dependency 'twitter', '~> 4.5'
   spec.add_dependency 'yajl-ruby', '~> 1.1'
   spec.add_development_dependency 'bundler', '~> 1.0'
 
