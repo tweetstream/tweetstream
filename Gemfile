@@ -12,7 +12,7 @@ end
 
 group :test do
   gem 'json', :platforms => :ruby_18
-  gem 'rspec'
+  gem 'rspec', '>= 2.11'
   gem 'simplecov', :require => false
   gem 'webmock'
 end
