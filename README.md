@@ -1,9 +1,15 @@
-# TweetStream [![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis] [![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium] [![Code Climate](https://codeclimate.com/badge.png)][codeclimate]
-TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
+# TweetStream
+[![Gem Version](https://badge.fury.io/rb/tweetstream.png)][gem]
+[![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
+[![Code Climate](https://codeclimate.com/badge.png)][codeclimate]
 
+[gem]: https://rubygems.org/gems/tweetstream
 [travis]: http://travis-ci.org/intridea/tweetstream
 [gemnasium]: https://gemnasium.com/intridea/tweetstream
 [codeclimate]: https://codeclimate.com/github/intridea/tweetstream
+
+TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
 
 ## Installation
 
