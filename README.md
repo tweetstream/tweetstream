@@ -2,7 +2,7 @@
 [![Gem Version](https://badge.fury.io/rb/tweetstream.png)][gem]
 [![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis]
 [![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/badge.png)][codeclimate]
+[![Code Climate](https://codeclimate.com/github/intridea/tweetstream.png)][codeclimate]
 
 [gem]: https://rubygems.org/gems/tweetstream
 [travis]: http://travis-ci.org/intridea/tweetstream
