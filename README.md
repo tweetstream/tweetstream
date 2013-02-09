@@ -53,7 +53,8 @@ with the methods available on the Streaming API wiki page.
 
 ## Changes in 2.0
 
-TweetStream 2.0 introduces a number of requested features and bug fixes. For the complete list refer to the [changelog](https://github.com/intridea/tweetstream/blob/master/CHANGELOG.md#version-200). Notable
+TweetStream 2.0 introduces a number of requested features and bug fixes. For
+the complete list refer to the [changelog](CHANGELOG.md#version-200). Notable
 additions in 2.0 include:
 
 ### OAuth
@@ -343,4 +344,5 @@ To access the Twitter REST API, we recommend the [Twitter][] gem.
 
 ## Copyright
 
-Copyright (c) 2012 Intridea, Inc. (http://www.intridea.com/). See [LICENSE](https://github.com/intridea/tweetstream/blob/master/LICENSE.md) for details.
+Copyright (c) 2012-2013 Intridea, Inc. (http://www.intridea.com/). See
+[LICENSE](LICENSE.md) for details.
