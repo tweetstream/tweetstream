@@ -1,11 +1,11 @@
-unless ENV['CI']
-  require 'simplecov'
-  SimpleCov.start do
-    add_filter '.bundle'
-    add_group 'Tweetstream', 'lib/tweetstream'
-    add_group 'Specs', 'spec'
-  end
-end
+require 'simplecov'
+require 'coveralls'
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
+SimpleCov.start
 
 require 'tweetstream'
 require 'tweetstream/site_stream_client'
@@ -13,6 +13,8 @@ require 'json'
 require 'rspec'
 require 'webmock/rspec'
 require 'yajl'
+
+WebMock.disable_net_connect!(:allow => 'coveralls.io')
 
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
