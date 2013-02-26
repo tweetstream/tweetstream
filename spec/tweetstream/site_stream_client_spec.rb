@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'helper'
 
 describe TweetStream::SiteStreamClient do
   before do

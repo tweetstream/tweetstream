@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'helper'
 
 describe TweetStream::Daemon do
   describe ".new" do
