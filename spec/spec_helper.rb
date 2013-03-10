@@ -1,6 +1,7 @@
 unless ENV['CI']
   require 'simplecov'
   SimpleCov.start do
+    add_filter '.bundle'
     add_group 'Tweetstream', 'lib/tweetstream'
     add_group 'Specs', 'spec'
   end
@@ -16,6 +17,10 @@ require 'yajl'
 RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.after(:each) do
+    TweetStream.reset
   end
 end
 

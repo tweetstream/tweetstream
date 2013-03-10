@@ -1,9 +1,6 @@
 require 'spec_helper'
 
 describe TweetStream do
-  after do
-    TweetStream.reset
-  end
 
   context "when delegating to a client" do
     before do
