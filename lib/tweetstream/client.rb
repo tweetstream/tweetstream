@@ -555,7 +555,8 @@ module TweetStream
         :method     => (options.delete(:method) || 'get').to_s.upcase,
         :user_agent => user_agent,
         :on_inited  => inited_proc,
-        :params     => normalize_filter_parameters(options)
+        :params     => normalize_filter_parameters(options),
+        :proxy      => proxy
       }.merge(extra_stream_parameters).merge(auth_params)
 
       [stream_params, callbacks]

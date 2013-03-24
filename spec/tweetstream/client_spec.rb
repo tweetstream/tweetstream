@@ -46,6 +46,16 @@ describe TweetStream::Client do
       @client.track('abc', :inited => Proc.new { })
     end
 
+    describe 'proxy usage' do
+      it 'connects with a proxy' do
+        @client = TweetStream::Client.new(:proxy => { :uri => 'http://someproxy:8081'})
+        EM::Twitter::Client.should_receive(:connect).
+          with(hash_including(:proxy => { :uri => 'http://someproxy:8081'})).and_return(@stream)
+        @stream.should_receive(:each).and_return
+        @client.track('abc')
+      end
+    end
+
     describe "#each" do
       it "calls the appropriate parser" do
         @client = TweetStream::Client.new

@@ -338,6 +338,18 @@ end
 If you put the above into a script and run the script with `ruby scriptname.rb`,
 you will see a list of daemonization commands such as start, stop, and run.
 
+## Proxy Support
+
+TweetStream supports a configurable proxy:
+
+```ruby
+TweetStream.configure do |config|
+  config.proxy = { :uri => 'http://myproxy:8081' }
+end
+```
+
+Your proxy will now be used for all connections.
+
 ## REST
 
 To access the Twitter REST API, we recommend the [Twitter][] gem.

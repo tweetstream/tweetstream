@@ -39,7 +39,8 @@ describe TweetStream::Client do
         :basic => {
           :username => 'tweetstream',
           :password => 'rubygem'
-        }
+        },
+        :proxy => nil
       ).and_return(@stream)
 
       @client.track('monday')
@@ -71,7 +72,8 @@ describe TweetStream::Client do
           :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',
           :token => '123456789',
           :token_secret => 'abcdefghijklmnopqrstuvwxyz'
-        }
+        },
+        :proxy => nil
       ).and_return(@stream)
 
       @client.track('monday')

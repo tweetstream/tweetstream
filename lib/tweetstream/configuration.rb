@@ -10,6 +10,7 @@ module TweetStream
       :password,
       :user_agent,
       :auth_method,
+      :proxy,
       :consumer_key,
       :consumer_secret,
       :oauth_token,
@@ -32,6 +33,8 @@ module TweetStream
 
     # The default authentication method
     DEFAULT_AUTH_METHOD = :oauth
+
+    DEFAULT_PROXY = nil
 
     VALID_FORMATS = [
       :basic,
@@ -78,6 +81,7 @@ module TweetStream
       self.password           = DEFAULT_PASSWORD
       self.user_agent         = DEFAULT_USER_AGENT
       self.auth_method        = DEFAULT_AUTH_METHOD
+      self.proxy              = DEFAULT_PROXY
       self.consumer_key       = DEFAULT_CONSUMER_KEY
       self.consumer_secret    = DEFAULT_CONSUMER_SECRET
       self.oauth_token        = DEFAULT_OAUTH_TOKEN

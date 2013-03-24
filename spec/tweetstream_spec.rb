@@ -114,4 +114,16 @@ describe TweetStream do
     end
   end
 
+  describe '.proxy' do
+    it 'returns the default proxy' do
+      expect(TweetStream.proxy).to eq(TweetStream::Configuration::DEFAULT_PROXY)
+    end
+  end
+
+  describe '.proxy=' do
+    it 'sets the proxy' do
+      TweetStream.proxy = { :uri => 'http://someproxy:8081' }
+      expect(TweetStream.proxy).to be_kind_of(Hash)
+    end
+  end
 end
