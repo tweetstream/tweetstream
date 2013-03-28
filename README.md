@@ -338,6 +338,26 @@ end
 If you put the above into a script and run the script with `ruby scriptname.rb`,
 you will see a list of daemonization commands such as start, stop, and run.
 
+A frequent use case is to use TweetStream along with ActiveRecord to insert new
+statuses to a database. The library TweetStream uses the `daemons` gem for
+daemonization which forks a new process when the daemon is created. After forking,
+you'll need to reconnect to the database:
+
+```ruby
+ENV["RAILS_ENV"] ||= "production"
+
+root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+require File.join(root, "config", "environment")
+
+daemon = TweetStream::Daemon.new('tracker', :log_output => true)
+daemon.on_inited do
+  ActiveRecord::Base.connection.reconnect!
+end
+daemon.track('term1') do |tweet|
+  Status.create_from_tweet(tweet)
+end
+```
+
 ## Proxy Support
 
 TweetStream supports a configurable proxy:
