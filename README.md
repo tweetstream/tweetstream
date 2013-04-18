@@ -354,6 +354,7 @@ require File.join(root, "config", "environment")
 daemon = TweetStream::Daemon.new('tracker', :log_output => true)
 daemon.on_inited do
   ActiveRecord::Base.connection.reconnect!
+    ActiveRecord::Base.logger = Logger.new(File.open(File.join(Rails.root, 'log/tweetstream.log'), 'w+'))
 end
 daemon.track('term1') do |tweet|
   Status.create_from_tweet(tweet)
