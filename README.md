@@ -79,7 +79,7 @@ should plan to move to OAuth as soon as possible.
 
 Site Streams are now fully supported, including the connection management functionality.
 
-### Compatablity with the Twitter gem
+### Compatability with the Twitter gem
 
 TweetStream now emits objects from the [Twitter gem](https://github.com/sferik/twitter) instead of custom hashes. These objects are already defined in the `twitter` gem and are superior to the custom objects in the following ways:
 
