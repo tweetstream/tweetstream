@@ -21,8 +21,8 @@ describe TweetStream do
     end
 
     it "returns the same results as a client" do
-      Yajl::Parser.should_receive(:parse).twice.and_return({})
-      @stream.should_receive(:each).and_yield(sample_tweets[0].to_json)
+      expect(Yajl::Parser).to receive(:parse).twice.and_return({})
+      expect(@stream).to receive(:each).and_yield(sample_tweets[0].to_json)
       TweetStream.track('abc','def')
     end
   end

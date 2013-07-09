@@ -29,32 +29,32 @@ describe TweetStream::Client do
   describe "Site Stream support" do
     context "when calling #sitestream" do
       it "sends the sitestream host" do
-        EM::Twitter::Client.should_receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
+        expect(EM::Twitter::Client).to receive(:connect).with(hash_including(:host => "sitestream.twitter.com")).and_return(@stream)
         @client.sitestream
       end
 
       it "uses the sitestream uri" do
-        @client.should_receive(:start).once.with('/1.1/site.json', an_instance_of(Hash)).and_return(@stream)
+        expect(@client).to receive(:start).once.with('/1.1/site.json', an_instance_of(Hash)).and_return(@stream)
         @client.sitestream
       end
 
       it "supports :followings => true" do
-        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
+        expect(@client).to receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :followings => true)
       end
 
       it "supports :with => 'followings'" do
-        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
+        expect(@client).to receive(:start).once.with('/1.1/site.json', hash_including(:with => 'followings')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'followings')
       end
 
       it "supports :with => 'user'" do
-        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:with => 'user')).and_return(@stream)
+        expect(@client).to receive(:start).once.with('/1.1/site.json', hash_including(:with => 'user')).and_return(@stream)
         @client.sitestream(['115192457'], :with => 'user')
       end
 
       it "supports :replies => 'all'" do
-        @client.should_receive(:start).once.with('/1.1/site.json', hash_including(:replies => 'all')).and_return(@stream)
+        expect(@client).to receive(:start).once.with('/1.1/site.json', hash_including(:replies => 'all')).and_return(@stream)
         @client.sitestream(['115192457'], :replies => 'all')
       end
 
@@ -67,14 +67,14 @@ describe TweetStream::Client do
           }
         end
         it "assigns the control_uri" do
-          @stream.should_receive(:each).and_yield(@control_response.to_json)
+          expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
           expect(@client.control_uri).to eq("/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
         end
 
         it "instantiates a SiteStreamClient" do
-          @stream.should_receive(:each).and_yield(@control_response.to_json)
+          expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
           expect(@client.control).to be_kind_of(TweetStream::SiteStreamClient)
@@ -83,7 +83,7 @@ describe TweetStream::Client do
         it "passes the client's on_error to the SiteStreamClient" do
           called = false
           @client.on_error { |err| called = true }
-          @stream.should_receive(:each).and_yield(@control_response.to_json)
+          expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
           @client.control.on_error.call
@@ -99,7 +99,7 @@ describe TweetStream::Client do
           end
 
           it "yields a site stream message" do
-            @stream.should_receive(:each).and_yield(@ss_message.to_json)
+            expect(@stream).to receive(:each).and_yield(@ss_message.to_json)
             yielded_status = nil
             @client.sitestream do |message|
               yielded_status = message
@@ -110,7 +110,7 @@ describe TweetStream::Client do
             expect(yielded_status[:message][:text]).to eq('Oo oo aa aa')
           end
           it "yields itself if block has an arity of 2" do
-            @stream.should_receive(:each).and_yield(@ss_message.to_json)
+            expect(@stream).to receive(:each).and_yield(@ss_message.to_json)
             yielded_client = nil
             @client.sitestream do |_, client|
               yielded_client = client
@@ -126,7 +126,7 @@ describe TweetStream::Client do
          end
 
           it "yields a friends list array" do
-            @stream.should_receive(:each).and_yield(@friends_list.to_json)
+            expect(@stream).to receive(:each).and_yield(@friends_list.to_json)
             yielded_list = nil
             @client.on_friends do |friends|
               yielded_list = friends

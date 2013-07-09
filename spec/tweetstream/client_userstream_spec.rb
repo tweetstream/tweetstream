@@ -29,38 +29,38 @@ describe TweetStream::Client do
   describe "User Stream support" do
     context "when calling #userstream" do
       it "sends the userstream host" do
-        EM::Twitter::Client.should_receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
+        expect(EM::Twitter::Client).to receive(:connect).with(hash_including(:host => "userstream.twitter.com")).and_return(@stream)
         @client.userstream
       end
 
       it "uses the userstream uri" do
-        @client.should_receive(:start).once.with("/1.1/user.json", an_instance_of(Hash)).and_return(@stream)
+        expect(@client).to receive(:start).once.with("/1.1/user.json", an_instance_of(Hash)).and_return(@stream)
         @client.userstream
       end
 
       it "supports :replies => 'all'" do
-        @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:replies => 'all')).and_return(@stream)
+        expect(@client).to receive(:start).once.with("/1.1/user.json", hash_including(:replies => 'all')).and_return(@stream)
         @client.userstream(:replies => 'all')
       end
 
       it "supports :stall_warnings => 'true'" do
-        @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:stall_warnings => 'true')).and_return(@stream)
+        expect(@client).to receive(:start).once.with("/1.1/user.json", hash_including(:stall_warnings => 'true')).and_return(@stream)
         @client.userstream(:stall_warnings => 'true')
       end
 
       it "supports :with => 'followings'" do
-        @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:with => 'followings')).and_return(@stream)
+        expect(@client).to receive(:start).once.with("/1.1/user.json", hash_including(:with => 'followings')).and_return(@stream)
         @client.userstream(:with => 'followings')
       end
 
       it "supports :with => 'user'" do
-        @client.should_receive(:start).once.with("/1.1/user.json", hash_including(:with => 'user')).and_return(@stream)
+        expect(@client).to receive(:start).once.with("/1.1/user.json", hash_including(:with => 'user')).and_return(@stream)
         @client.userstream(:with => 'user')
       end
 
       it "supports event callbacks" do
         event = nil
-        @stream.should_receive(:each).and_yield(fixture('favorite.json'))
+        expect(@stream).to receive(:each).and_yield(fixture('favorite.json'))
         @client.on_event(:favorite) do |e|
           event = e
         end.userstream

@@ -22,7 +22,7 @@ describe TweetStream::Daemon do
   describe "#start" do
     it "starts the daemon" do
       client = TweetStream::Daemon.new
-      Daemons.should_receive(:run_proc).once
+      expect(Daemons).to receive(:run_proc).once
       client.track('intridea')
     end
   end
