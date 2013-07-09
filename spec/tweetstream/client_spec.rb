@@ -13,7 +13,7 @@ describe TweetStream::Client do
 
   describe "#start" do
     before do
-      @stream = stub("EM::Twitter::Client",
+      @stream = double("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
         :each => true,
@@ -360,7 +360,7 @@ describe TweetStream::Client do
 
   describe "#stop_stream" do
     before(:each) do
-      @stream = stub("EM::Twitter::Client",
+      @stream = double("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
         :each => true,

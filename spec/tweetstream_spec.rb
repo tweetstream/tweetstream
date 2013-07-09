@@ -4,7 +4,7 @@ describe TweetStream do
 
   context "when delegating to a client" do
     before do
-      @stream = stub("EM::Twitter::Client",
+      @stream = double("EM::Twitter::Client",
         :connect => true,
         :unbind => true,
         :each_item => true,

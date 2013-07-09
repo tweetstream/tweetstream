@@ -2,7 +2,7 @@ require 'helper'
 
 describe TweetStream::Client do
   before do
-    @stream = stub("EM::Twitter::Client",
+    @stream = double("EM::Twitter::Client",
       :connect => true,
       :unbind => true,
       :each => true,

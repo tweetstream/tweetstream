@@ -141,7 +141,7 @@ describe TweetStream::SiteStreamClient do
 
     it "accepts an array of user_ids" do
       @client = TweetStream::SiteStreamClient.new('/config_uri')
-      conn = stub('Connection')
+      conn = double('Connection')
       conn.should_receive(:post).
         with(:path => '/config_uri/add_user.json', :body => { 'user_id' => '1234,5678' }).
         and_return(FakeHttp.new)
@@ -186,7 +186,7 @@ describe TweetStream::SiteStreamClient do
 
     it "accepts an array of user_ids" do
       @client = TweetStream::SiteStreamClient.new('/config_uri')
-      conn = stub('Connection')
+      conn = double('Connection')
       conn.should_receive(:post).
         with(:path => '/config_uri/remove_user.json', :body => { 'user_id' => '1234,5678' }).
         and_return(FakeHttp.new)

@@ -10,7 +10,7 @@ describe TweetStream::Client do
     end
     @client = TweetStream::Client.new
 
-    @stream = stub("EM::Twitter::Client",
+    @stream = double("EM::Twitter::Client",
       :connect => true,
       :unbind => true,
       :each => true,
