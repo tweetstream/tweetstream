@@ -22,8 +22,8 @@ describe TweetStream::Client do
       :on_unauthorized => true,
       :on_enhance_your_calm => true
     )
-    EM.stub!(:run).and_yield
-    EM::Twitter::Client.stub!(:connect).and_return(@stream)
+    EM.stub(:run).and_yield
+    EM::Twitter::Client.stub(:connect).and_return(@stream)
   end
 
   describe "User Stream support" do

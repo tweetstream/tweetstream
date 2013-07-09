@@ -25,12 +25,12 @@ describe TweetStream::Client do
         :on_unauthorized => true,
         :on_enhance_your_calm => true
       )
-      EM.stub!(:run).and_yield
-      EM::Twitter::Client.stub!(:connect).and_return(@stream)
+      EM.stub(:run).and_yield
+      EM::Twitter::Client.stub(:connect).and_return(@stream)
     end
 
     it "connects if the reactor is already running" do
-      EM.stub!(:reactor_running?).and_return(true)
+      EM.stub(:reactor_running?).and_return(true)
       @client.should_receive(:connect)
       @client.track('abc')
     end
@@ -373,7 +373,7 @@ describe TweetStream::Client do
         :on_enhance_your_calm => true,
         :stop => true
       )
-      EM::Twitter::Client.stub!(:connect).and_return(@stream)
+      EM::Twitter::Client.stub(:connect).and_return(@stream)
       @client = TweetStream::Client.new
       @client.connect('/')
     end
