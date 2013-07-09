@@ -145,7 +145,7 @@ describe TweetStream::SiteStreamClient do
       conn.should_receive(:post).
         with(:path => '/config_uri/add_user.json', :body => { 'user_id' => '1234,5678' }).
         and_return(FakeHttp.new)
-      @client.stub(:connection) { conn }
+      allow(@client).to receive(:connection) { conn }
       @client.add_user(['1234','5678'])
     end
   end
@@ -190,7 +190,7 @@ describe TweetStream::SiteStreamClient do
       conn.should_receive(:post).
         with(:path => '/config_uri/remove_user.json', :body => { 'user_id' => '1234,5678' }).
         and_return(FakeHttp.new)
-      @client.stub(:connection) { conn }
+      allow(@client).to receive(:connection) { conn }
       @client.remove_user(['1234','5678'])
     end
   end

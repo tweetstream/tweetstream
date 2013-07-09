@@ -16,8 +16,8 @@ describe TweetStream do
         :on_unauthorized => true,
         :on_enhance_your_calm => true
       )
-      EM.stub(:run).and_yield
-      EM::Twitter::Client.stub(:connect).and_return(@stream)
+      allow(EM).to receive(:run).and_yield
+      allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
     end
 
     it "returns the same results as a client" do
