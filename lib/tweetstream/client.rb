@@ -361,7 +361,7 @@ module TweetStream
     # Set a Proc to be run on userstream events
     #
     #     @client = TweetStream::Client.new
-    #     @client.event(:favorite) do |event|
+    #     @client.on_event(:favorite) do |event|
     #       # do something with the status
     #     end
     def on_event(event, &block)
