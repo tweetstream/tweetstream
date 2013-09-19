@@ -3,6 +3,8 @@ require 'eventmachine'
 require 'twitter'
 require 'yajl'
 
+require 'tweetstream/arguments'
+
 module TweetStream
   # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
   # for Ruby scripts that need to create a long connection to
@@ -93,9 +95,8 @@ module TweetStream
     # Keywords containing punctuation will only exact match tokens.
     # Query parameters may be passed as the last argument.
     def track(*keywords, &block)
-      query_params = keywords.pop if keywords.last.is_a?(::Hash)
-      query_params ||= {}
-      filter(query_params.merge(:track => keywords), &block)
+      query = TweetStream::Arguments.new(keywords)
+      filter(query.options.merge(:track => query), &block)
     end
 
     # Returns public statuses from or in reply to a set of users. Mentions
@@ -103,9 +104,8 @@ module TweetStream
     # pressing the reply "swoosh") are not matched. Requires integer user
     # IDs, not screen names. Query parameters may be passed as the last argument.
     def follow(*user_ids, &block)
-      query_params = user_ids.pop if user_ids.last.is_a?(::Hash)
-      query_params ||= {}
-      filter(query_params.merge(:follow => user_ids), &block)
+      query = TweetStream::Arguments.new(user_ids)
+      filter(query.options.merge(:follow => query), &block)
     end
 
     # Specifies a set of bounding boxes to track. Only tweets that are both created
@@ -117,9 +117,8 @@ module TweetStream
     # the first pair denoting the southwest corner of the box
     # longitude/latitude pairs, separated by commas. The first pair specifies the southwest corner of the box.
     def locations(*locations_map, &block)
-      query_params = locations_map.pop if locations_map.last.is_a?(::Hash)
-      query_params ||= {}
-      filter(query_params.merge(:locations => locations_map), &block)
+      query = TweetStream::Arguments.new(locations_map)
+      filter(query.options.merge(:locations => query), &block)
     end
 
     # Make a call to the statuses/filter method of the Streaming API,
