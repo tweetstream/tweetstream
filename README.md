@@ -1,20 +1,20 @@
 # TweetStream
 
 [![Gem Version](https://badge.fury.io/rb/tweetstream.png)][gem]
-[![Build Status](https://secure.travis-ci.org/intridea/tweetstream.png?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/intridea/tweetstream.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/github/intridea/tweetstream.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/intridea/tweetstream/badge.png?branch=master)][coveralls]
+[![Build Status](https://secure.travis-ci.org/tweetstream/tweetstream.png?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/tweetstream/tweetstream.png?travis)][gemnasium]
+[![Code Climate](https://codeclimate.com/github/tweetstream/tweetstream.png)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/tweetstream/tweetstream/badge.png?branch=master)][coveralls]
 
 [gem]: https://rubygems.org/gems/tweetstream
-[travis]: http://travis-ci.org/intridea/tweetstream
-[gemnasium]: https://gemnasium.com/intridea/tweetstream
-[codeclimate]: https://codeclimate.com/github/intridea/tweetstream
-[coveralls]: https://coveralls.io/r/intridea/tweetstream
+[travis]: http://travis-ci.org/tweetstream/tweetstream
+[gemnasium]: https://gemnasium.com/tweetstream/tweetstream
+[codeclimate]: https://codeclimate.com/github/tweetstream/tweetstream
+[coveralls]: https://coveralls.io/r/tweetstream/tweetstream
 
 TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
 
-**Note:** TweetStream does not currently work with Ruby 2.0, this is a [known issue](https://github.com/intridea/tweetstream/issues/117).
+**Note:** TweetStream does not currently work with Ruby 2.0, this is a [known issue](https://github.com/tweetstream/tweetstream/issues/117).
 
 ## Installation
 
