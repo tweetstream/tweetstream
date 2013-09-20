@@ -141,8 +141,8 @@ module TweetStream
     def sitestream(user_ids = [], query_params = {}, &block)
       stream_params = { :host => "sitestream.twitter.com" }
       query_params.merge!({
-        :method => :post,
-        :follow => user_ids,
+        :method                  => :post,
+        :follow                  => user_ids,
         :extra_stream_parameters => stream_params
       })
       query_params.merge!(:with => 'followings') if query_params.delete(:followings)
@@ -442,6 +442,23 @@ module TweetStream
       @stream
     end
 
+    # Terminate the currently running TweetStream and close EventMachine loop
+    def stop
+      EventMachine.stop_event_loop
+      @last_status
+    end
+
+    # Close the connection to twitter without closing the eventmachine loop
+    def close_connection
+      @stream.close_connection if @stream
+    end
+
+    def stop_stream
+      @stream.stop if @stream
+    end
+
+    protected
+
     def respond_to(hash, callbacks, &block)
       if hash[:control] && hash[:control][:control_uri]
         @control_uri = hash[:control][:control_uri]
@@ -475,23 +492,6 @@ module TweetStream
         yield_message_to(block, hash) if block_given?
       end
     end
-
-    # Terminate the currently running TweetStream and close EventMachine loop
-    def stop
-      EventMachine.stop_event_loop
-      @last_status
-    end
-
-    # Close the connection to twitter without closing the eventmachine loop
-    def close_connection
-      @stream.close_connection if @stream
-    end
-
-    def stop_stream
-      @stream.stop if @stream
-    end
-
-    protected
 
     def normalize_filter_parameters(query_parameters = {})
       [:follow, :track, :locations].each do |param|
