@@ -14,8 +14,6 @@
 
 TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
 
-**Note:** TweetStream does not currently work with Ruby 2.0, this is a [known issue](https://github.com/tweetstream/tweetstream/issues/117).
-
 ## Installation
 
     gem install tweetstream
