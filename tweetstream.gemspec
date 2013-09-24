@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'em-http-request', '>= 1.1.1'
   spec.add_dependency 'em-twitter', '~> 0.3'
   spec.add_dependency 'twitter', '~> 4.8'
-  spec.add_dependency 'yajl-ruby', '~> 1.1'
+  spec.add_dependency 'multi_json', '~> 1.3'
   spec.add_development_dependency 'bundler', '~> 1.0'
 
   spec.files = %w(.yardopts CHANGELOG.md CONTRIBUTING.md LICENSE.md README.md Rakefile tweetstream.gemspec)

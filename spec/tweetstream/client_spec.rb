@@ -41,7 +41,7 @@ describe TweetStream::Client do
     end
 
     it "warns when callbacks are passed as options" do
-      allow(@stream).to receive(:each).and_yield(nil)
+      allow(@stream).to receive(:each).and_return
       expect(Kernel).to receive(:warn).with(/Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0/)
       @client.track('abc', :inited => Proc.new { })
     end
@@ -59,7 +59,7 @@ describe TweetStream::Client do
     describe "#each" do
       it "calls the appropriate parser" do
         @client = TweetStream::Client.new
-        expect(Yajl::Parser).to receive(:parse).twice.and_return({})
+        expect(MultiJson).to receive(:decode).and_return({})
         expect(@stream).to receive(:each).and_yield(sample_tweets[0].to_json)
         @client.track('abc','def')
       end
@@ -226,7 +226,7 @@ describe TweetStream::Client do
       it "calls on_error if a json parse error occurs" do
         expect(@stream).to receive(:each).and_yield("{'a_key':}")
         @client.on_error do |message|
-          expect(message).to eq("Yajl::ParseError occured in stream: {'a_key':}")
+          expect(message).to eq("MultiJson::DecodeError occured in stream: {'a_key':}")
         end.track('abc')
       end
     end

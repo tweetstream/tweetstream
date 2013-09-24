@@ -12,7 +12,6 @@ require 'tweetstream/site_stream_client'
 require 'json'
 require 'rspec'
 require 'webmock/rspec'
-require 'yajl'
 
 WebMock.disable_net_connect!(:allow => 'coveralls.io')
 
@@ -28,8 +27,8 @@ end
 
 def samples(fixture)
   samples = []
-  Yajl::Parser.parse(fixture(fixture), :symbolize_keys => true) do |hash|
-    samples << hash
+  fixture(fixture).each_line do |line|
+    samples << JSON.parse(line, :symbolize_names => true)
   end
   samples
 end
