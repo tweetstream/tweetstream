@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email       = ['michael@intridea.com', 'steve.agalloco@gmail.com']
   spec.description = %q{TweetStream is a simple wrapper for consuming the Twitter Streaming API.}
   spec.summary     = spec.description
-  spec.homepage    = 'http://github.com/intridea/tweetstream'
+  spec.homepage    = 'https://github.com/tweetstream/tweetstream'
   spec.licenses    = ['MIT']
 
   spec.add_dependency 'daemons', '~> 1.1'
