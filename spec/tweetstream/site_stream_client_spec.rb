@@ -135,6 +135,25 @@ describe TweetStream::SiteStreamClient do
       allow(client).to receive(:connection) { conn }
       client.add_user(['1234','5678'])
     end
+
+    describe "accepts a single user_id as" do
+      before :each do
+        conn = double('Connection')
+        expect(conn).to receive(:post).
+          with(:path => "#{config_uri}/add_user.json", :body => { 'user_id' => '1234' }).
+          and_return(FakeHttp.new)
+        allow(client).to receive(:connection) { conn }
+      end
+
+      it "a string" do
+        client.add_user('1234')
+      end
+
+      it "an integer" do
+        client.add_user(1234)
+      end
+    end
+
   end
 
   describe "#remove_user" do
@@ -172,6 +191,24 @@ describe TweetStream::SiteStreamClient do
         and_return(FakeHttp.new)
       allow(client).to receive(:connection) { conn }
       client.remove_user(['1234','5678'])
+    end
+
+    describe "accepts a single user_id as" do
+      before :each do
+        conn = double('Connection')
+        expect(conn).to receive(:post).
+          with(:path => "#{config_uri}/remove_user.json", :body => { 'user_id' => '1234' }).
+          and_return(FakeHttp.new)
+        allow(client).to receive(:connection) { conn }
+      end
+
+      it "a string" do
+        client.remove_user('1234')
+      end
+
+      it "an integer" do
+        client.remove_user(1234)
+      end
     end
   end
 
