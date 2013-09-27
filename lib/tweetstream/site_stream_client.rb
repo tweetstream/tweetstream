@@ -115,7 +115,11 @@ module TweetStream
     end
 
     def normalized_user_ids(user_id)
-      user_id.join(',') if user_id.kind_of?(Array)
+      if user_id.kind_of?(Array)
+        user_id.join(',') 
+      else
+        user_id.to_s
+      end
     end
 
   end
