@@ -73,6 +73,22 @@ describe TweetStream::Client do
           expect(@client.control_uri).to eq("/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50")
         end
 
+        it 'invokes the on_control callback' do
+          called = false
+          expect(@stream).to receive(:each).and_yield(@control_response.to_json)
+          @client.on_control { called = true }
+          @client.sitestream
+
+          expect(called).to be_true
+        end
+
+        it 'is controllable when a control_uri has been received' do
+          expect(@stream).to receive(:each).and_yield(@control_response.to_json)
+          @client.sitestream
+
+          expect(@client.controllable?).to be_true
+        end
+
         it "instantiates a SiteStreamClient" do
           expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream

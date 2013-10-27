@@ -49,7 +49,9 @@ module TweetStream
       Configuration::VALID_OPTIONS_KEYS.each do |key|
         send("#{key}=", merged_options[key])
       end
-      @callbacks = {}
+      @control_uri = nil
+      @control     = nil
+      @callbacks   = {}
     end
 
     # Returns all public statuses. The Firehose is not a generally
@@ -367,6 +369,16 @@ module TweetStream
       on(event, &block)
     end
 
+    # Set a Proc to be run when sitestream control is received
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_control do
+    #       # do something with the status
+    #     end
+    def on_control(&block)
+      on('control', &block)
+    end
+
     def on(event, &block)
       if block_given?
         @callbacks[event.to_s] = block
@@ -457,6 +469,10 @@ module TweetStream
       @stream.stop if @stream
     end
 
+    def controllable?
+      !!@control
+    end
+
     protected
 
     def respond_to(hash, callbacks, &block)
@@ -465,6 +481,7 @@ module TweetStream
         require 'tweetstream/site_stream_client'
         @control = TweetStream::SiteStreamClient.new(@control_uri, options)
         @control.on_error(&callbacks['error'])
+        invoke_callback(callbacks['control'])
       elsif hash[:warning]
         invoke_callback(callbacks['stall_warning'], hash[:warning])
       elsif hash[:delete] && hash[:delete][:status]
