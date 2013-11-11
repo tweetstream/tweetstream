@@ -2,6 +2,7 @@ require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
 require 'twitter'
+require 'forwardable'
 
 require 'tweetstream/arguments'
 
@@ -21,6 +22,7 @@ module TweetStream
   # For information about a daemonized TweetStream client,
   # view the TweetStream::Daemon class.
   class Client
+    extend Forwardable
 
     OPTION_CALLBACKS = [:delete,
                         :scrub_geo,
@@ -41,6 +43,8 @@ module TweetStream
     attr_accessor *Configuration::VALID_OPTIONS_KEYS
     attr_accessor :options
     attr_reader :control_uri, :control, :stream
+
+    def_delegators :@control, :add_user, :remove_user, :info, :friends_ids
 
     # Creates a new API
     def initialize(options={})
