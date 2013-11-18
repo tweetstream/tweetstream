@@ -1,3 +1,8 @@
+Version 2.5.0
+=============
+
+* added proxy support
+
 Version 2.4.0
 =============
 * Revert "use extract_options! from the Twitter gem"
