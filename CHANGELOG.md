@@ -1,6 +1,12 @@
+Version 2.6.0
+=============
+* Re-implemented multi_json for response parsing
+* added on_control callback method for Site Streams
+* fixed issue with Site Stream add/remove when passed a single user id (philgyford)
+* raised em-twitter dependency to 0.3.0 to resolve issues with ruby 2.0.0
+
 Version 2.5.0
 =============
-
 * added proxy support
 
 Version 2.4.0
