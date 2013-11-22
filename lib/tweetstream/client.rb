@@ -4,8 +4,6 @@ require 'multi_json'
 require 'twitter'
 require 'forwardable'
 
-require 'tweetstream/arguments'
-
 module TweetStream
   # Provides simple access to the Twitter Streaming API (https://dev.twitter.com/docs/streaming-api)
   # for Ruby scripts that need to create a long connection to
