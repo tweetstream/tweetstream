@@ -424,8 +424,6 @@ module TweetStream
           next
         end
 
-        Twitter.identity_map = false
-
         respond_to(hash, callbacks, &block)
 
         yield_message_to(callbacks['anything'], hash)
