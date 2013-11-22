@@ -1,7 +1,10 @@
 require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
-require 'twitter'
+require 'twitter/identity'
+require 'twitter/tweet'
+require 'twitter/user'
+require 'twitter/direct_message'
 require 'forwardable'
 
 require 'tweetstream/arguments'
