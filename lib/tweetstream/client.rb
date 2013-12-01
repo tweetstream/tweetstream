@@ -1,7 +1,10 @@
 require 'em-twitter'
 require 'eventmachine'
 require 'multi_json'
-require 'twitter'
+require 'twitter/identity'
+require 'twitter/tweet'
+require 'twitter/user'
+require 'twitter/direct_message'
 require 'forwardable'
 
 require 'tweetstream/arguments'
@@ -423,8 +426,6 @@ module TweetStream
           invoke_callback(callbacks['error'], "Unexpected JSON object in stream: #{item}")
           next
         end
-
-        Twitter.identity_map = false
 
         respond_to(hash, callbacks, &block)
 
