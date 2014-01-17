@@ -4,8 +4,7 @@ require 'em-http/middleware/json_response'
 
 module TweetStream
   class SiteStreamClient
-
-    attr_accessor *Configuration::OAUTH_OPTIONS_KEYS
+    attr_accessor(*Configuration::OAUTH_OPTIONS_KEYS)
 
     def initialize(config_uri, oauth = {})
       @config_uri = config_uri
@@ -28,14 +27,14 @@ module TweetStream
     end
 
     def info(&block)
-      options = { :error_msg => 'Failed to retrieve SiteStream info.' }
+      options = {:error_msg => 'Failed to retrieve SiteStream info.'}
       request(:get, info_path, options, &block)
     end
 
     def add_user(user_id, &block)
       options = {
                   :error_msg => 'Failed to add user to SiteStream',
-                  :body => { 'user_id' => normalized_user_ids(user_id) }
+                  :body => {'user_id' => normalized_user_ids(user_id)}
                 }
 
       request(:post, add_user_path, options, &block)
@@ -44,20 +43,20 @@ module TweetStream
     def remove_user(user_id, &block)
       options = {
                   :error_msg => 'Failed to remove user from SiteStream.',
-                  :body => { 'user_id' => normalized_user_ids(user_id) }
+                  :body => {'user_id' => normalized_user_ids(user_id)}
                 }
 
       request(:post, remove_user_path, options, &block)
     end
 
     def friends_ids(user_id, &block)
-      options = { :error_msg => 'Failed to retrieve SiteStream friends ids.',
-                  :body => { 'user_id' => user_id }
+      options = {:error_msg => 'Failed to retrieve SiteStream friends ids.',
+                 :body => {'user_id' => user_id}
                 }
       request(:post, friends_ids_path, options, &block)
     end
 
-    private
+  private
 
     def connection
       return @conn if defined?(@conn)
@@ -92,18 +91,16 @@ module TweetStream
       @config_uri + '/friends/ids.json'
     end
 
-    def request(method, path, options, &block)
+    def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, ParameterLists
       error_msg = options.delete(:error_msg)
 
       http = connection.send(method, options.merge(:path => path))
       http.callback do
-        if http.response_header.status == 200
-          if block && block.kind_of?(Proc)
-            if block.arity == 1
-              block.call http.response
-            else
-              block.call
-            end
+        if http.response_header.status == 200 && block && block.kind_of?(Proc)
+          if block.arity == 1
+            block.call http.response
+          else
+            block.call
           end
         else
           @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
@@ -116,11 +113,10 @@ module TweetStream
 
     def normalized_user_ids(user_id)
       if user_id.kind_of?(Array)
-        user_id.join(',') 
+        user_id.join(',')
       else
         user_id.to_s
       end
     end
-
   end
 end

@@ -18,7 +18,7 @@ module TweetStream
     # Alias for TweetStream::Client.new
     #
     # @return [TweetStream::Client]
-    def new(options={})
+    def new(options = {})
       TweetStream::Client.new(options)
     end
 

@@ -261,8 +261,8 @@ options when you make your method call:
 
 ```ruby
 TweetStream::Client.new.track('intridea',
-  :delete => Proc.new{ |status_id, user_id| # do something },
-  :limit => Proc.new{ |skip_count| # do something }
+  :delete => proc{ |status_id, user_id| # do something },
+  :limit  => proc{ |skip_count| # do something }
 ) do |status|
   # do something with the status like normal
 end

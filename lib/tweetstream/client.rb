@@ -21,7 +21,7 @@ module TweetStream
   #
   # For information about a daemonized TweetStream client,
   # view the TweetStream::Daemon class.
-  class Client
+  class Client # rubocop:disable ClassLength
     extend Forwardable
 
     OPTION_CALLBACKS = [:delete,
@@ -40,14 +40,14 @@ module TweetStream
                         :user_withheld].freeze unless defined?(OPTION_CALLBACKS)
 
     # @private
-    attr_accessor *Configuration::VALID_OPTIONS_KEYS
+    attr_accessor(*Configuration::VALID_OPTIONS_KEYS)
     attr_accessor :options
     attr_reader :control_uri, :control, :stream
 
     def_delegators :@control, :add_user, :remove_user, :info, :friends_ids
 
     # Creates a new API
-    def initialize(options={})
+    def initialize(options = {})
       self.options = options
       merged_options = TweetStream.options.merge(options)
       Configuration::VALID_OPTIONS_KEYS.each do |key|
@@ -116,8 +116,8 @@ module TweetStream
 
     # Specifies a set of bounding boxes to track. Only tweets that are both created
     # using the Geotagging API and are placed from within a tracked bounding box will
-    # be included in the stream – the user’s location field is not used to filter tweets
-    # (e.g. if a user has their location set to “San Francisco”, but the tweet was not created
+    # be included in the stream -- the user's location field is not used to filter tweets
+    # (e.g. if a user has their location set to "San Francisco", but the tweet was not created
     # using the Geotagging API and has no geo element, it will not be included in the stream).
     # Bounding boxes are specified as a comma separate list of longitude/latitude pairs, with
     # the first pair denoting the southwest corner of the box
@@ -138,19 +138,19 @@ module TweetStream
 
     # Make a call to the userstream api for currently authenticated user
     def userstream(query_params = {}, &block)
-      stream_params = { :host => "userstream.twitter.com" }
+      stream_params = {:host => 'userstream.twitter.com'}
       query_params.merge!(:extra_stream_parameters => stream_params)
       start('/1.1/user.json', query_params, &block)
     end
 
     # Make a call to the userstream api
     def sitestream(user_ids = [], query_params = {}, &block)
-      stream_params = { :host => "sitestream.twitter.com" }
-      query_params.merge!({
+      stream_params = {:host => 'sitestream.twitter.com'}
+      query_params.merge!(
         :method                  => :post,
         :follow                  => user_ids,
         :extra_stream_parameters => stream_params
-      })
+      )
       query_params.merge!(:with => 'followings') if query_params.delete(:followings)
       start('/1.1/site.json', query_params, &block)
     end
@@ -400,7 +400,7 @@ module TweetStream
         EventMachine.epoll
         EventMachine.kqueue
 
-        EventMachine::run do
+        EventMachine.run do
           connect(path, query_parameters, &block)
         end
       end
@@ -446,7 +446,7 @@ module TweetStream
       end
 
       @stream.on_max_reconnects do |timeout, retries|
-        raise TweetStream::ReconnectError.new(timeout, retries)
+        fail TweetStream::ReconnectError.new(timeout, retries)
       end
 
       @stream.on_no_data_received do
@@ -475,9 +475,9 @@ module TweetStream
       !!@control
     end
 
-    protected
+  protected
 
-    def respond_to(hash, callbacks, &block)
+    def respond_to(hash, callbacks, &block) # rubocop:disable CyclomaticComplexity
       if hash[:control] && hash[:control][:control_uri]
         @control_uri = hash[:control][:control_uri]
         require 'tweetstream/site_stream_client'
@@ -525,13 +525,13 @@ module TweetStream
 
     def auth_params
       if auth_method.to_s == 'basic'
-        { :basic => {
+        {:basic => {
             :username => username,
             :password => password
           }
         }
       else
-        { :oauth => {
+        {:oauth => {
           :consumer_key => consumer_key,
           :consumer_secret => consumer_secret,
           :token => oauth_token,
@@ -580,9 +580,9 @@ module TweetStream
       [stream_params, callbacks]
     end
 
-    def warn_if_callbacks(options={})
+    def warn_if_callbacks(options = {})
       if OPTION_CALLBACKS.select { |callback| options[callback] }.size > 0
-        Kernel.warn("Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0")
+        Kernel.warn('Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0')
       end
     end
   end

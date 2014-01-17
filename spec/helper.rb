@@ -8,7 +8,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 SimpleCov.start do
   add_filter '/.bundle/'
   add_filter '/spec/'
-  minimum_coverage(97.87)
+  minimum_coverage(97.86)
 end
 
 require 'tweetstream'
@@ -48,7 +48,7 @@ def sample_direct_messages
 end
 
 def fixture_path
-  File.expand_path("../fixtures", __FILE__)
+  File.expand_path('../fixtures', __FILE__)
 end
 
 def fixture(file)
@@ -56,6 +56,9 @@ def fixture(file)
 end
 
 FakeHttp = Class.new do
-  def callback; end
-  def errback; end
+  def callback
+  end
+
+  def errback
+  end
 end

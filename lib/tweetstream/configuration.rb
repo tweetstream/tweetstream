@@ -53,7 +53,7 @@ module TweetStream
     DEFAULT_OAUTH_TOKEN_SECRET = nil
 
     # @private
-    attr_accessor *VALID_OPTIONS_KEYS
+    attr_accessor(*VALID_OPTIONS_KEYS)
 
     # When this module is extended, set all configuration options to their default values
     def self.extended(base)
@@ -67,12 +67,12 @@ module TweetStream
 
     # Create a hash of options and their values
     def options
-      Hash[*VALID_OPTIONS_KEYS.map {|key| [key, send(key)] }.flatten]
+      Hash[*VALID_OPTIONS_KEYS.collect { |key| [key, send(key)] }.flatten]
     end
 
     # Create a hash of options and their values
     def oauth_options
-      Hash[*OAUTH_OPTIONS_KEYS.map {|key| [key, send(key)] }.flatten]
+      Hash[*OAUTH_OPTIONS_KEYS.collect { |key| [key, send(key)] }.flatten]
     end
 
     # Reset all configuration options to defaults
