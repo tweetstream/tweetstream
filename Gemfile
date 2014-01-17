@@ -4,15 +4,18 @@ gem 'rake'
 gem 'yard'
 
 group :development do
-  gem 'guard-rspec'
+  platforms :mri_19, :mri_20, :mri_21 do
+    gem 'guard-rspec'
+    gem 'pry-debugger'
+  end
   gem 'kramdown'
   gem 'pry'
-  gem 'pry-debugger', :platforms => :mri_19
 end
 
 group :test do
   gem 'coveralls', :require => false
   gem 'json', :platforms => :ruby_18
+  gem 'mime-types', '~> 1.25', :platforms => [:jruby, :ruby_18]
   gem 'rspec', '>= 2.14'
   gem 'simplecov', :require => false
   gem 'webmock'
