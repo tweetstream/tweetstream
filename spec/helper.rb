@@ -6,7 +6,7 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   Coveralls::SimpleCov::Formatter
 ]
 SimpleCov.start do
-  add_filter '/.bundle/'
+  add_filter '/vendor/bundle/'
   add_filter '/spec/'
   minimum_coverage(97.86)
 end
