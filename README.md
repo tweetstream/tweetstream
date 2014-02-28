@@ -1,10 +1,10 @@
 # TweetStream
 
-[![Gem Version](https://badge.fury.io/rb/tweetstream.png)][gem]
-[![Build Status](https://secure.travis-ci.org/tweetstream/tweetstream.png?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/tweetstream/tweetstream.png?travis)][gemnasium]
-[![Code Climate](https://codeclimate.com/github/tweetstream/tweetstream.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/tweetstream/tweetstream/badge.png?branch=master)][coveralls]
+[![Gem Version](http://img.shields.io/gem/v/tweetstream.svg)][gem]
+[![Build Status](http://img.shields.io/travis/tweetstream/tweetstream.svg)][travis]
+[![Dependency Status](http://img.shields.io/gemnasium/tweetstream/tweetstream.svg)][gemnasium]
+[![Code Climate](http://img.shields.io/codeclimate/github/tweetstream/tweetstream.svg)][codeclimate]
+[![Coverage Status](http://img.shields.io/coveralls/tweetstream/tweetstream.svg)][coveralls]
 
 [gem]: https://rubygems.org/gems/tweetstream
 [travis]: http://travis-ci.org/tweetstream/tweetstream
