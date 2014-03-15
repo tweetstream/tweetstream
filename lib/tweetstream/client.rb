@@ -472,7 +472,7 @@ module TweetStream
     end
 
     def controllable?
-      !!@control
+      !!@control # rubocop:disable DoubleNegation
     end
 
   protected
@@ -526,8 +526,8 @@ module TweetStream
     def auth_params
       if auth_method.to_s == 'basic'
         {:basic => {
-            :username => username,
-            :password => password
+          :username => username,
+          :password => password
           }
         }
       else

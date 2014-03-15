@@ -258,7 +258,7 @@ describe TweetStream::Client do
   end
 
   describe 'API methods' do
-    %w(firehose retweet sample links).each do |method|
+    %w[firehose retweet sample links].each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         expect(@client).to receive(:start).once.with('/1.1/statuses/' + method + '.json', {})
         @client.send(method)
@@ -323,7 +323,7 @@ describe TweetStream::Client do
     end
   end
 
-  %w(on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm).each do |proc_setter|
+  %w[on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm].each do |proc_setter|
     describe "##{proc_setter}" do
       it 'sets when a block is given' do
         block = proc { |a, b| puts a }
