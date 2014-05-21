@@ -547,13 +547,14 @@ module TweetStream
     end
 
     def yield_message_to(procedure, message)
-      # Give the block the option to receive either one
-      # or two arguments, depending on its arity.
-      if procedure.is_a?(Proc)
-        case procedure.arity
-        when 1 then invoke_callback(procedure, message)
-        when 2 then invoke_callback(procedure, message, self)
-        end
+      return if procedure.nil?
+      # Give the block the option to receive either one or two arguments,
+      # depending on its arity.
+      case procedure.arity
+      when 1
+        invoke_callback(procedure, message)
+      when 2
+        invoke_callback(procedure, message, self)
       end
     end
 
@@ -581,9 +582,7 @@ module TweetStream
     end
 
     def warn_if_callbacks(options = {})
-      if OPTION_CALLBACKS.select { |callback| options[callback] }.size > 0
-        Kernel.warn('Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0')
-      end
+      Kernel.warn('Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0') if OPTION_CALLBACKS.select { |callback| options[callback] }.size > 0
     end
   end
 end
