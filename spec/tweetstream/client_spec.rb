@@ -71,7 +71,7 @@ describe TweetStream::Client do
 
       it 'yields the client if a block with arity 2 is given' do
         expect(@stream).to receive(:each).and_yield(sample_tweets[0].to_json)
-        @client.track('abc') { |s, c| expect(c).to eq(@client) }
+        @client.track('abc') { |_, c| expect(c).to eq(@client) }
       end
 
       it 'includes the proper values' do
@@ -81,7 +81,7 @@ describe TweetStream::Client do
         tweet[:text] = 'Oo oo aa aa'
         expect(@stream).to receive(:each).and_yield(tweet.to_json)
         @client.track('abc') do |s|
-          expect(s[:id]).to eq(123)
+          expect(s.id).to eq(123)
           expect(s.user.screen_name).to eq('monkey')
           expect(s.text).to eq('Oo oo aa aa')
         end
@@ -176,7 +176,7 @@ describe TweetStream::Client do
             yielded_status = status
           end.track('abc')
           expect(yielded_status).not_to be_nil
-          expect(yielded_status[:id]).to eq(123)
+          expect(yielded_status.id).to eq(123)
           expect(yielded_status.user.screen_name).to eq('monkey')
           expect(yielded_status.text).to eq('Oo oo aa aa')
         end
@@ -240,7 +240,7 @@ describe TweetStream::Client do
       end
 
       it 'returns the block when defined' do
-        @client.on_error { |m| true; }
+        @client.on_error { true }
         expect(@client.on_error).to be_kind_of(Proc)
       end
 
@@ -326,7 +326,7 @@ describe TweetStream::Client do
   %w[on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm].each do |proc_setter|
     describe "##{proc_setter}" do
       it 'sets when a block is given' do
-        block = proc { |a, b| puts a }
+        block = proc { |a, _| puts a }
         @client.send(proc_setter, &block)
         expect(@client.send(proc_setter)).to eq(block)
       end

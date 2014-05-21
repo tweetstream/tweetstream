@@ -1,9 +1,9 @@
 AllCops:
-  Includes:
+  Include:
     - 'Gemfile'
     - 'Rakefile'
     - 'tweetstream.gemspec'
-  Excludes:
+  Exclude:
     - 'vendor/bundle/*'
 
 # Avoid long parameter lists

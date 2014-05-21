@@ -98,7 +98,7 @@ describe TweetStream::Client do
 
         it "passes the client's on_error to the SiteStreamClient" do
           called = false
-          @client.on_error { |err| called = true }
+          @client.on_error { called = true }
           expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
