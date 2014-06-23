@@ -79,14 +79,14 @@ describe TweetStream::Client do
           @client.on_control { called = true }
           @client.sitestream
 
-          expect(called).to be_true
+          expect(called).to be true
         end
 
         it 'is controllable when a control_uri has been received' do
           expect(@stream).to receive(:each).and_yield(@control_response.to_json)
           @client.sitestream
 
-          expect(@client.controllable?).to be_true
+          expect(@client.controllable?).to be true
         end
 
         it 'instantiates a SiteStreamClient' do
@@ -104,7 +104,7 @@ describe TweetStream::Client do
 
           @client.control.on_error.call
 
-          expect(called).to be_true
+          expect(called).to be true
         end
       end
 

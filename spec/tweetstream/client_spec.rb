@@ -41,7 +41,7 @@ describe TweetStream::Client do
     end
 
     it 'warns when callbacks are passed as options' do
-      allow(@stream).to receive(:each).and_return
+      allow(@stream).to receive(:each)
       expect(Kernel).to receive(:warn).with(/Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0/)
       @client.track('abc', :inited => proc {})
     end
@@ -51,7 +51,7 @@ describe TweetStream::Client do
         @client = TweetStream::Client.new(:proxy => {:uri => 'http://someproxy:8081'})
         expect(EM::Twitter::Client).to receive(:connect).
           with(hash_including(:proxy => {:uri => 'http://someproxy:8081'})).and_return(@stream)
-        expect(@stream).to receive(:each).and_return
+        expect(@stream).to receive(:each)
         @client.track('abc')
       end
     end

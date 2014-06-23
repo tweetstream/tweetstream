@@ -93,7 +93,7 @@ describe TweetStream::SiteStreamClient do
           client.on_error { called = true }
           client.info { |info| info }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
 
     end
@@ -109,7 +109,7 @@ describe TweetStream::SiteStreamClient do
         EM.run_block do
           client.add_user(123) { called = true }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
     end
 
@@ -123,7 +123,7 @@ describe TweetStream::SiteStreamClient do
           client.on_error { called = true }
           client.add_user(123) { |info| info }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
     end
 
@@ -166,7 +166,7 @@ describe TweetStream::SiteStreamClient do
         EM.run_block do
           client.remove_user(123) { called = true }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
     end
 
@@ -180,7 +180,7 @@ describe TweetStream::SiteStreamClient do
           client.on_error { called = true }
           client.remove_user(123) { |info| info }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
     end
 
@@ -236,7 +236,7 @@ describe TweetStream::SiteStreamClient do
           client.on_error { called = true }
           client.friends_ids(123) { |info| info }
         end
-        expect(called).to be_true
+        expect(called).to be true
       end
     end
   end

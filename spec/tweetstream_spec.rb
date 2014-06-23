@@ -35,7 +35,7 @@ describe TweetStream do
 
   describe '.respond_to?' do
     it 'takes an optional argument' do
-      expect(TweetStream.respond_to?(:new, true)).to be_true
+      expect(TweetStream.respond_to?(:new, true)).to be true
     end
   end
 
