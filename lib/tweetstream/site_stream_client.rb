@@ -34,8 +34,10 @@ module TweetStream
     def add_user(user_id, &block)
       options = {
         :error_msg => 'Failed to add user to SiteStream',
-        :body => {'user_id' => normalized_user_ids(user_id)}
-                }
+        :body => {
+          'user_id' => normalized_user_ids(user_id)
+        }
+      }
 
       request(:post, add_user_path, options, &block)
     end
@@ -43,16 +45,21 @@ module TweetStream
     def remove_user(user_id, &block)
       options = {
         :error_msg => 'Failed to remove user from SiteStream.',
-        :body => {'user_id' => normalized_user_ids(user_id)}
-                }
+        :body => {
+          'user_id' => normalized_user_ids(user_id)
+        }
+      }
 
       request(:post, remove_user_path, options, &block)
     end
 
     def friends_ids(user_id, &block)
-      options = {:error_msg => 'Failed to retrieve SiteStream friends ids.',
-                 :body => {'user_id' => user_id}
-                }
+      options = {
+        :error_msg => 'Failed to retrieve SiteStream friends ids.',
+        :body => {
+          'user_id' => user_id
+        }
+      }
       request(:post, friends_ids_path, options, &block)
     end
 

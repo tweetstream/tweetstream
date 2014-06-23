@@ -525,19 +525,21 @@ module TweetStream
 
     def auth_params
       if auth_method.to_s == 'basic'
-        {:basic => {
-          :username => username,
-          :password => password
+        {
+          :basic => {
+            :username => username,
+            :password => password
           }
         }
       else
-        {:oauth => {
-          :consumer_key => consumer_key,
-          :consumer_secret => consumer_secret,
-          :token => oauth_token,
-          :token_secret => oauth_token_secret
+        {
+          :oauth => {
+            :consumer_key => consumer_key,
+            :consumer_secret => consumer_secret,
+            :token => oauth_token,
+            :token_secret => oauth_token_secret
+          }
         }
-       }
       end
     end
 
