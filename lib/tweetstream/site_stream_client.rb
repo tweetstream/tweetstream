@@ -103,23 +103,23 @@ module TweetStream
 
       http = connection.send(method, options.merge(:path => path))
       http.callback do
-        if http.response_header.status == 200 && block && block.kind_of?(Proc)
+        if http.response_header.status == 200 && block && block.is_a?(Proc)
           if block.arity == 1
             block.call http.response
           else
             block.call
           end
         else
-          @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
+          @on_error.call(error_msg) if @on_error && @on_error.is_a?(Proc)
         end
       end
       http.errback do
-        @on_error.call(error_msg) if @on_error && @on_error.kind_of?(Proc)
+        @on_error.call(error_msg) if @on_error && @on_error.is_a?(Proc)
       end
     end
 
     def normalized_user_ids(user_id)
-      if user_id.kind_of?(Array)
+      if user_id.is_a?(Array)
         user_id.join(',')
       else
         user_id.to_s

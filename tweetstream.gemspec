@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
 
   spec.authors     = ['Michael Bleigh', 'Steve Agalloco']
   spec.email       = ['michael@intridea.com', 'steve.agalloco@gmail.com']
-  spec.description = %q(TweetStream is a simple wrapper for consuming the Twitter Streaming API.)
+  spec.description = 'TweetStream is a simple wrapper for consuming the Twitter Streaming API.'
   spec.summary     = spec.description
   spec.homepage    = 'https://github.com/tweetstream/tweetstream'
   spec.licenses    = ['MIT']
