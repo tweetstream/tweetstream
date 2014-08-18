@@ -23,7 +23,7 @@ describe TweetStream::Client do
                        :connection_completed => true,
                        :on_no_data_received => true,
                        :on_unauthorized => true,
-                       :on_enhance_your_calm => true
+                       :on_enhance_your_calm => true,
       )
       allow(EM).to receive(:run).and_yield
       allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
@@ -258,7 +258,7 @@ describe TweetStream::Client do
   end
 
   describe 'API methods' do
-    %w[firehose retweet sample links].each do |method|
+    %w(firehose retweet sample links).each do |method|
       it "##{method} should make a call to start with \"statuses/#{method}\"" do
         expect(@client).to receive(:start).once.with('/1.1/statuses/' + method + '.json', {})
         @client.send(method)
@@ -302,28 +302,28 @@ describe TweetStream::Client do
 
     describe '#track' do
       it "makes a call to start with 'statuses/filter' and a track query parameter" do
-        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w[test], :method => :post)
+        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w(test), :method => :post)
         @client.track('test')
       end
 
       it 'comma-joins multiple arguments' do
-        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w[foo bar baz], :method => :post)
+        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w(foo bar baz), :method => :post)
         @client.track('foo', 'bar', 'baz')
       end
 
       it 'comma-joins an array of arguments' do
-        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => [%w[foo bar baz]], :method => :post)
-        @client.track(%w[foo bar baz])
+        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => [%w(foo bar baz)], :method => :post)
+        @client.track(%w(foo bar baz))
       end
 
       it "calls #start with 'statuses/filter' and the provided queries" do
-        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w[rock], :method => :post)
+        expect(@client).to receive(:start).once.with('/1.1/statuses/filter.json', :track => %w(rock), :method => :post)
         @client.track('rock')
       end
     end
   end
 
-  %w[on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm].each do |proc_setter|
+  %w(on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm).each do |proc_setter|
     describe "##{proc_setter}" do
       it 'sets when a block is given' do
         block = proc { |a, _| puts a }
@@ -371,7 +371,7 @@ describe TweetStream::Client do
                        :on_no_data_received => true,
                        :on_unauthorized => true,
                        :on_enhance_your_calm => true,
-                       :stop => true
+                       :stop => true,
       )
       allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
       @client = TweetStream::Client.new

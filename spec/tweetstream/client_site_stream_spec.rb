@@ -20,7 +20,7 @@ describe TweetStream::Client do
                      :connection_completed => true,
                      :on_no_data_received => true,
                      :on_unauthorized => true,
-                     :on_enhance_your_calm => true
+                     :on_enhance_your_calm => true,
     )
     allow(EM).to receive(:run).and_yield
     allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
@@ -62,8 +62,8 @@ describe TweetStream::Client do
         before do
           @control_response = {'control' =>
             {
-              'control_uri' => '/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50'
-            }
+              'control_uri' => '/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50',
+            },
           }
         end
         it 'assigns the control_uri' do

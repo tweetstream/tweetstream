@@ -34,7 +34,7 @@ describe TweetStream::SiteStreamClient do
           :consumer_key => 'CK',
           :consumer_secret => 'CS',
           :oauth_token => 'AT',
-          :oauth_token_secret => 'AS'
+          :oauth_token_secret => 'AS',
         }
       end
 
@@ -133,7 +133,7 @@ describe TweetStream::SiteStreamClient do
         with(:path => "#{config_uri}/add_user.json", :body => {'user_id' => '1234,5678'}).
         and_return(FakeHttp.new)
       allow(client).to receive(:connection) { conn }
-      client.add_user(%w[1234 5678])
+      client.add_user(%w(1234 5678))
     end
 
     describe 'accepts a single user_id as' do
@@ -190,7 +190,7 @@ describe TweetStream::SiteStreamClient do
         with(:path => "#{config_uri}/remove_user.json", :body => {'user_id' => '1234,5678'}).
         and_return(FakeHttp.new)
       allow(client).to receive(:connection) { conn }
-      client.remove_user(%w[1234 5678])
+      client.remove_user(%w(1234 5678))
     end
 
     describe 'accepts a single user_id as' do

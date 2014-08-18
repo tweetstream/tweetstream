@@ -149,7 +149,7 @@ module TweetStream
       query_params.merge!(
         :method                  => :post,
         :follow                  => user_ids,
-        :extra_stream_parameters => stream_params
+        :extra_stream_parameters => stream_params,
       )
       query_params.merge!(:with => 'followings') if query_params.delete(:followings)
       start('/1.1/site.json', query_params, &block)
@@ -477,7 +477,7 @@ module TweetStream
 
   protected
 
-    def respond_to(hash, callbacks, &block) # rubocop:disable CyclomaticComplexity
+    def respond_to(hash, callbacks, &block) # rubocop:disable CyclomaticComplexity, PerceivedComplexity
       if hash[:control] && hash[:control][:control_uri]
         @control_uri = hash[:control][:control_uri]
         require 'tweetstream/site_stream_client'
@@ -528,8 +528,8 @@ module TweetStream
         {
           :basic => {
             :username => username,
-            :password => password
-          }
+            :password => password,
+          },
         }
       else
         {
@@ -537,8 +537,8 @@ module TweetStream
             :consumer_key => consumer_key,
             :consumer_secret => consumer_secret,
             :token => oauth_token,
-            :token_secret => oauth_token_secret
-          }
+            :token_secret => oauth_token_secret,
+          },
         }
       end
     end
@@ -577,7 +577,7 @@ module TweetStream
         :user_agent => user_agent,
         :on_inited  => inited_proc,
         :params     => normalize_filter_parameters(options),
-        :proxy      => proxy
+        :proxy      => proxy,
       }.merge(extra_stream_parameters).merge(auth_params)
 
       [stream_params, callbacks]

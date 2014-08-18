@@ -12,7 +12,7 @@ describe TweetStream::Client do
                      :connection_completed => true,
                      :on_no_data_received => true,
                      :on_unauthorized => true,
-                     :on_enhance_your_calm => true
+                     :on_enhance_your_calm => true,
     )
     allow(EM).to receive(:run).and_yield
     allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
@@ -38,9 +38,9 @@ describe TweetStream::Client do
         :params => {:track => 'monday'},
         :basic => {
           :username => 'tweetstream',
-          :password => 'rubygem'
+          :password => 'rubygem',
         },
-        :proxy => nil
+        :proxy => nil,
       ).and_return(@stream)
 
       @client.track('monday')
@@ -71,9 +71,9 @@ describe TweetStream::Client do
           :consumer_key => '123456789',
           :consumer_secret => 'abcdefghijklmnopqrstuvwxyz',
           :token => '123456789',
-          :token_secret => 'abcdefghijklmnopqrstuvwxyz'
+          :token_secret => 'abcdefghijklmnopqrstuvwxyz',
         },
-        :proxy => nil
+        :proxy => nil,
       ).and_return(@stream)
 
       @client.track('monday')

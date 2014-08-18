@@ -35,8 +35,8 @@ module TweetStream
       options = {
         :error_msg => 'Failed to add user to SiteStream',
         :body => {
-          'user_id' => normalized_user_ids(user_id)
-        }
+          'user_id' => normalized_user_ids(user_id),
+        },
       }
 
       request(:post, add_user_path, options, &block)
@@ -46,8 +46,8 @@ module TweetStream
       options = {
         :error_msg => 'Failed to remove user from SiteStream.',
         :body => {
-          'user_id' => normalized_user_ids(user_id)
-        }
+          'user_id' => normalized_user_ids(user_id),
+        },
       }
 
       request(:post, remove_user_path, options, &block)
@@ -57,8 +57,8 @@ module TweetStream
       options = {
         :error_msg => 'Failed to retrieve SiteStream friends ids.',
         :body => {
-          'user_id' => user_id
-        }
+          'user_id' => user_id,
+        },
       }
       request(:post, friends_ids_path, options, &block)
     end
@@ -78,7 +78,7 @@ module TweetStream
         :consumer_key => consumer_key,
         :consumer_secret => consumer_secret,
         :access_token => oauth_token,
-        :access_token_secret => oauth_token_secret
+        :access_token_secret => oauth_token_secret,
       }
     end
 
@@ -98,7 +98,7 @@ module TweetStream
       @config_uri + '/friends/ids.json'
     end
 
-    def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, ParameterLists
+    def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, ParameterLists, PerceivedComplexity
       error_msg = options.delete(:error_msg)
 
       http = connection.send(method, options.merge(:path => path))
