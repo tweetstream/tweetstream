@@ -12,7 +12,7 @@
 [codeclimate]: https://codeclimate.com/github/tweetstream/tweetstream
 [coveralls]: https://coveralls.io/r/tweetstream/tweetstream
 
-TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-api).
+TweetStream provides simple Ruby access to [Twitter's Streaming API](https://dev.twitter.com/docs/streaming-apis).
 
 ## Installation
 
