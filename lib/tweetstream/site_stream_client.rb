@@ -79,6 +79,7 @@ module TweetStream
         :consumer_secret => consumer_secret,
         :access_token => oauth_token,
         :access_token_secret => oauth_token_secret,
+        :ignore_extra_keys => true,
       }
     end
 
