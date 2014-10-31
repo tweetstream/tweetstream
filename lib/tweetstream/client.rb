@@ -515,7 +515,7 @@ module TweetStream
     def normalize_filter_parameters(query_parameters = {})
       [:follow, :track, :locations].each do |param|
         if query_parameters[param].is_a?(Array)
-          query_parameters[param] = query_parameters[param].flatten.collect { |q| q.to_s }.join(',')
+          query_parameters[param] = query_parameters[param].flatten.collect(&:to_s).join(',')
         elsif query_parameters[param]
           query_parameters[param] = query_parameters[param].to_s
         end

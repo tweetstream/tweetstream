@@ -38,7 +38,6 @@ module TweetStream
           'user_id' => normalized_user_ids(user_id),
         },
       }
-
       request(:post, add_user_path, options, &block)
     end
 
@@ -49,7 +48,6 @@ module TweetStream
           'user_id' => normalized_user_ids(user_id),
         },
       }
-
       request(:post, remove_user_path, options, &block)
     end
 
@@ -67,7 +65,6 @@ module TweetStream
 
     def connection
       return @conn if defined?(@conn)
-
       @conn = EventMachine::HttpRequest.new('https://sitestream.twitter.com/')
       @conn.use EventMachine::Middleware::OAuth, oauth_configuration
       @conn
@@ -101,15 +98,10 @@ module TweetStream
 
     def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, ParameterLists, PerceivedComplexity
       error_msg = options.delete(:error_msg)
-
       http = connection.send(method, options.merge(:path => path))
       http.callback do
         if http.response_header.status == 200 && block && block.is_a?(Proc)
-          if block.arity == 1
-            block.call http.response
-          else
-            block.call
-          end
+          block.arity == 1 ? block.call(http.response) : block.call
         else
           @on_error.call(error_msg) if @on_error && @on_error.is_a?(Proc)
         end

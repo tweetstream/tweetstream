@@ -6,7 +6,7 @@ SimpleCov.formatters = [SimpleCov::Formatter::HTMLFormatter, Coveralls::SimpleCo
 SimpleCov.start do
   add_filter '/vendor/bundle'
   add_filter '/spec'
-  minimum_coverage(97.86)
+  minimum_coverage(97.85)
 end
 
 require 'tweetstream'
