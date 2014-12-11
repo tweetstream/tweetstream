@@ -9,7 +9,6 @@ TweetStream.configure do |config|
 end
 
 EM.run do
-
   client = TweetStream::Client.new
 
   client.on_error do |error|
@@ -35,5 +34,4 @@ EM.run do
     client.control.remove_user(user_id_to_remove)
     client.control.info { |i| puts i.inspect }
   end
-
 end

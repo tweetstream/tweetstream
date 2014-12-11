@@ -7,7 +7,6 @@ describe TweetStream::SiteStreamClient do
 
   describe 'initialization' do
     context 'with module configuration' do
-
       before do
         TweetStream.configure do |config|
           keys.each do |key|
@@ -95,7 +94,6 @@ describe TweetStream::SiteStreamClient do
         end
         expect(called).to be true
       end
-
     end
   end
 
@@ -153,7 +151,6 @@ describe TweetStream::SiteStreamClient do
         client.add_user(1234)
       end
     end
-
   end
 
   describe '#remove_user' do
@@ -240,5 +237,4 @@ describe TweetStream::SiteStreamClient do
       end
     end
   end
-
 end

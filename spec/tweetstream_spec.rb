@@ -1,7 +1,6 @@
 require 'helper'
 
 describe TweetStream do
-
   context 'when delegating to a client' do
     before do
       @stream = double('EM::Twitter::Client',

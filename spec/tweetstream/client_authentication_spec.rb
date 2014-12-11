@@ -79,5 +79,4 @@ describe TweetStream::Client do
       @client.track('monday')
     end
   end
-
 end

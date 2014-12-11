@@ -157,5 +157,4 @@ describe TweetStream::Client do
       end
     end
   end
-
 end
