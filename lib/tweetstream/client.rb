@@ -102,7 +102,15 @@ module TweetStream
     # Query parameters may be passed as the last argument.
     def track(*keywords, &block)
       query = TweetStream::Arguments.new(keywords)
+      puts query.inspect
       filter(query.options.merge(:track => query), &block)
+    end
+
+    # Specify to track by a specific language
+    def language(*lang, &block)
+      query = TweetStream::Arguments.new(lang)
+      puts query.inspect
+      filter(query.options.merge(:lang => lang), &block)
     end
 
     # Returns public statuses from or in reply to a set of users. Mentions
