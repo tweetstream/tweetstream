@@ -180,14 +180,7 @@ client.userstream
 
 ## Authentication
 
-TweetStream supports OAuth and Basic Auth.  `TweetStream::Client` now accepts
-a hash:
-
-```ruby
-TweetStream::Client.new(:username => 'you', :password => 'pass')
-```
-
-Alternatively, you can configure TweetStream via the configure method:
+TweetStream supports OAuth. Basic Auth was phased out on June 11, 2013. You can configure TweetStream via the configure method:
 
 ```ruby
 TweetStream.configure do |config|
@@ -198,21 +191,6 @@ TweetStream.configure do |config|
   config.auth_method        = :oauth
 end
 ```
-
-If you are using Basic Auth:
-
-```ruby
-TweetStream.configure do |config|
-  config.username     = 'username'
-  config.password     = 'password'
-  config.auth_method  = :basic
-end
-```
-
-TweetStream assumes OAuth by default.  If you are using Basic Auth, it is recommended
-that you update your code to use OAuth as Twitter is likely to phase out Basic Auth
-support.  Basic Auth is only available for public streams as User Stream and Site Stream
-functionality [only support OAuth](https://dev.twitter.com/docs/streaming-apis/connecting#Authentication).
 
 ## Parsing JSON
 
