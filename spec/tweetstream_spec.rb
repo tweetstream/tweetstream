@@ -15,6 +15,7 @@ describe TweetStream do
         :on_no_data_received => true,
         :on_unauthorized => true,
         :on_enhance_your_calm => true,
+        :on_close => true,
       )
       allow(EM).to receive(:run).and_yield
       allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)

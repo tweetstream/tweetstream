@@ -25,6 +25,7 @@ describe TweetStream::Client do
         :on_no_data_received => true,
         :on_unauthorized => true,
         :on_enhance_your_calm => true,
+        :on_close => true,
       )
       allow(EM).to receive(:run).and_yield
       allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
@@ -108,6 +109,14 @@ describe TweetStream::Client do
         @client.on_delete do |id, user_id|
           expect(id).to eq(123)
           expect(user_id).to eq(3)
+        end.track('abc')
+      end
+
+      it 'calls the on_close callback' do
+        status = nil
+        expect(@stream).to receive(:each).and_yield(fixture('close.json'))
+        @client.on_close do |s|
+          status = s
         end.track('abc')
       end
 
@@ -324,7 +333,7 @@ describe TweetStream::Client do
     end
   end
 
-  %w(on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm).each do |proc_setter|
+  %w(on_close on_delete on_limit on_inited on_reconnect on_no_data_received on_unauthorized on_enhance_your_calm).each do |proc_setter|
     describe "##{proc_setter}" do
       it 'sets when a block is given' do
         block = proc { |a, _| puts a }
@@ -359,6 +368,13 @@ describe TweetStream::Client do
     end
   end
 
+  describe '#normalize_filter_parameters' do
+    it 'converts non-array values to strings' do
+      query_parameters = {:follow => 123, :track => 234, :locations => [5, 6]}
+      expect(TweetStream::Client.new.send(:normalize_filter_parameters, query_parameters)).to eq(:follow => '123', :track => '234', :locations => '5,6')
+    end
+  end
+
   describe '#stop_stream' do
     before(:each) do
       @stream = double(
@@ -374,6 +390,7 @@ describe TweetStream::Client do
         :on_unauthorized => true,
         :on_enhance_your_calm => true,
         :stop => true,
+        :on_close => true,
       )
       allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
       @client = TweetStream::Client.new

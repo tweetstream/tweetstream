@@ -24,7 +24,8 @@ module TweetStream
   class Client # rubocop:disable ClassLength
     extend Forwardable
 
-    OPTION_CALLBACKS = [:delete,
+    OPTION_CALLBACKS = [:close,
+                        :delete,
                         :scrub_geo,
                         :limit,
                         :error,
@@ -153,6 +154,22 @@ module TweetStream
       )
       query_params.merge!(:with => 'followings') if query_params.delete(:followings)
       start('/1.1/site.json', query_params, &block)
+    end
+
+    # Set a Proc to be run when Twitter connection is closed. Tied to the
+    # "close_callback" and "on_close" method in the em-twitter gem's client.rb,
+    # plus to "unbind" method in its connection.rb. For example:
+    #
+    #     @client = TweetStream::Client.new
+    #     @client.on_close do
+    #       puts 'Connection closed'
+    #     end
+    #
+    # If no block is given, it will return the currently set
+    # unauthorized proc. When a block is given, the TweetStream::Client
+    # object is returned to allow for chaining.
+    def on_close(&block)
+      on('close', &block)
     end
 
     # Set a Proc to be run when a deletion notice is received
@@ -429,17 +446,15 @@ module TweetStream
         yield_message_to(callbacks['anything'], hash)
       end
 
+      @stream.on_close { invoke_callback(callbacks['close']) }
+
       @stream.on_error do |message|
         invoke_callback(callbacks['error'], message)
       end
 
-      @stream.on_unauthorized do
-        invoke_callback(callbacks['unauthorized'])
-      end
+      @stream.on_unauthorized { invoke_callback(callbacks['unauthorized']) }
 
-      @stream.on_enhance_your_calm do
-        invoke_callback(callbacks['enhance_your_calm'])
-      end
+      @stream.on_enhance_your_calm { invoke_callback(callbacks['enhance_your_calm']) }
 
       @stream.on_reconnect do |timeout, retries|
         invoke_callback(callbacks['reconnect'], timeout, retries)
@@ -449,9 +464,7 @@ module TweetStream
         fail TweetStream::ReconnectError.new(timeout, retries)
       end
 
-      @stream.on_no_data_received do
-        invoke_callback(callbacks['no_data_received'])
-      end
+      @stream.on_no_data_received { invoke_callback(callbacks['no_data_received']) }
 
       @stream
     end
