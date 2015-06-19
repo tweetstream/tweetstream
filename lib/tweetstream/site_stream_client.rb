@@ -96,7 +96,7 @@ module TweetStream
       @config_uri + '/friends/ids.json'
     end
 
-    def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, ParameterLists, PerceivedComplexity
+    def request(method, path, options, &block) # rubocop:disable CyclomaticComplexity, PerceivedComplexity
       error_msg = options.delete(:error_msg)
       http = connection.send(method, options.merge(:path => path))
       http.callback do

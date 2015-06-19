@@ -472,7 +472,7 @@ module TweetStream
     end
 
     def controllable?
-      !!@control # rubocop:disable DoubleNegation
+      !!@control
     end
 
   protected
@@ -568,7 +568,7 @@ module TweetStream
         callbacks.merge(callback.to_s => options.delete(callback)) if options[callback]
       end
 
-      inited_proc             = options.delete(:inited)                  || @callbacks['inited']
+      inited_proc             = options.delete(:inited) || @callbacks['inited']
       extra_stream_parameters = options.delete(:extra_stream_parameters) || {}
 
       stream_params = {
@@ -584,7 +584,7 @@ module TweetStream
     end
 
     def warn_if_callbacks(options = {})
-      Kernel.warn('Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0') if OPTION_CALLBACKS.select { |callback| options[callback] }.size > 0
+      Kernel.warn('Passing callbacks via the options hash is deprecated and will be removed in TweetStream 3.0') if OPTION_CALLBACKS.count { |callback| options[callback] } > 0
     end
   end
 end

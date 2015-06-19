@@ -10,17 +10,18 @@ describe TweetStream::Client do
     end
     @client = TweetStream::Client.new
 
-    @stream = double('EM::Twitter::Client',
-                     :connect => true,
-                     :unbind => true,
-                     :each => true,
-                     :on_error => true,
-                     :on_max_reconnects => true,
-                     :on_reconnect => true,
-                     :connection_completed => true,
-                     :on_no_data_received => true,
-                     :on_unauthorized => true,
-                     :on_enhance_your_calm => true,
+    @stream = double(
+      'EM::Twitter::Client',
+      :connect => true,
+      :unbind => true,
+      :each => true,
+      :on_error => true,
+      :on_max_reconnects => true,
+      :on_reconnect => true,
+      :connection_completed => true,
+      :on_no_data_received => true,
+      :on_unauthorized => true,
+      :on_enhance_your_calm => true,
     )
     allow(EM).to receive(:run).and_yield
     allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
