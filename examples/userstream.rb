@@ -18,7 +18,7 @@ client.on_direct_message do |direct_message|
   puts direct_message.text
 end
 
-client.on_timeline_status  do |status|
+client.on_timeline_status do |status|
   puts status.text
 end
 

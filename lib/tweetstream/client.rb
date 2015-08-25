@@ -414,8 +414,13 @@ module TweetStream
       if EventMachine.reactor_running?
         connect(path, query_parameters, &block)
       else
-        EventMachine.epoll
-        EventMachine.kqueue
+        if EventMachine.epoll?
+          EventMachine.epoll
+        elsif EventMachine.kqueue?
+          EventMachine.kqueue
+        else
+          Kernel.warn('Your OS does not support epoll or kqueue.')
+        end
 
         EventMachine.run do
           connect(path, query_parameters, &block)
