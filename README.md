@@ -303,6 +303,17 @@ end.track('term') do |status|
 end
 ```
 
+You can also know when there is an error with the authentication with
+`on_unauthorized`:
+
+```ruby
+TweetStream::Client.new.on_unauthorized do
+  # Alert about this
+end.track('term') do |status|
+  # Do things when nothing's wrong
+end
+```
+
 ## Terminating a TweetStream
 
 It is often the case that you will need to change the parameters of your
