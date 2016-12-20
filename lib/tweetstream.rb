@@ -1,8 +1,12 @@
-require 'tweetstream/configuration'
-require 'tweetstream/client'
-require 'tweetstream/daemon'
+require 'tweetstream/version'
 
 module TweetStream
+  autoload :Client, 'tweetstream/client'
+  autoload :Daemon, 'tweetstream/daemon'
+  autoload :Arguments, 'tweetstream/arguments'
+  autoload :Configuration, 'tweetstream/configuration'
+  autoload :SiteStreamClient, 'tweetstream/site_stream_client'
+
   extend Configuration
 
   class ReconnectError < StandardError

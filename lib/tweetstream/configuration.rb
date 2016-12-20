@@ -1,5 +1,3 @@
-require 'tweetstream/version'
-
 module TweetStream
   # Defines constants and methods related to configuration
   module Configuration
