@@ -65,8 +65,7 @@ describe TweetStream::Client do
           @control_response = {'control' =>
             {
               'control_uri' => '/1.1/site/c/01_225167_334389048B872A533002B34D73F8C29FD09EFC50',
-            },
-          }
+            }}
         end
         it 'assigns the control_uri' do
           expect(@stream).to receive(:each).and_yield(@control_response.to_json)

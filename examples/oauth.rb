@@ -15,5 +15,5 @@ client.on_error do |message|
 end
 
 client.track('yankees') do |status|
-  puts "#{status.text}"
+  puts status.text.to_s
 end

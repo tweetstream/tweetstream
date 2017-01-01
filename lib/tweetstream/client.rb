@@ -24,21 +24,23 @@ module TweetStream
   class Client # rubocop:disable ClassLength
     extend Forwardable
 
-    OPTION_CALLBACKS = [:close,
-                        :delete,
-                        :scrub_geo,
-                        :limit,
-                        :error,
-                        :enhance_your_calm,
-                        :unauthorized,
-                        :reconnect,
-                        :inited,
-                        :direct_message,
-                        :timeline_status,
-                        :anything,
-                        :no_data_received,
-                        :status_withheld,
-                        :user_withheld].freeze unless defined?(OPTION_CALLBACKS)
+    unless defined?(OPTION_CALLBACKS)
+      OPTION_CALLBACKS = [:close,
+                          :delete,
+                          :scrub_geo,
+                          :limit,
+                          :error,
+                          :enhance_your_calm,
+                          :unauthorized,
+                          :reconnect,
+                          :inited,
+                          :direct_message,
+                          :timeline_status,
+                          :anything,
+                          :no_data_received,
+                          :status_withheld,
+                          :user_withheld].freeze
+    end
 
     # @private
     attr_accessor(*Configuration::VALID_OPTIONS_KEYS)
@@ -140,7 +142,7 @@ module TweetStream
     # Make a call to the userstream api for currently authenticated user
     def userstream(query_params = {}, &block)
       stream_params = {:host => 'userstream.twitter.com'}
-      query_params.merge!(:extra_stream_parameters => stream_params)
+      query_params[:extra_stream_parameters] = stream_params
       start('/1.1/user.json', query_params, &block)
     end
 
@@ -152,7 +154,7 @@ module TweetStream
         :follow                  => user_ids,
         :extra_stream_parameters => stream_params,
       )
-      query_params.merge!(:with => 'followings') if query_params.delete(:followings)
+      query_params[:with] = 'followings' if query_params.delete(:followings)
       start('/1.1/site.json', query_params, &block)
     end
 
@@ -466,7 +468,7 @@ module TweetStream
       end
 
       @stream.on_max_reconnects do |timeout, retries|
-        fail TweetStream::ReconnectError.new(timeout, retries)
+        raise TweetStream::ReconnectError.new(timeout, retries)
       end
 
       @stream.on_no_data_received { invoke_callback(callbacks['no_data_received']) }
