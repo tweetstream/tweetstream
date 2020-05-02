@@ -32,7 +32,7 @@ require 'daemons'
 module TweetStream
   class Daemon < TweetStream::Client
     DEFAULT_NAME = 'tweetstream'.freeze
-    DEFAULT_OPTIONS = {:multiple => true}
+    DEFAULT_OPTIONS = {:multiple => true}.freeze
 
     attr_accessor :app_name, :daemon_options
 

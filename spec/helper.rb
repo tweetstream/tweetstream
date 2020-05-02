@@ -54,9 +54,7 @@ def fixture(file)
 end
 
 FakeHttp = Class.new do
-  def callback
-  end
+  def callback; end
 
-  def errback
-  end
+  def errback; end
 end

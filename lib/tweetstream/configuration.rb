@@ -14,13 +14,15 @@ module TweetStream
       :consumer_key,
       :consumer_secret,
       :oauth_token,
-      :oauth_token_secret].freeze
+      :oauth_token_secret,
+    ].freeze
 
     OAUTH_OPTIONS_KEYS = [
       :consumer_key,
       :consumer_secret,
       :oauth_token,
-      :oauth_token_secret].freeze
+      :oauth_token_secret,
+    ].freeze
 
     # By default, don't set a username
     DEFAULT_USERNAME = nil
@@ -38,7 +40,8 @@ module TweetStream
 
     VALID_FORMATS = [
       :basic,
-      :oauth].freeze
+      :oauth,
+    ].freeze
 
     # By default, don't set an application key
     DEFAULT_CONSUMER_KEY = nil

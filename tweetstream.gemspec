@@ -17,12 +17,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'daemons', '~> 1.1'
   spec.add_dependency 'em-http-request', '>= 1.1.1'
   spec.add_dependency 'em-twitter', '~> 0.3'
-  spec.add_dependency 'twitter', '~> 5.12'
+  spec.add_dependency 'twitter', '~> 6.0'
   spec.add_dependency 'multi_json', '~> 1.3'
   spec.add_development_dependency 'bundler', '~> 1.0'
 
   spec.files = %w(.yardopts CHANGELOG.md CONTRIBUTING.md LICENSE.md README.md tweetstream.gemspec) + Dir['lib/**/*.rb']
 
   spec.require_paths = ['lib']
-  spec.required_ruby_version = '>= 1.9.3'
+  spec.required_ruby_version = '>= 2.1.0'
 end

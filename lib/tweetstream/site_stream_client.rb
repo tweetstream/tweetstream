@@ -101,9 +101,9 @@ module TweetStream
       http = connection.send(method, options.merge(:path => path))
       http.callback do
         if http.response_header.status == 200 && block && block.is_a?(Proc)
-          block.arity == 1 ? block.call(http.response) : block.call
-        else
-          @on_error.call(error_msg) if @on_error && @on_error.is_a?(Proc)
+          block.arity == 1 ? yield(http.response) : yield
+        elsif @on_error && @on_error.is_a?(Proc)
+          @on_error.call(error_msg)
         end
       end
       http.errback do
