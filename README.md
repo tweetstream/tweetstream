@@ -52,7 +52,7 @@ TweetStream::Client.new.track('term1', 'term2') do |status|
 end
 
 # Use 'follow' to follow a group of user ids (integers, not screen names)
-TweetStream::Client.new.follow(14252, 53235) do |status|
+TweetStream::Client.new.follow([14252, 53235]) do |status|
   puts "#{status.text}"
 end
 ```
