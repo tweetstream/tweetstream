@@ -370,6 +370,39 @@ daemon.track('term1') do |tweet|
 end
 ```
 
+### using Mongoid and dynamically changing track and follow params
+
+```ruby
+ENV["RAILS_ENV"] ||= "production"
+
+root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+require File.join(root, "config", "environment")
+
+daemon = TweetStream::Daemon.new('twitter_stream', log_output: true, log_dir: "#{root}/log/")
+
+orig_follow = TwitterUser.for_stream.join(',')
+orig_track =  TwitterHashtag.for_stream.join(',')
+
+daemon.on_inited do
+  timer = EM::PeriodicTimer.new(20) do
+    Mongoid.logger = Moped.logger = Logger.new(File.join(root, "log", "twitter_stream_mongoid.log"))
+
+    follow = TwitterUser.for_stream.join(',')
+    track =  TwitterHashtag.for_stream.join(',')
+
+    if track != orig_track || follow != orig_follow
+      daemon.stream.update(params: { follow: follow, track: track })
+      orig_track = track
+      orig_follow = follow
+    end
+  end
+end
+
+daemon.filter(follow: orig_follow, track: orig_track) do |status|
+  #do something with statuses
+end
+```
+
 ## Proxy Support
 
 TweetStream supports a configurable proxy:
