@@ -14,7 +14,11 @@ module TweetStream
       :consumer_key,
       :consumer_secret,
       :oauth_token,
-      :oauth_token_secret].freeze
+      :oauth_token_secret,
+      :private_key_file,
+      :cert_chain_file,
+      :verify_peer
+    ].freeze
 
     OAUTH_OPTIONS_KEYS = [
       :consumer_key,
@@ -52,6 +56,15 @@ module TweetStream
     # By default, don't set a user oauth secret
     DEFAULT_OAUTH_TOKEN_SECRET = nil
 
+    # By default, don't set a private key file
+    DEFAULT_PRIVATE_KEY_FILE = nil
+
+    # By default, don't set a certificate chain file
+    DEFAULT_CERT_CHAIN_FILE = nil
+
+    # By default, don't verify the peer host
+    DEFAULT_VERIFY_PEER = false
+
     # @private
     attr_accessor(*VALID_OPTIONS_KEYS)
 
@@ -86,6 +99,9 @@ module TweetStream
       self.consumer_secret    = DEFAULT_CONSUMER_SECRET
       self.oauth_token        = DEFAULT_OAUTH_TOKEN
       self.oauth_token_secret = DEFAULT_OAUTH_TOKEN_SECRET
+      self.private_key_file   = DEFAULT_PRIVATE_KEY_FILE
+      self.cert_chain_file    = DEFAULT_CERT_CHAIN_FILE
+      self.verify_peer        = DEFAULT_VERIFY_PEER
       self
     end
   end

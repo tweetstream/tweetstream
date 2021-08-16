@@ -561,6 +561,18 @@ module TweetStream
       end
     end
 
+    def ssl_params
+      return {} unless verify_peer
+
+      {
+        ssl: {
+          verify_peer: verify_peer,
+          cert_chain_file: cert_chain_file,
+          private_key_file: private_key_file
+        }
+      }
+    end
+
     # A utility method used to invoke callback methods against the Client
     def invoke_callback(callback, *args)
       callback.call(*args) if callback
@@ -596,7 +608,7 @@ module TweetStream
         :on_inited  => inited_proc,
         :params     => normalize_filter_parameters(options),
         :proxy      => proxy,
-      }.merge(extra_stream_parameters).merge(auth_params)
+      }.merge(extra_stream_parameters).merge(auth_params).merge(ssl_params)
 
       [stream_params, callbacks]
     end

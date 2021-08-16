@@ -20,6 +20,8 @@ describe TweetStream::Client do
     allow(EM::Twitter::Client).to receive(:connect).and_return(@stream)
   end
 
+  after { TweetStream.reset }
+
   describe 'basic auth' do
     before do
       TweetStream.configure do |config|
@@ -77,6 +79,30 @@ describe TweetStream::Client do
         },
         :proxy => nil,
       ).and_return(@stream)
+
+      @client.track('monday')
+    end
+  end
+
+  describe 'ssl' do
+    before do
+      TweetStream.configure do |config|
+        config.verify_peer = true
+        config.private_key_file = '/path/to/key.pem'
+        config.cert_chain_file = '/path/to/cert.pem'
+      end
+
+      @client = TweetStream::Client.new
+    end
+
+    it 'uses SSL' do
+      expect(EM::Twitter::Client).to receive(:connect).with(hash_including(
+        ssl: {
+          verify_peer: true,
+          private_key_file: '/path/to/key.pem',
+          cert_chain_file: '/path/to/cert.pem'
+        }
+      ))
 
       @client.track('monday')
     end
