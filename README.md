@@ -31,6 +31,11 @@ TweetStream.configure do |config|
   config.oauth_token        = 'abcdefghijklmnopqrstuvwxyz'
   config.oauth_token_secret = '0123456789'
   config.auth_method        = :oauth
+
+  # optionally enable SSL verification (recommended for production use)
+  config.verify_peer = true
+  config.private_key_file = '/path/to/key.pem'
+  config.cert_chain_file = '/path/to/cert.pem'
 end
 
 # This will pull a sample of all tweets based on
